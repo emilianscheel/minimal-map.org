@@ -81,11 +81,18 @@ export interface AdminStats {
 	tags: number;
 }
 
+export interface LocationsAdminConfig {
+	nonce: string;
+	restBase: string;
+	restPath: string;
+}
+
 export interface AdminAppConfig {
 	currentView: AdminSectionView;
 	sections: AdminSection[];
 	stats: AdminStats;
 	mapConfig: MapRuntimeConfig;
+	locationsConfig: LocationsAdminConfig;
 }
 
 export type DashboardCardView = Extract<
@@ -111,3 +118,26 @@ export interface WordPressZoomControlLabels {
 export interface WordPressZoomControls {
 	destroy: () => void;
 }
+
+export interface LocationMeta {
+	telephone: string;
+	email: string;
+	website: string;
+	street: string;
+	house_number: string;
+	postal_code: string;
+	city: string;
+	state: string;
+	country: string;
+}
+
+export interface LocationRecord extends LocationMeta {
+	id: number;
+	title: string;
+}
+
+export interface LocationFormState extends LocationMeta {
+	title: string;
+}
+
+export type LocationDialogStep = 'details' | 'address';

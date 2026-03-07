@@ -1,3 +1,5 @@
+@import "@wordpress/dataviews/build-style/style.css";
+
 body.toplevel_page_minimal-map {
   #wpbody-content {
     min-height: calc(100vh - 32px);
@@ -127,6 +129,25 @@ body.toplevel_page_minimal-map {
   border-bottom: 1px solid #dcdcde;
 }
 
+.minimal-map-admin__header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.minimal-map-admin__header-copy {
+  min-width: 0;
+}
+
+.minimal-map-admin__header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
 .minimal-map-admin__header-title {
   margin: 0;
   font-size: 1.125rem;
@@ -252,6 +273,72 @@ body.toplevel_page_minimal-map {
   min-height: 1px;
 }
 
+.minimal-map-admin__locations-notice {
+  margin: 0 0 20px;
+}
+
+.minimal-map-admin__locations-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+.minimal-map-admin__locations-empty {
+  padding-top: 32px;
+}
+
+.minimal-map-admin__locations-empty h3 {
+  margin: 0 0 10px;
+  font-size: 1.125rem;
+  line-height: 1.2;
+}
+
+.minimal-map-admin__locations-empty p {
+  margin: 0;
+  color: #646970;
+  line-height: 1.5;
+}
+
+.minimal-map-admin__locations-table-wrap {
+  --wp-dataviews-color-background: #fff;
+}
+
+.minimal-map-admin__locations-dataviews-layout {
+  width: 100%;
+}
+
+.minimal-map-admin__location-dialog {
+  display: grid;
+  gap: 16px;
+  min-width: min(720px, calc(100vw - 64px));
+}
+
+.minimal-map-admin__location-dialog-fields {
+  display: grid;
+  gap: 14px;
+}
+
+.minimal-map-admin__location-dialog-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.minimal-map-admin__location-dialog-grid--row-one {
+  grid-template-columns: minmax(0, 2fr) minmax(140px, 0.7fr);
+}
+
+.minimal-map-admin__location-dialog-grid--row-two,
+.minimal-map-admin__location-dialog-grid--row-three {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.minimal-map-admin__location-dialog-back {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 4px;
+}
+
 @media (max-width: 960px) {
   .minimal-map-admin-wrap {
     margin-left: 0;
@@ -269,6 +356,16 @@ body.toplevel_page_minimal-map {
   .minimal-map-admin__nav {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
+
+  .minimal-map-admin__header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .minimal-map-admin__header-actions {
+    justify-content: flex-start;
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 782px) {
@@ -282,5 +379,15 @@ body.toplevel_page_minimal-map {
 
   .minimal-map-admin__app {
     min-height: calc(100vh - 66px);
+  }
+
+  .minimal-map-admin__location-dialog {
+    min-width: auto;
+  }
+
+  .minimal-map-admin__location-dialog-grid--row-one,
+  .minimal-map-admin__location-dialog-grid--row-two,
+  .minimal-map-admin__location-dialog-grid--row-three {
+    grid-template-columns: 1fr;
   }
 }

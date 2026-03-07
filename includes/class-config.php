@@ -7,6 +7,8 @@
 
 namespace MinimalMap;
 
+use MinimalMap\Locations\Location_Post_Type;
+
 /**
  * Provides shared config for PHP and JS consumers.
  */
@@ -133,15 +135,20 @@ class Config {
 		}
 
 		return array(
-			'currentView' => Admin\Admin_Menu::get_current_view(),
-			'sections'    => $sections,
-			'stats'       => array(
-				'locations'  => 0,
+			'currentView'    => Admin\Admin_Menu::get_current_view(),
+			'sections'       => $sections,
+			'stats'          => array(
+				'locations'  => Location_Post_Type::get_location_count(),
 				'categories' => 0,
 				'markers'    => 0,
 				'tags'       => 0,
 			),
-			'mapConfig'   => $this->get_client_config(),
+			'mapConfig'      => $this->get_client_config(),
+			'locationsConfig' => array(
+				'nonce'    => wp_create_nonce( 'wp_rest' ),
+				'restBase' => Location_Post_Type::REST_BASE,
+				'restPath' => Location_Post_Type::get_rest_path(),
+			),
 		);
 	}
 

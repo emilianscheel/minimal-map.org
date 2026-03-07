@@ -12,6 +12,11 @@ namespace MinimalMap\Admin;
  */
 class Admin_Menu {
 	/**
+	 * Capability required for the plugin admin UI.
+	 */
+	const CAPABILITY = 'manage_options';
+
+	/**
 	 * Top-level menu slug.
 	 */
 	const TOP_LEVEL_SLUG = 'minimal-map';
@@ -108,7 +113,7 @@ class Admin_Menu {
 		add_menu_page(
 			__( 'Minimal Map', 'minimal-map' ),
 			__( 'Minimal Map', 'minimal-map' ),
-			'manage_options',
+			self::CAPABILITY,
 			self::TOP_LEVEL_SLUG,
 			array( $this, 'render_page' ),
 			'dashicons-admin-site',

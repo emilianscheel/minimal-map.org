@@ -2,6 +2,7 @@ import { Button, Card, CardBody } from '@wordpress/components';
 import domReady from '@wordpress/dom-ready';
 import { createRoot, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import type { ReactNode } from 'react';
 import {
 	Download,
 	FileUp,
@@ -14,6 +15,7 @@ import {
 	Tags,
 	type LucideIcon,
 } from 'lucide-react';
+import LocationsView, { useLocationsController } from './locations';
 import { createMinimalMap } from '../map/bootstrap';
 import type {
 	AdminAppConfig,
@@ -34,6 +36,11 @@ const DEFAULT_ADMIN_CONFIG: AdminAppConfig = {
 		categories: 0,
 		markers: 0,
 		tags: 0,
+	},
+	locationsConfig: {
+		nonce: '',
+		restBase: '',
+		restPath: '',
 	},
 	mapConfig: {},
 };
@@ -123,11 +130,24 @@ function AdminSidebar({ currentView }: { currentView: AdminSectionView }) {
 	);
 }
 
-function ContentHeader({ title, description }: { title: string; description: string }) {
+function ContentHeader({
+	actions,
+	description,
+	title,
+}: {
+	actions?: ReactNode;
+	description: string;
+	title: string;
+}) {
 	return (
 		<header className="minimal-map-admin__header">
-			<h2 className="minimal-map-admin__header-title">{title}</h2>
-			<p className="minimal-map-admin__header-description">{description}</p>
+			<div className="minimal-map-admin__header-row">
+				<div className="minimal-map-admin__header-copy">
+					<h2 className="minimal-map-admin__header-title">{title}</h2>
+					<p className="minimal-map-admin__header-description">{description}</p>
+				</div>
+				{actions ? <div className="minimal-map-admin__header-actions">{actions}</div> : null}
+			</div>
 		</header>
 	);
 }
@@ -223,12 +243,20 @@ function getActiveSection(currentView: AdminSectionView): AdminSection {
 function App({ currentView }: { currentView: AdminSectionView }) {
 	const sectionMap = getSectionMap();
 	const activeSection = getActiveSection(currentView);
+	const locationsController = useLocationsController(
+		adminConfig.locationsConfig,
+		activeSection.view === 'locations'
+	);
 
 	return (
 		<div className="minimal-map-admin__app">
 			<AdminSidebar currentView={activeSection.view} />
 			<div className="minimal-map-admin__panel">
-				<ContentHeader title={activeSection.title} description={activeSection.description} />
+				<ContentHeader
+					title={activeSection.title}
+					description={activeSection.description}
+					actions={activeSection.view === 'locations' ? locationsController.headerAction : undefined}
+				/>
 				<div
 					className={[
 						'minimal-map-admin__content',
@@ -237,6 +265,8 @@ function App({ currentView }: { currentView: AdminSectionView }) {
 				>
 					{activeSection.view === 'dashboard' ? (
 						<Dashboard sectionMap={sectionMap} />
+					) : activeSection.view === 'locations' ? (
+						<LocationsView controller={locationsController} />
 					) : (
 						<PlaceholderView title={activeSection.title} />
 					)}

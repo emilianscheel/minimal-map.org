@@ -9,6 +9,7 @@ namespace MinimalMap;
 
 use MinimalMap\Admin\Admin_Menu;
 use MinimalMap\Blocks\Map_Block;
+use MinimalMap\Locations\Location_Post_Type;
 
 /**
  * Boots the plugin services.
@@ -43,6 +44,13 @@ final class Plugin {
 	private $admin_menu;
 
 	/**
+	 * Locations content model service.
+	 *
+	 * @var Location_Post_Type
+	 */
+	private $location_post_type;
+
+	/**
 	 * Boot the plugin.
 	 *
 	 * @return Plugin
@@ -59,11 +67,12 @@ final class Plugin {
 	 * Constructor.
 	 */
 	private function __construct() {
-		$config         = new Config();
-		$this->assets   = new Assets( $config );
-		$map_view       = new Map_View( $config );
-		$this->map_block = new Map_Block( $map_view );
-		$this->admin_menu = new Admin_Menu();
+		$config                   = new Config();
+		$this->assets             = new Assets( $config );
+		$map_view                 = new Map_View( $config );
+		$this->map_block          = new Map_Block( $map_view );
+		$this->admin_menu         = new Admin_Menu();
+		$this->location_post_type = new Location_Post_Type();
 
 		$this->register_hooks();
 	}
@@ -74,6 +83,7 @@ final class Plugin {
 	 * @return void
 	 */
 	private function register_hooks() {
+		add_action( 'init', array( $this->location_post_type, 'register' ), 5 );
 		add_action( 'init', array( $this->assets, 'register' ) );
 		add_action( 'init', array( $this->map_block, 'register' ) );
 		add_action( 'admin_menu', array( $this->admin_menu, 'register' ) );
