@@ -9,6 +9,7 @@ namespace MinimalMap;
 
 use MinimalMap\Admin\Admin_Menu;
 use MinimalMap\Blocks\Map_Block;
+use MinimalMap\Collections\Collection_Post_Type;
 use MinimalMap\Locations\Location_Post_Type;
 use MinimalMap\Rest\Geocode_Route;
 
@@ -43,6 +44,13 @@ final class Plugin {
 	 * @var Admin_Menu
 	 */
 	private $admin_menu;
+
+	/**
+	 * Collections content model service.
+	 *
+	 * @var Collection_Post_Type
+	 */
+	private $collection_post_type;
 
 	/**
 	 * Locations content model service.
@@ -80,6 +88,7 @@ final class Plugin {
 		$map_view                 = new Map_View( $config );
 		$this->map_block          = new Map_Block( $map_view );
 		$this->admin_menu         = new Admin_Menu();
+		$this->collection_post_type = new Collection_Post_Type();
 		$this->location_post_type = new Location_Post_Type();
 		$this->geocode_route      = new Geocode_Route();
 
@@ -92,6 +101,7 @@ final class Plugin {
 	 * @return void
 	 */
 	private function register_hooks() {
+		add_action( 'init', array( $this->collection_post_type, 'register' ), 5 );
 		add_action( 'init', array( $this->location_post_type, 'register' ), 5 );
 		add_action( 'init', array( $this->assets, 'register' ) );
 		add_action( 'init', array( $this->map_block, 'register' ) );

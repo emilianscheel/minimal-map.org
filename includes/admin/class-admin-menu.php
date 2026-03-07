@@ -41,6 +41,10 @@ class Admin_Menu {
 				'title'       => __( 'Locations', 'minimal-map' ),
 				'description' => __( 'Create and organize the places you want to render on your maps.', 'minimal-map' ),
 			),
+			'collections' => array(
+				'title'       => __( 'Collections', 'minimal-map' ),
+				'description' => __( 'Assemble reusable groups of locations and manage their map-ready assignments.', 'minimal-map' ),
+			),
 			'categories' => array(
 				'title'       => __( 'Categories', 'minimal-map' ),
 				'description' => __( 'Group locations into reusable category collections for future filtering.', 'minimal-map' ),

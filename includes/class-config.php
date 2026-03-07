@@ -7,6 +7,7 @@
 
 namespace MinimalMap;
 
+use MinimalMap\Collections\Collection_Post_Type;
 use MinimalMap\Locations\Location_Post_Type;
 use MinimalMap\Rest\Geocode_Route;
 use WP_Post;
@@ -214,10 +215,11 @@ class Config {
 			'currentView'    => Admin\Admin_Menu::get_current_view(),
 			'sections'       => $sections,
 			'stats'          => array(
-				'locations'  => Location_Post_Type::get_location_count(),
-				'categories' => 0,
-				'markers'    => 0,
-				'tags'       => 0,
+				'locations'   => Location_Post_Type::get_location_count(),
+				'collections' => Collection_Post_Type::get_collection_count(),
+				'categories'  => 0,
+				'markers'     => 0,
+				'tags'        => 0,
 			),
 			'mapConfig'      => $this->get_client_config(),
 			'locationsConfig' => array(
@@ -225,6 +227,11 @@ class Config {
 				'restBase'    => Location_Post_Type::REST_BASE,
 				'restPath'    => Location_Post_Type::get_rest_path(),
 				'geocodePath' => Geocode_Route::get_rest_path(),
+			),
+			'collectionsConfig' => array(
+				'nonce'    => wp_create_nonce( 'wp_rest' ),
+				'restBase' => Collection_Post_Type::REST_BASE,
+				'restPath' => Collection_Post_Type::get_rest_path(),
 			),
 		);
 	}

@@ -113,6 +113,7 @@ export interface MinimalMapInstance {
 export type AdminSectionView =
 	| 'dashboard'
 	| 'locations'
+	| 'collections'
 	| 'categories'
 	| 'tags'
 	| 'markers'
@@ -130,6 +131,7 @@ export interface AdminSection {
 
 export interface AdminStats {
 	locations: number;
+	collections: number;
 	categories: number;
 	markers: number;
 	tags: number;
@@ -142,6 +144,12 @@ export interface LocationsAdminConfig {
 	geocodePath: string;
 }
 
+export interface CollectionsAdminConfig {
+	nonce: string;
+	restBase: string;
+	restPath: string;
+}
+
 export interface LocationRestResponse {
 	id: number;
 	title?: {
@@ -151,17 +159,31 @@ export interface LocationRestResponse {
 	meta?: Partial<LocationMeta>;
 }
 
+export interface CollectionMeta {
+	location_ids: number[];
+}
+
+export interface CollectionRestResponse {
+	id: number;
+	title?: {
+		raw?: string;
+		rendered?: string;
+	};
+	meta?: Partial<CollectionMeta>;
+}
+
 export interface AdminAppConfig {
 	currentView: AdminSectionView;
 	sections: AdminSection[];
 	stats: AdminStats;
 	mapConfig: MapRuntimeConfig;
 	locationsConfig: LocationsAdminConfig;
+	collectionsConfig: CollectionsAdminConfig;
 }
 
 export type DashboardCardView = Extract<
 	AdminSectionView,
-	'locations' | 'categories' | 'markers' | 'tags'
+	'locations' | 'collections' | 'categories' | 'markers' | 'tags'
 >;
 
 export interface MapBlockAttributes {
@@ -210,6 +232,17 @@ export interface LocationRecord extends LocationMeta {
 	id: number;
 	title: string;
 }
+
+export interface CollectionRecord extends CollectionMeta {
+	id: number;
+	title: string;
+}
+
+export interface CollectionFormState {
+	title: string;
+}
+
+export type CollectionFormMode = 'create' | 'edit';
 
 export interface LocationFormState extends LocationMeta {
 	title: string;

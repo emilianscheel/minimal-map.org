@@ -177,6 +177,7 @@ body.toplevel_page_minimal-map svg.lucide {
 .minimal-map-admin__content {
   padding: 28px 34px 32px;
   background: #fff;
+  min-width: 0;
 }
 
 .minimal-map-admin__content--dashboard {
@@ -289,7 +290,18 @@ body.toplevel_page_minimal-map svg.lucide {
   margin: 0 0 20px;
 }
 
+.minimal-map-admin__collections-notice {
+  margin: 0 0 20px;
+}
+
 .minimal-map-admin__locations-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+.minimal-map-admin__collections-state {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -300,7 +312,17 @@ body.toplevel_page_minimal-map svg.lucide {
   padding-top: 32px;
 }
 
+.minimal-map-admin__collections-empty {
+  padding-top: 32px;
+}
+
 .minimal-map-admin__locations-empty h3 {
+  margin: 0 0 10px;
+  font-size: 1.125rem;
+  line-height: 1.2;
+}
+
+.minimal-map-admin__collections-empty h3 {
   margin: 0 0 10px;
   font-size: 1.125rem;
   line-height: 1.2;
@@ -312,12 +334,119 @@ body.toplevel_page_minimal-map svg.lucide {
   line-height: 1.5;
 }
 
+.minimal-map-admin__collections-empty p {
+  margin: 0;
+  color: #646970;
+  line-height: 1.5;
+}
+
 .minimal-map-admin__locations-table-wrap {
   --wp-dataviews-color-background: #fff;
 }
 
+.minimal-map-admin__collections-grid-wrap {
+  --wp-dataviews-color-background: #fff;
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-wrapper,
+.minimal-map-admin__collections-grid-wrap .dataviews-layouts,
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid,
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__row,
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__row__gridcell {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid {
+  box-sizing: border-box;
+  padding: 0 0 24px;
+}
+
 .minimal-map-admin__locations-dataviews-layout {
   width: 100%;
+}
+
+.minimal-map-admin__collections-grid-layout {
+  width: 100%;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__row {
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__card {
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__media {
+  padding: 0;
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 220px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__media > * {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__title {
+  box-sizing: border-box;
+  padding: 18px 18px 12px;
+  width: 100%;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__title-field {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__fields {
+  box-sizing: border-box;
+  padding: 0 18px 18px;
+  width: 100%;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__field {
+  margin: 0;
+  width: 100%;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__field-name {
+  display: none;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__field-value {
+  max-width: none;
+  width: 100%;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__fields .dataviews-view-grid__field .dataviews-view-grid__field-value {
+  width: 100%;
+}
+
+.minimal-map-admin__collections-grid-wrap .dataviews-view-grid__field-value > * {
+  width: 100%;
+}
+
+.minimal-map-admin__collection-grid-button.components-button {
+  box-sizing: border-box;
+  width: 100%;
+  justify-content: center;
 }
 
 .minimal-map-admin__locations-table-wrap table th:first-child,
@@ -380,6 +509,59 @@ body.toplevel_page_minimal-map svg.lucide {
   vector-effect: non-scaling-stroke;
 }
 
+.minimal-map-admin__collection-mini-map {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  min-height: 220px;
+  border-radius: 0;
+  overflow: hidden;
+  background: #f0f0f1;
+  box-sizing: border-box;
+  display: block;
+  position: relative;
+}
+
+.minimal-map-admin__collection-mini-map .minimal-map-runtime,
+.minimal-map-admin__collection-mini-map .minimal-map-runtime__viewport,
+.minimal-map-admin__collection-mini-map .maplibregl-map,
+.minimal-map-admin__collection-mini-map .maplibregl-canvas-container,
+.minimal-map-admin__collection-mini-map .maplibregl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+.minimal-map-admin__collection-mini-map .maplibregl-map,
+.minimal-map-admin__collection-mini-map .maplibregl-canvas-container {
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.minimal-map-admin__collection-mini-map .maplibregl-control-container,
+.minimal-map-admin__collection-mini-map .maplibregl-ctrl-bottom-left,
+.minimal-map-admin__collection-mini-map .maplibregl-ctrl-bottom-right,
+.minimal-map-admin__collection-mini-map .maplibregl-ctrl-top-left,
+.minimal-map-admin__collection-mini-map .maplibregl-ctrl-top-right,
+.minimal-map-admin__collection-mini-map .minimal-map-controls {
+  display: none !important;
+}
+
+.minimal-map-admin__collection-mini-map .maplibregl-canvas {
+  cursor: default;
+}
+
+.minimal-map-admin__collection-mini-map-marker svg {
+  width: 16px;
+  height: 24px;
+}
+
+.minimal-map-admin__collection-mini-map-marker path {
+  vector-effect: non-scaling-stroke;
+}
+
 .minimal-map-admin__location-address {
   display: grid;
   gap: 4px;
@@ -417,14 +599,51 @@ body.toplevel_page_minimal-map svg.lucide {
   margin-top: 4px;
 }
 
+.minimal-map-admin__collection-delete-dialog {
+  display: grid;
+  gap: 12px;
+  min-width: min(420px, calc(100vw - 64px));
+}
+
+.minimal-map-admin__collection-delete-dialog-copy,
+.minimal-map-admin__collection-delete-dialog-title,
+.minimal-map-admin__collection-delete-dialog-error {
+  margin: 0;
+}
+
+.minimal-map-admin__collection-delete-dialog-title {
+  font-weight: 600;
+}
+
+.minimal-map-admin__collection-delete-dialog-error {
+  color: #b32d2e;
+}
+
+.minimal-map-admin__collection-delete-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
 .minimal-map-admin__location-dialog {
   display: grid;
   gap: 16px;
   min-width: min(720px, calc(100vw - 64px));
 }
 
+.minimal-map-admin__collection-dialog {
+  display: grid;
+  gap: 16px;
+  min-width: min(480px, calc(100vw - 64px));
+}
+
 .minimal-map-admin__location-modal .components-modal__content {
   width: min(760px, calc(100vw - 48px));
+}
+
+.minimal-map-admin__collection-modal .components-modal__content {
+  width: min(520px, calc(100vw - 48px));
 }
 
 .minimal-map-admin__location-dialog-fields {
@@ -485,6 +704,12 @@ body.toplevel_page_minimal-map svg.lucide {
   gap: 12px;
 }
 
+.minimal-map-admin__collection-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .minimal-map-admin__location-dialog-footer {
   display: flex;
   align-items: center;
@@ -504,6 +729,65 @@ body.toplevel_page_minimal-map svg.lucide {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.minimal-map-admin__collection-assignment-modal .components-modal__content {
+  width: min(1120px, calc(100vw - 48px));
+}
+
+.minimal-map-admin__collection-assignment-dialog {
+  display: grid;
+  gap: 20px;
+}
+
+.minimal-map-admin__collection-assignment-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.minimal-map-admin__collection-assignment-section {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.minimal-map-admin__collection-assignment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.minimal-map-admin__collection-assignment-header h3,
+.minimal-map-admin__collection-assignment-header span {
+  margin: 0;
+}
+
+.minimal-map-admin__collection-assignment-header span {
+  color: #646970;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.minimal-map-admin__collections-assignment-table {
+  width: 100%;
+}
+
+.minimal-map-admin__collection-assignment-section table th,
+.minimal-map-admin__collection-assignment-section table td {
+  vertical-align: middle;
+}
+
+.minimal-map-admin__collection-assignment-section table td:last-child,
+.minimal-map-admin__collection-assignment-section table th:last-child {
+  width: 56px;
+}
+
+.minimal-map-admin__collection-assignment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 @media (max-width: 960px) {
@@ -547,6 +831,10 @@ body.toplevel_page_minimal-map svg.lucide {
   .minimal-map-admin__location-dialog-actions {
     justify-content: flex-end;
   }
+
+  .minimal-map-admin__collection-assignment-sections {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 782px) {
@@ -563,6 +851,10 @@ body.toplevel_page_minimal-map svg.lucide {
   }
 
   .minimal-map-admin__location-dialog {
+    min-width: auto;
+  }
+
+  .minimal-map-admin__collection-dialog {
     min-width: auto;
   }
 
