@@ -1,0 +1,16 @@
+{
+  "name": "minimal-map",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Minimal WordPress-native map plugin.",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.18.0"
+  },
+  "dependencies": {
+    "maplibre-gl": "^5.3.0"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "minimal-map/map",
+  "version": "0.1.0",
+  "title": "Minimal Map",
+  "category": "widgets",
+  "icon": "location-alt",
+  "description": "Render a minimalist MapLibre-powered map.",
+  "textdomain": "minimal-map",
+  "attributes": {
+    "centerLat": {
+      "type": "number",
+      "default": 52.517
+    },
+    "centerLng": {
+      "type": "number",
+      "default": 13.388
+    },
+    "zoom": {
+      "type": "number",
+      "default": 9.5
+    },
+    "height": {
+      "type": "number",
+      "default": 420
+    },
+    "stylePreset": {
+      "type": "string",
+      "default": "liberty"
+    },
+    "showZoomControls": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": ["wide", "full"]
+  },
+  "editorScript": "minimal-map-block-editor",
+  "editorStyle": "minimal-map-editor-style",
+  "style": "minimal-map-style",
+  "viewScript": "minimal-map-frontend"
+}

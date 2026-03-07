@@ -1,0 +1,48 @@
+<?php
+/**
+ * Dynamic map block rendering.
+ *
+ * @package Minimal_Map
+ */
+
+namespace MinimalMap;
+
+/**
+ * Renders the frontend block markup.
+ */
+class Map_View {
+	/**
+	 * Shared config service.
+	 *
+	 * @var Config
+	 */
+	private $config;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Config $config Shared config service.
+	 */
+	public function __construct( Config $config ) {
+		$this->config = $config;
+	}
+
+	/**
+	 * Render callback.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @return string
+	 */
+	public function render( $attributes ) {
+		$config             = $this->config->normalize_block_attributes( $attributes );
+		$surface_attributes = array(
+			'class'                   => 'minimal-map-surface',
+			'style'                   => sprintf( 'height: %dpx;', (int) $config['height'] ),
+			'data-minimal-map-config' => wp_json_encode( $config ),
+		);
+
+		ob_start();
+		require MINIMAL_MAP_PATH . 'templates/map-block.php';
+		return (string) ob_get_clean();
+	}
+}
