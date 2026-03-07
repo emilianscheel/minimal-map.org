@@ -331,6 +331,11 @@ body.toplevel_page_minimal-map svg.lucide {
   vertical-align: middle;
 }
 
+.minimal-map-admin__locations-table-wrap table td:last-child,
+.minimal-map-admin__locations-table-wrap table th:last-child {
+  width: 56px;
+}
+
 .minimal-map-admin__locations-table-wrap table th:first-child {
   padding: 0;
 }
@@ -373,6 +378,43 @@ body.toplevel_page_minimal-map svg.lucide {
 
 .minimal-map-admin__location-mini-map-marker path {
   vector-effect: non-scaling-stroke;
+}
+
+.minimal-map-admin__location-address {
+  display: grid;
+  gap: 4px;
+  line-height: 1.35;
+}
+
+.minimal-map-admin__location-address-line {
+  display: block;
+}
+
+.minimal-map-admin__location-delete-dialog {
+  display: grid;
+  gap: 12px;
+  min-width: min(420px, calc(100vw - 64px));
+}
+
+.minimal-map-admin__location-delete-dialog-copy,
+.minimal-map-admin__location-delete-dialog-title,
+.minimal-map-admin__location-delete-dialog-error {
+  margin: 0;
+}
+
+.minimal-map-admin__location-delete-dialog-title {
+  font-weight: 600;
+}
+
+.minimal-map-admin__location-delete-dialog-error {
+  color: #b32d2e;
+}
+
+.minimal-map-admin__location-delete-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
 }
 
 .minimal-map-admin__location-dialog {

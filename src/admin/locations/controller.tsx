@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import type { ViewTable } from '@wordpress/dataviews';
 import type {
 	LocationDialogStep,
+	LocationFormMode,
 	LocationFormState,
 	LocationRecord,
 	LocationsAdminConfig,
@@ -12,11 +13,17 @@ import type {
 } from '../../types';
 import { configureApiFetch } from '../../lib/locations/configureApiFetch';
 import { createEmptyFieldErrors } from '../../lib/locations/createEmptyFieldErrors';
+import { createLocationFormStateFromRecord } from '../../lib/locations/createLocationFormStateFromRecord';
 import { createLocation } from '../../lib/locations/createLocation';
+import { deleteLocation } from '../../lib/locations/deleteLocation';
+import { duplicateLocation } from '../../lib/locations/duplicateLocation';
 import { fetchAllLocations } from '../../lib/locations/fetchAllLocations';
 import { geocodeAddress } from '../../lib/locations/geocodeAddress';
 import { hasFieldErrors } from '../../lib/locations/hasFieldErrors';
+import { hasLocationAddressChanged } from '../../lib/locations/hasLocationAddressChanged';
 import { paginateLocations } from '../../lib/locations/paginateLocations';
+import { updateLocationCoordinates } from '../../lib/locations/updateLocationCoordinates';
+import { updateLocation } from '../../lib/locations/updateLocation';
 import { validateAddressStep } from '../../lib/locations/validateAddressStep';
 import { validateDetailsStep } from '../../lib/locations/validateDetailsStep';
 import { DEFAULT_FORM_STATE, DEFAULT_VIEW } from './constants';
@@ -32,13 +39,18 @@ export function useLocationsController(
 	enabled: boolean
 ): LocationsController {
 	const [form, setForm] = useState<LocationFormState>(DEFAULT_FORM_STATE);
+	const [formMode, setFormMode] = useState<LocationFormMode>('create');
+	const [editingLocation, setEditingLocation] = useState<LocationRecord | null>(null);
+	const [originalForm, setOriginalForm] = useState<LocationFormState | null>(null);
 	const [fieldErrors, setFieldErrors] = useState(createEmptyFieldErrors());
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [isGeocoding, setGeocoding] = useState(false);
 	const [isLoading, setLoading] = useState(enabled);
+	const [isRowActionPending, setRowActionPending] = useState(false);
 	const [loadError, setLoadError] = useState<string | null>(null);
 	const [submitError, setSubmitError] = useState<string | null>(null);
+	const [actionNotice, setActionNotice] = useState<LocationsController['actionNotice']>(null);
 	const [geocodeError, setGeocodeError] = useState<string | null>(null);
 	const [geocodeNotice, setGeocodeNotice] = useState<string | null>(null);
 	const [locations, setLocations] = useState<LocationRecord[]>([]);
@@ -92,6 +104,9 @@ export function useLocationsController(
 	);
 
 	const resetDialogState = (): void => {
+		setFormMode('create');
+		setEditingLocation(null);
+		setOriginalForm(null);
 		setForm(DEFAULT_FORM_STATE);
 		setFieldErrors(createEmptyFieldErrors());
 		setSubmitError(null);
@@ -104,6 +119,23 @@ export function useLocationsController(
 
 	const openDialog = (): void => {
 		resetDialogState();
+		setDialogOpen(true);
+	};
+
+	const onEditLocation = (location: LocationRecord): void => {
+		const nextForm = createLocationFormStateFromRecord(location);
+		const latitude = Number(location.latitude);
+		const longitude = Number(location.longitude);
+		const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude);
+		const coordinates = hasCoordinates ? { lat: latitude, lng: longitude } : null;
+
+		resetDialogState();
+		setFormMode('edit');
+		setEditingLocation(location);
+		setOriginalForm(nextForm);
+		setForm(nextForm);
+		setMapCenter(coordinates);
+		setSelectedCoordinates(coordinates);
 		setDialogOpen(true);
 	};
 
@@ -152,6 +184,126 @@ export function useLocationsController(
 		}
 	};
 
+	const dismissActionNotice = useCallback((): void => {
+		setActionNotice(null);
+	}, []);
+
+	const onDuplicateLocation = useCallback(
+		async (location: LocationRecord): Promise<void> => {
+			setRowActionPending(true);
+			setActionNotice(null);
+
+			try {
+				await duplicateLocation(
+					config,
+					location,
+					locations.map((item) => item.title)
+				);
+				await loadLocations();
+				setActionNotice({
+					status: 'success',
+					message: __('Location duplicated.', 'minimal-map'),
+				});
+			} catch (error) {
+				setActionNotice({
+					status: 'error',
+					message:
+						error instanceof Error
+							? error.message
+							: __('Location could not be duplicated.', 'minimal-map'),
+				});
+				throw error;
+			} finally {
+				setRowActionPending(false);
+			}
+		},
+		[config, loadLocations, locations]
+	);
+
+	const onRetrieveLocation = useCallback(
+		async (location: LocationRecord): Promise<void> => {
+			const errors = validateAddressStep(location);
+			const validationMessage = Object.values(errors).find(Boolean);
+
+			if (validationMessage) {
+				const error = new Error(validationMessage);
+				setActionNotice({
+					status: 'error',
+					message: validationMessage,
+				});
+				throw error;
+			}
+
+			setRowActionPending(true);
+			setActionNotice(null);
+
+			try {
+				const result = await geocodeAddress(config, location);
+
+				if (!result.success) {
+					const error = new Error(result.message);
+					setActionNotice({
+						status: 'error',
+						message: result.message,
+					});
+					throw error;
+				}
+
+				await updateLocationCoordinates(config, location.id, {
+					lat: result.lat,
+					lng: result.lng,
+				});
+				await loadLocations();
+				setActionNotice({
+					status: 'success',
+					message: __('Location coordinates updated.', 'minimal-map'),
+				});
+			} catch (error) {
+				if (!(error instanceof Error && error.message === validationMessage)) {
+					setActionNotice({
+						status: 'error',
+						message:
+							error instanceof Error
+								? error.message
+								: __('Location could not be retrieved.', 'minimal-map'),
+					});
+				}
+				throw error;
+			} finally {
+				setRowActionPending(false);
+			}
+		},
+		[config, loadLocations]
+	);
+
+	const onDeleteLocation = useCallback(
+		async (location: LocationRecord): Promise<void> => {
+			setRowActionPending(true);
+			setActionNotice(null);
+
+			try {
+				await deleteLocation(config, location.id);
+				await loadLocations();
+				setActionNotice({
+					status: 'success',
+					message: __('Location deleted.', 'minimal-map'),
+				});
+			} catch (error) {
+				setActionNotice({
+					status: 'error',
+					message:
+						error instanceof Error
+							? error.message
+							: __('Location could not be deleted.', 'minimal-map'),
+				});
+				throw error;
+			} finally {
+				setRowActionPending(false);
+			}
+		},
+		[config, loadLocations]
+	);
+
 	const onMapLocationSelect = useCallback((coordinates: MapCoordinates): void => {
 		setSelectedCoordinates(coordinates);
 		setMapCenter(coordinates);
@@ -186,6 +338,29 @@ export function useLocationsController(
 			setFieldErrors(errors);
 
 			if (hasFieldErrors(errors)) {
+				return;
+			}
+
+			if (
+				formMode === 'edit' &&
+				!hasLocationAddressChanged(form, originalForm)
+			) {
+				const latitude = Number(originalForm?.latitude ?? '');
+				const longitude = Number(originalForm?.longitude ?? '');
+				const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude);
+				const coordinates = hasCoordinates ? { lat: latitude, lng: longitude } : null;
+
+				setSubmitError(null);
+				setGeocodeError(null);
+				setGeocodeNotice(null);
+				setMapCenter(coordinates ?? DEFAULT_MAP_CENTER);
+				setSelectedCoordinates(coordinates);
+				setForm((currentForm) => ({
+					...currentForm,
+					latitude: coordinates ? `${coordinates.lat}` : '',
+					longitude: coordinates ? `${coordinates.lng}` : '',
+				}));
+				setStep('map');
 				return;
 			}
 
@@ -249,11 +424,17 @@ export function useLocationsController(
 		setSubmitError(null);
 
 		try {
-			await createLocation(config, {
+			const nextForm = {
 				...form,
 				latitude: `${selectedCoordinates.lat}`,
 				longitude: `${selectedCoordinates.lng}`,
-			});
+			};
+
+			if (formMode === 'edit' && editingLocation) {
+				await updateLocation(config, editingLocation.id, nextForm);
+			} else {
+				await createLocation(config, nextForm);
+			}
 			await loadLocations();
 			setDialogOpen(false);
 			resetDialogState();
@@ -261,7 +442,9 @@ export function useLocationsController(
 			setSubmitError(
 				error instanceof Error
 					? error.message
-					: __('Location could not be created.', 'minimal-map')
+					: formMode === 'edit'
+						? __('Location could not be updated.', 'minimal-map')
+						: __('Location could not be created.', 'minimal-map')
 			);
 		} finally {
 			setSubmitting(false);
@@ -269,8 +452,11 @@ export function useLocationsController(
 	};
 
 	return {
+		actionNotice,
+		dismissActionNotice,
 		fieldErrors,
 		form,
+		formMode,
 		geocodeError,
 		geocodeNotice,
 		headerAction: enabled ? (
@@ -286,18 +472,31 @@ export function useLocationsController(
 		isDialogOpen,
 		isGeocoding,
 		isLoading,
+		isRowActionPending,
 		isSubmitting,
 		loadError,
 		locations,
 		mapCenter,
+		modalTitle:
+			formMode === 'edit'
+				? __('Edit location', 'minimal-map')
+				: __('Add location', 'minimal-map'),
 		onBack,
 		onCancel,
 		onChangeFormValue,
 		onChangeView: (nextView) => setView(nextView),
 		onConfirm,
+		onDeleteLocation,
+		onDuplicateLocation,
+		onEditLocation,
 		onMapLocationSelect,
+		onRetrieveLocation,
 		paginatedLocations,
 		selectedCoordinates,
+		submitLabel:
+			formMode === 'edit'
+				? __('Save changes', 'minimal-map')
+				: __('Finish', 'minimal-map'),
 		submitError,
 		step,
 		totalPages,

@@ -167,6 +167,8 @@ export interface LocationFormState extends LocationMeta {
 	title: string;
 }
 
+export type LocationFormMode = 'create' | 'edit';
+
 export type LocationDialogStep = 'details' | 'address' | 'map';
 
 export interface FieldErrors {

@@ -10,6 +10,15 @@ export type { LocationsController } from './types';
 export default function LocationsView({ controller }: { controller: LocationsController }) {
 	return (
 		<>
+			{controller.actionNotice && (
+				<Notice
+					className="minimal-map-admin__locations-notice"
+					status={controller.actionNotice.status}
+					onRemove={controller.dismissActionNotice}
+				>
+					{controller.actionNotice.message}
+				</Notice>
+			)}
 			{controller.loadError && (
 				<Notice className="minimal-map-admin__locations-notice" status="error" isDismissible={false}>
 					{controller.loadError}

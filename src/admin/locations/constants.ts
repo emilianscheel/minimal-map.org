@@ -26,12 +26,7 @@ export const DEFAULT_VIEW: ViewTable = {
 		'telephone',
 		'email',
 		'website',
-		'street',
-		'house_number',
-		'postal_code',
-		'city',
-		'state',
-		'country',
+		'address',
 	],
 	layout: {
 		enableMoving: false,

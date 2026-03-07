@@ -20,12 +20,12 @@ export default function LocationDialog({ controller }: { controller: LocationsCo
 	return (
 		<Modal
 			className="minimal-map-admin__location-modal"
-			contentLabel={__('Add location', 'minimal-map')}
+			contentLabel={controller.modalTitle}
 			focusOnMount="firstInputElement"
 			onRequestClose={controller.onCancel}
 			shouldCloseOnClickOutside={!controller.isSubmitting}
 			shouldCloseOnEsc={!controller.isSubmitting}
-			title={__('Add location', 'minimal-map')}
+			title={controller.modalTitle}
 		>
 			<div
 				className="minimal-map-admin__location-dialog"
@@ -101,7 +101,7 @@ export default function LocationDialog({ controller }: { controller: LocationsCo
 							<span className="minimal-map-admin__location-dialog-button-content">
 								<span>
 									{controller.step === 'map'
-										? __('Finish', 'minimal-map')
+										? controller.submitLabel
 										: __('Next', 'minimal-map')}
 								</span>
 								<Kbd variant="blue">Enter</Kbd>
