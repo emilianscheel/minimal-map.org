@@ -21,6 +21,7 @@ export const DEFAULT_VIEW: ViewTable = {
 	page: 1,
 	perPage: 10,
 	fields: [
+		'map_preview',
 		'title',
 		'telephone',
 		'email',

@@ -46,6 +46,11 @@ export interface RawMapConfig {
 	fallbackMessage?: string;
 	markerLat?: number | string | null;
 	markerLng?: number | string | null;
+	markerClassName?: string;
+	markerOffsetY?: number | string;
+	centerOffsetY?: number | string;
+	interactive?: boolean;
+	showAttribution?: boolean;
 }
 
 export interface NormalizedMapConfig extends MapDefaults {
@@ -54,6 +59,11 @@ export interface NormalizedMapConfig extends MapDefaults {
 	fallbackMessage: string;
 	markerLat: number | null;
 	markerLng: number | null;
+	markerClassName: string;
+	markerOffsetY: number;
+	centerOffsetY: number;
+	interactive: boolean;
+	showAttribution: boolean;
 }
 
 export interface MinimalMapInstance {

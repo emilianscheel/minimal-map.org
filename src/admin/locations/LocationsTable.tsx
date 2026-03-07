@@ -2,12 +2,27 @@ import { DataViews } from '@wordpress/dataviews/wp';
 import type { Field, View, ViewTable } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from '@wordpress/element';
+import LocationMiniMap from '../../components/LocationMiniMap';
 import type { LocationRecord } from '../../types';
 import type { LocationsController } from './types';
 
 function useLocationFields(): Field<LocationRecord>[] {
 	return useMemo<Field<LocationRecord>[]>(
 		() => [
+			{
+				id: 'map_preview',
+				label: __('Map preview', 'minimal-map'),
+				header: (
+					<span
+						className="minimal-map-admin__location-mini-map-header"
+						aria-hidden="true"
+					/>
+				),
+				enableHiding: false,
+				enableSorting: false,
+				filterBy: false,
+				render: ({ item }) => <LocationMiniMap location={item} />,
+			},
 			{
 				id: 'title',
 				label: __('Title', 'minimal-map'),

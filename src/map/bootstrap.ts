@@ -58,6 +58,41 @@ function createShell(host: HTMLElement, config: NormalizedMapConfig): HTMLElemen
 	return viewport;
 }
 
+function createMarker(config: NormalizedMapConfig): maplibregl.Marker {
+	const marker = new maplibregl.Marker({
+		offset: [ 0, config.markerOffsetY ],
+	}).setLngLat([ config.markerLng as number, config.markerLat as number ]);
+
+	if (config.markerClassName) {
+		marker.getElement().classList.add(...config.markerClassName.split(/\s+/).filter(Boolean));
+	}
+
+	return marker;
+}
+
+function syncCenter(
+	map: MapLibreMap,
+	config: NormalizedMapConfig,
+	zoomChanged = false
+): void {
+	const target = {
+		center: [ config.centerLng, config.centerLat ] as [ number, number ],
+		offset: [ 0, config.centerOffsetY ] as [ number, number ],
+	};
+
+	if (zoomChanged) {
+		map.easeTo({
+			...target,
+			duration: 180,
+			essential: true,
+			zoom: config.zoom,
+		});
+		return;
+	}
+
+	map.jumpTo(target);
+}
+
 export function createMinimalMap(
 	host: HTMLElement,
 	initialConfig: RawMapConfig = {},
@@ -71,7 +106,7 @@ export function createMinimalMap(
 		observer: null,
 	};
 
-	function syncMarker(config: NormalizedMapConfig): void {
+	function syncMarker(config: NormalizedMapConfig, forceRecreate = false): void {
 		if (!state.map) {
 			return;
 		}
@@ -82,8 +117,13 @@ export function createMinimalMap(
 			return;
 		}
 
+		if (forceRecreate) {
+			state.marker?.remove();
+			state.marker = null;
+		}
+
 		if (!state.marker) {
-			state.marker = new maplibregl.Marker().setLngLat([config.markerLng, config.markerLat]).addTo(state.map);
+			state.marker = createMarker(config).addTo(state.map);
 			return;
 		}
 
@@ -111,11 +151,17 @@ export function createMinimalMap(
 
 		try {
 			state.map = new maplibregl.Map({
-				attributionControl: {},
+				attributionControl: config.showAttribution ? {} : false,
+				boxZoom: config.interactive,
 				center: [ config.centerLng, config.centerLat ],
 				container: viewport,
+				doubleClickZoom: config.interactive,
+				dragPan: config.interactive,
+				dragRotate: config.interactive,
+				keyboard: config.interactive,
 				scrollZoom: false,
 				style: config.styleUrl,
+				touchZoomRotate: config.interactive,
 				zoom: config.zoom,
 			});
 		} catch {
@@ -126,8 +172,23 @@ export function createMinimalMap(
 		const map = state.map;
 
 		map.scrollZoom.disable();
-		map.on('load', () => map.resize());
+		if (!config.interactive) {
+			map.boxZoom.disable();
+			map.doubleClickZoom.disable();
+			map.dragPan.disable();
+			map.dragRotate.disable();
+			map.keyboard.disable();
+			map.touchZoomRotate.disable();
+		}
+		map.on('load', () => {
+			syncCenter(map, config);
+			map.resize();
+		});
 		map.on('click', (event) => {
+			if (!config.interactive) {
+				return;
+			}
+
 			const coordinates = {
 				lat: event.lngLat.lat,
 				lng: event.lngLat.lng,
@@ -187,22 +248,12 @@ export function createMinimalMap(
 		const centerChanged =
 			!previousConfig ||
 			previousConfig.centerLat !== nextConfig.centerLat ||
-			previousConfig.centerLng !== nextConfig.centerLng;
+			previousConfig.centerLng !== nextConfig.centerLng ||
+			previousConfig.centerOffsetY !== nextConfig.centerOffsetY;
 		const zoomChanged = !previousConfig || previousConfig.zoom !== nextConfig.zoom;
 
 		if (centerChanged || zoomChanged) {
-			if (zoomChanged) {
-				state.map.easeTo({
-					center: [ nextConfig.centerLng, nextConfig.centerLat ],
-					duration: 180,
-					essential: true,
-					zoom: nextConfig.zoom,
-				});
-			} else {
-				state.map.jumpTo({
-					center: [ nextConfig.centerLng, nextConfig.centerLat ],
-				});
-			}
+			syncCenter(state.map, nextConfig, zoomChanged);
 		}
 
 		if (!previousConfig || previousConfig.showZoomControls !== nextConfig.showZoomControls) {
@@ -212,9 +263,16 @@ export function createMinimalMap(
 		if (
 			!previousConfig ||
 			previousConfig.markerLat !== nextConfig.markerLat ||
-			previousConfig.markerLng !== nextConfig.markerLng
+			previousConfig.markerLng !== nextConfig.markerLng ||
+			previousConfig.markerClassName !== nextConfig.markerClassName ||
+			previousConfig.markerOffsetY !== nextConfig.markerOffsetY
 		) {
-			syncMarker(nextConfig);
+			syncMarker(
+				nextConfig,
+				!previousConfig ||
+					previousConfig.markerClassName !== nextConfig.markerClassName ||
+					previousConfig.markerOffsetY !== nextConfig.markerOffsetY
+			);
 		}
 
 		state.config = nextConfig;

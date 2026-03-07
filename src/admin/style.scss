@@ -320,6 +320,61 @@ body.toplevel_page_minimal-map svg.lucide {
   width: 100%;
 }
 
+.minimal-map-admin__locations-table-wrap table th:first-child,
+.minimal-map-admin__locations-table-wrap table td:first-child {
+  width: 76px;
+  min-width: 76px;
+}
+
+.minimal-map-admin__locations-table-wrap table th,
+.minimal-map-admin__locations-table-wrap table td {
+  vertical-align: middle;
+}
+
+.minimal-map-admin__locations-table-wrap table th:first-child {
+  padding: 0;
+}
+
+.minimal-map-admin__locations-table-wrap table th:first-child .components-text {
+  display: none;
+}
+
+.minimal-map-admin__location-mini-map-header {
+  display: block;
+  width: 100%;
+  height: 1px;
+}
+
+.minimal-map-admin__location-mini-map {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0f0f1;
+}
+
+.minimal-map-admin__location-mini-map .maplibregl-control-container,
+.minimal-map-admin__location-mini-map .maplibregl-ctrl-bottom-left,
+.minimal-map-admin__location-mini-map .maplibregl-ctrl-bottom-right,
+.minimal-map-admin__location-mini-map .maplibregl-ctrl-top-left,
+.minimal-map-admin__location-mini-map .maplibregl-ctrl-top-right,
+.minimal-map-admin__location-mini-map .minimal-map-controls {
+  display: none !important;
+}
+
+.minimal-map-admin__location-mini-map .maplibregl-canvas {
+  cursor: default;
+}
+
+.minimal-map-admin__location-mini-map-marker svg {
+  width: 14px;
+  height: 22px;
+}
+
+.minimal-map-admin__location-mini-map-marker path {
+  vector-effect: non-scaling-stroke;
+}
+
 .minimal-map-admin__location-dialog {
   display: grid;
   gap: 16px;
