@@ -1,5 +1,6 @@
 import maplibregl, { type Map as MapLibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { createAttributionPill } from './attribution-pill';
 import { normalizeMapConfig } from './defaults';
 import { createWordPressZoomControls } from './wp-controls';
 import type {
@@ -7,10 +8,12 @@ import type {
 	MinimalMapInstance,
 	NormalizedMapConfig,
 	RawMapConfig,
+	WordPressAttributionControl,
 	WordPressZoomControls,
 } from '../types';
 
 interface MinimalMapState {
+	attribution: WordPressAttributionControl | null;
 	config: NormalizedMapConfig | null;
 	controls: WordPressZoomControls | null;
 	map: MapLibreMap | null;
@@ -127,6 +130,7 @@ export function createMinimalMap(
 	runtimeConfig: MapRuntimeConfig = {}
 ): MinimalMapInstance {
 	const state: MinimalMapState = {
+		attribution: null,
 		config: null,
 		controls: null,
 		map: null,
@@ -167,6 +171,15 @@ export function createMinimalMap(
 		}
 	}
 
+	function syncAttribution(config: NormalizedMapConfig): void {
+		state.attribution?.destroy();
+		state.attribution = null;
+
+		if (config.showAttribution) {
+			state.attribution = createAttributionPill(host);
+		}
+	}
+
 	function build(rawConfig: RawMapConfig): void {
 		const config = normalizeMapConfig(rawConfig, runtimeConfig);
 		state.config = config;
@@ -179,7 +192,7 @@ export function createMinimalMap(
 
 		try {
 			state.map = new maplibregl.Map({
-				attributionControl: config.showAttribution ? {} : false,
+				attributionControl: false,
 				boxZoom: config.interactive,
 				center: [ config.centerLng, config.centerLat ],
 				container: viewport,
@@ -241,9 +254,13 @@ export function createMinimalMap(
 
 		syncMarker(config);
 		syncControls(config);
+		syncAttribution(config);
 	}
 
 	function destroy(): void {
+		state.attribution?.destroy();
+		state.attribution = null;
+
 		state.controls?.destroy();
 		state.controls = null;
 
@@ -290,6 +307,10 @@ export function createMinimalMap(
 			didZoomControlsStyleChange(previousConfig, nextConfig)
 		) {
 			syncControls(nextConfig);
+		}
+
+		if (!previousConfig || previousConfig.showAttribution !== nextConfig.showAttribution) {
+			syncAttribution(nextConfig);
 		}
 
 		if (

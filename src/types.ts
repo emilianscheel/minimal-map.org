@@ -180,6 +180,10 @@ export interface WordPressZoomControls {
 	destroy: () => void;
 }
 
+export interface WordPressAttributionControl {
+	destroy: () => void;
+}
+
 export interface LocationMeta {
 	telephone: string;
 	email: string;
