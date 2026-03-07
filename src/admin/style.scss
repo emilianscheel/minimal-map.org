@@ -28,6 +28,10 @@ body.toplevel_page_minimal-map {
 }
 
 .minimal-map-admin__sidebar {
+  --wp-admin-theme-color: #3858e8;
+  --wp-admin-theme-color--rgb: 56, 88, 232;
+  --wp-admin-theme-color-darker-10: #2648e6;
+  --wp-admin-theme-color-darker-20: #1739d6;
   display: grid;
   align-content: start;
   gap: 12px;
@@ -47,20 +51,42 @@ body.toplevel_page_minimal-map {
   gap: 14px;
   padding: 10px 12px;
   min-height: 40px;
-  border-radius: 0;
-  color: #1e1e1e;
-  box-shadow: none;
+  border-radius: 3px;
+  background: transparent !important;
+  color: #1e1e1e !important;
+  box-shadow: none !important;
+}
+
+.minimal-map-admin__nav-item.components-button:visited {
+  color: #1e1e1e !important;
 }
 
 .minimal-map-admin__nav-item.components-button:hover,
 .minimal-map-admin__nav-item.components-button:focus {
-  color: #1e1e1e;
-  box-shadow: none;
+  background: #f6f7f7 !important;
+  color: #3858e8 !important;
+  box-shadow: none !important;
+}
+
+.minimal-map-admin__nav-item.components-button:visited:hover,
+.minimal-map-admin__nav-item.components-button:visited:focus {
+  color: #3858e8 !important;
 }
 
 .minimal-map-admin__nav-item.components-button.is-active {
-  background: #f0f0f1;
+  background: #f0f0f1 !important;
+  color: #3858e8 !important;
   font-weight: 600;
+}
+
+.minimal-map-admin__nav-item.components-button.is-active:hover,
+.minimal-map-admin__nav-item.components-button.is-active:focus {
+  background: #f0f0f1 !important;
+  color: #3858e8 !important;
+}
+
+.minimal-map-admin__nav-item.components-button:focus-visible {
+  outline-color: #3858e8;
 }
 
 .minimal-map-admin__nav-icon {
