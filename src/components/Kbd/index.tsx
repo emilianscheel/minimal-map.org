@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import './style.scss';
 
-type KbdVariant = 'neutral' | 'blue';
+type KbdVariant = 'neutral' | 'blue' | 'red';
 
 export default function Kbd({
 	children,

@@ -1,7 +1,9 @@
 import { Notice, Spinner } from '@wordpress/components';
+import AssignToCollectionModal from './AssignToCollectionModal';
 import LocationDialog from './LocationDialog';
 import LocationsEmptyState from './LocationsEmptyState';
 import LocationsTable from './LocationsTable';
+import RemoveCollectionAssignmentModal from './RemoveCollectionAssignmentModal';
 import type { LocationsController } from './types';
 
 export { useLocationsController } from './controller';
@@ -34,6 +36,8 @@ export default function LocationsView({ controller }: { controller: LocationsCon
 				<LocationsTable controller={controller} />
 			)}
 			<LocationDialog controller={controller} />
+			<AssignToCollectionModal controller={controller} />
+			<RemoveCollectionAssignmentModal controller={controller} />
 		</>
 	);
 }

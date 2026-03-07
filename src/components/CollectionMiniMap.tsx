@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef } from '@wordpress/element';
+import { memo, useEffect, useMemo, useRef } from '@wordpress/element';
 import { createMinimalMap } from '../map/bootstrap';
 import { getCollectionPreviewLocations } from '../lib/collections/getCollectionPreviewLocations';
+import { areCollectionMiniMapPropsEqual } from '../lib/collections/collectionMiniMap';
 import type {
 	CollectionRecord,
 	LocationRecord,
@@ -8,7 +9,7 @@ import type {
 	RawMapConfig,
 } from '../types';
 
-export default function CollectionMiniMap({
+function CollectionMiniMap({
 	collection,
 	locations,
 }: {
@@ -17,9 +18,13 @@ export default function CollectionMiniMap({
 }) {
 	const hostRef = useRef<HTMLDivElement | null>(null);
 	const mapRef = useRef<MinimalMapInstance | null>(null);
+	const assignedLocationIdsKey = useMemo(
+		() => collection.location_ids.join(','),
+		[collection.location_ids]
+	);
 	const previewLocations = useMemo(
 		() => getCollectionPreviewLocations(collection, locations),
-		[collection, locations]
+		[collection.id, assignedLocationIdsKey, locations]
 	);
 	const mapConfig = useMemo<RawMapConfig>(() => ({
 		centerLat: 52.517,
@@ -60,3 +65,5 @@ export default function CollectionMiniMap({
 
 	return <div ref={hostRef} className="minimal-map-admin__collection-mini-map" aria-hidden="true" />;
 }
+
+export default memo(CollectionMiniMap, areCollectionMiniMapPropsEqual);

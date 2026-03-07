@@ -3,6 +3,10 @@ import { filterLocationsForAssignment } from '../../src/lib/collections/filterLo
 import { getCollectionPreviewLocations } from '../../src/lib/collections/getCollectionPreviewLocations';
 import { normalizeCollectionRecord } from '../../src/lib/collections/normalizeCollectionRecord';
 import { paginateCollections } from '../../src/lib/collections/paginateCollections';
+import {
+	areCollectionMiniMapPropsEqual,
+	haveSameCollectionLocationIds,
+} from '../../src/lib/collections/collectionMiniMap';
 import type { CollectionRecord, LocationRecord } from '../../src/types';
 
 const LOCATIONS: LocationRecord[] = [
@@ -138,5 +142,51 @@ describe('collection helpers', () => {
 		expect(first).toEqual(second);
 		expect(first).toHaveLength(2);
 		expect(first.every((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng))).toBe(true);
+	});
+
+	test('haveSameCollectionLocationIds only changes when assignment order or membership changes', () => {
+		expect(haveSameCollectionLocationIds([ 2, 1 ], [ 2, 1 ])).toBe(true);
+		expect(haveSameCollectionLocationIds([ 2, 1 ], [ 1, 2 ])).toBe(false);
+		expect(haveSameCollectionLocationIds([ 2, 1 ], [ 2 ])).toBe(false);
+	});
+
+	test('areCollectionMiniMapPropsEqual ignores unrelated collection changes', () => {
+		expect(
+			areCollectionMiniMapPropsEqual(
+				{
+					collection: {
+						id: 12,
+						location_ids: [ 2, 1 ],
+					},
+					locations: LOCATIONS,
+				},
+				{
+					collection: {
+						id: 12,
+						location_ids: [ 2, 1 ],
+					},
+					locations: LOCATIONS,
+				}
+			)
+		).toBe(true);
+
+		expect(
+			areCollectionMiniMapPropsEqual(
+				{
+					collection: {
+						id: 12,
+						location_ids: [ 2, 1 ],
+					},
+					locations: LOCATIONS,
+				},
+				{
+					collection: {
+						id: 12,
+						location_ids: [ 1, 2 ],
+					},
+					locations: LOCATIONS,
+				}
+			)
+		).toBe(false);
 	});
 });

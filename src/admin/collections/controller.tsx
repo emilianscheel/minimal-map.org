@@ -156,23 +156,23 @@ export function useCollectionsController(
 		[selectedLocationsFiltered, selectedLocationsView]
 	);
 
-	const resetDialogState = (): void => {
+	const resetDialogState = useCallback((): void => {
 		setEditingCollection(null);
 		setForm(DEFAULT_FORM_STATE);
 		setFormMode('create');
 		setSubmitError(null);
-	};
+	}, []);
 
 	const dismissActionNotice = useCallback((): void => {
 		setActionNotice(null);
 	}, []);
 
-	const openDialog = (): void => {
+	const openDialog = useCallback((): void => {
 		resetDialogState();
 		setDialogOpen(true);
-	};
+	}, [resetDialogState]);
 
-	const onEditCollection = (collection: CollectionRecord): void => {
+	const onEditCollection = useCallback((collection: CollectionRecord): void => {
 		resetDialogState();
 		setEditingCollection(collection);
 		setFormMode('edit');
@@ -180,7 +180,7 @@ export function useCollectionsController(
 			title: collection.title,
 		});
 		setDialogOpen(true);
-	};
+	}, [resetDialogState]);
 
 	const onCancel = (): void => {
 		if (isSubmitting) {
@@ -271,14 +271,14 @@ export function useCollectionsController(
 		[collectionsConfig, loadCollections]
 	);
 
-	const onOpenAssignmentModal = (collection: CollectionRecord): void => {
+	const onOpenAssignmentModal = useCallback((collection: CollectionRecord): void => {
 		setSelectedAssignmentCollection(collection);
 		setSelectedLocationIds(collection.location_ids);
 		setAssignmentSearch('');
 		setAvailableLocationsView(DEFAULT_ASSIGNMENT_VIEW);
 		setSelectedLocationsView(DEFAULT_ASSIGNMENT_VIEW);
 		setAssignmentModalOpen(true);
-	};
+	}, []);
 
 	const onCloseAssignmentModal = (): void => {
 		if (isAssignmentSaving) {

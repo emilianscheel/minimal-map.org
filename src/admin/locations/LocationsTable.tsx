@@ -2,14 +2,24 @@ import { DataViews } from '@wordpress/dataviews/wp';
 import type { Action, Field, View, ViewTable } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from '@wordpress/element';
-import { Copy, LocateFixed, Pencil, Trash2 } from 'lucide-react';
+import { Copy, Layers3, LocateFixed, Pencil, Trash2 } from 'lucide-react';
 import LocationMiniMap from '../../components/LocationMiniMap';
 import type { LocationRecord } from '../../types';
 import { formatLocationAddressLines } from '../../lib/locations/formatLocationAddressLines';
 import DeleteLocationActionModal from './DeleteLocationActionModal';
 import type { LocationsController } from './types';
 
-function useLocationFields(): Field<LocationRecord>[] {
+function CollectionBadge({ label }: { label: string }) {
+	return (
+		<span className="components-badge is-default">
+			<span className="components-badge__flex-wrapper">
+				<span className="components-badge__content">{label}</span>
+			</span>
+		</span>
+	);
+}
+
+function useLocationFields(controller: LocationsController): Field<LocationRecord>[] {
 	return useMemo<Field<LocationRecord>[]>(
 		() => [
 			{
@@ -96,8 +106,39 @@ function useLocationFields(): Field<LocationRecord>[] {
 					);
 				},
 			},
+			{
+				id: 'collections',
+				label: __('Collections', 'minimal-map'),
+				enableHiding: false,
+				enableSorting: false,
+				filterBy: false,
+				render: ({ item }) => {
+					const collections = controller.getCollectionsForLocation(item.id);
+
+					if (collections.length === 0) {
+						return null;
+					}
+
+					return (
+						<div className="minimal-map-admin__location-collections">
+							{collections.map((collection) => (
+								<button
+									key={collection.id}
+									type="button"
+									className="minimal-map-admin__location-collection-trigger"
+									onClick={() =>
+										controller.onOpenRemoveCollectionAssignmentModal(item, collection)
+									}
+								>
+									<CollectionBadge label={collection.title} />
+								</button>
+							))}
+						</div>
+					);
+				},
+			},
 		],
-		[]
+		[controller]
 	);
 }
 
@@ -150,6 +191,21 @@ function useLocationActions(controller: LocationsController): Action<LocationRec
 				},
 			},
 			{
+				id: 'assign-location-to-collection',
+				label: __('Assign to Collection', 'minimal-map'),
+				icon: <Layers3 size={16} strokeWidth={2} />,
+				context: 'single',
+				disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+				supportsBulk: false,
+				callback: (items) => {
+					if (!items[0]) {
+						return;
+					}
+
+					controller.onOpenAssignToCollectionModal(items[0]);
+				},
+			},
+			{
 				id: 'delete-location',
 				label: __('Delete', 'minimal-map'),
 				icon: <Trash2 size={16} strokeWidth={2} />,
@@ -178,7 +234,7 @@ function useLocationActions(controller: LocationsController): Action<LocationRec
 }
 
 export default function LocationsTable({ controller }: { controller: LocationsController }) {
-	const fields = useLocationFields();
+	const fields = useLocationFields(controller);
 	const actions = useLocationActions(controller);
 
 	return (

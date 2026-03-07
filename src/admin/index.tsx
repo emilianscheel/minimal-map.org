@@ -258,6 +258,7 @@ function App({ currentView }: { currentView: AdminSectionView }) {
 	const activeSection = getActiveSection(currentView);
 	const locationsController = useLocationsController(
 		adminConfig.locationsConfig,
+		adminConfig.collectionsConfig,
 		activeSection.view === 'locations'
 	);
 	const collectionsController = useCollectionsController(

@@ -1,9 +1,11 @@
 import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { Plus } from 'lucide-react';
 import type { ViewTable } from '@wordpress/dataviews';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { Plus } from 'lucide-react';
 import type {
+	CollectionRecord,
+	CollectionsAdminConfig,
 	LocationDialogStep,
 	LocationFormMode,
 	LocationFormState,
@@ -11,6 +13,8 @@ import type {
 	LocationsAdminConfig,
 	MapCoordinates,
 } from '../../types';
+import { fetchAllCollections } from '../../lib/collections/fetchAllCollections';
+import { updateCollection } from '../../lib/collections/updateCollection';
 import { configureApiFetch } from '../../lib/locations/configureApiFetch';
 import { createEmptyFieldErrors } from '../../lib/locations/createEmptyFieldErrors';
 import { createLocationFormStateFromRecord } from '../../lib/locations/createLocationFormStateFromRecord';
@@ -36,6 +40,7 @@ const DEFAULT_MAP_CENTER: MapCoordinates = {
 
 export function useLocationsController(
 	config: LocationsAdminConfig,
+	collectionsConfig: CollectionsAdminConfig,
 	enabled: boolean
 ): LocationsController {
 	const [form, setForm] = useState<LocationFormState>(DEFAULT_FORM_STATE);
@@ -54,10 +59,23 @@ export function useLocationsController(
 	const [geocodeError, setGeocodeError] = useState<string | null>(null);
 	const [geocodeNotice, setGeocodeNotice] = useState<string | null>(null);
 	const [locations, setLocations] = useState<LocationRecord[]>([]);
+	const [collections, setCollections] = useState<CollectionRecord[]>([]);
 	const [step, setStep] = useState<LocationDialogStep>('details');
 	const [view, setView] = useState<ViewTable>(DEFAULT_VIEW);
 	const [mapCenter, setMapCenter] = useState<MapCoordinates | null>(null);
 	const [selectedCoordinates, setSelectedCoordinates] = useState<MapCoordinates | null>(null);
+	const [isAssignToCollectionModalOpen, setAssignToCollectionModalOpen] = useState(false);
+	const [selectedAssignmentLocation, setSelectedAssignmentLocation] = useState<LocationRecord | null>(null);
+	const [assignmentCollectionId, setAssignmentCollectionId] = useState('');
+	const [isAssignmentSaving, setAssignmentSaving] = useState(false);
+	const [isRemoveCollectionAssignmentModalOpen, setRemoveCollectionAssignmentModalOpen] =
+		useState(false);
+	const [selectedRemovalLocation, setSelectedRemovalLocation] = useState<LocationRecord | null>(
+		null
+	);
+	const [selectedRemovalCollection, setSelectedRemovalCollection] =
+		useState<CollectionRecord | null>(null);
+	const [isRemovingCollectionAssignment, setRemovingCollectionAssignment] = useState(false);
 
 	const loadLocations = useCallback(async () => {
 		if (!enabled) {
@@ -68,28 +86,32 @@ export function useLocationsController(
 		setLoadError(null);
 
 		try {
-			const records = await fetchAllLocations(config);
-			setLocations(records);
+			const [locationRecords, collectionRecords] = await Promise.all([
+				fetchAllLocations(config),
+				fetchAllCollections(collectionsConfig),
+			]);
+			setLocations(locationRecords);
+			setCollections(collectionRecords);
 		} catch (error) {
 			setLoadError(
 				error instanceof Error
 					? error.message
-					: __('Locations could not be loaded.', 'minimal-map')
+					: __('Locations and collections could not be loaded.', 'minimal-map')
 			);
 		} finally {
 			setLoading(false);
 		}
-	}, [config, enabled]);
+	}, [collectionsConfig, config, enabled]);
 
 	useEffect(() => {
-		configureApiFetch(config.nonce);
+		configureApiFetch(collectionsConfig.nonce || config.nonce);
 
 		if (!enabled) {
 			return;
 		}
 
 		void loadLocations();
-	}, [config.nonce, enabled, loadLocations]);
+	}, [collectionsConfig.nonce, config.nonce, enabled, loadLocations]);
 
 	useEffect(() => {
 		setView((currentView) => ({
@@ -102,6 +124,27 @@ export function useLocationsController(
 		() => paginateLocations(locations, view),
 		[locations, view]
 	);
+
+	const collectionsByLocationId = useMemo(() => {
+		const lookup = new Map<number, CollectionRecord[]>();
+
+		collections.forEach((collection) => {
+			collection.location_ids.forEach((locationId) => {
+				const assignedCollections = lookup.get(locationId) ?? [];
+				assignedCollections.push(collection);
+				lookup.set(locationId, assignedCollections);
+			});
+		});
+
+		lookup.forEach((assignedCollections, locationId) => {
+			lookup.set(
+				locationId,
+				[...assignedCollections].sort((left, right) => left.title.localeCompare(right.title))
+			);
+		});
+
+		return lookup;
+	}, [collections]);
 
 	const resetDialogState = (): void => {
 		setFormMode('create');
@@ -116,6 +159,34 @@ export function useLocationsController(
 		setSelectedCoordinates(null);
 		setStep('details');
 	};
+
+	const resetAssignToCollectionState = useCallback((): void => {
+		setAssignToCollectionModalOpen(false);
+		setSelectedAssignmentLocation(null);
+		setAssignmentCollectionId('');
+	}, []);
+
+	const closeAssignToCollectionModal = useCallback((): void => {
+		if (isAssignmentSaving) {
+			return;
+		}
+
+		resetAssignToCollectionState();
+	}, [isAssignmentSaving, resetAssignToCollectionState]);
+
+	const resetRemoveCollectionAssignmentState = useCallback((): void => {
+		setRemoveCollectionAssignmentModalOpen(false);
+		setSelectedRemovalLocation(null);
+		setSelectedRemovalCollection(null);
+	}, []);
+
+	const closeRemoveCollectionAssignmentModal = useCallback((): void => {
+		if (isRemovingCollectionAssignment) {
+			return;
+		}
+
+		resetRemoveCollectionAssignmentState();
+	}, [isRemovingCollectionAssignment, resetRemoveCollectionAssignmentState]);
 
 	const openDialog = (): void => {
 		resetDialogState();
@@ -187,6 +258,26 @@ export function useLocationsController(
 	const dismissActionNotice = useCallback((): void => {
 		setActionNotice(null);
 	}, []);
+
+	const onOpenAssignToCollectionModal = useCallback((location: LocationRecord): void => {
+		setSelectedAssignmentLocation(location);
+		setAssignmentCollectionId('');
+		setAssignToCollectionModalOpen(true);
+	}, []);
+
+	const onOpenRemoveCollectionAssignmentModal = useCallback(
+		(location: LocationRecord, collection: CollectionRecord): void => {
+			setSelectedRemovalLocation(location);
+			setSelectedRemovalCollection(collection);
+			setRemoveCollectionAssignmentModalOpen(true);
+		},
+		[]
+	);
+
+	const getCollectionsForLocation = useCallback(
+		(locationId: number): CollectionRecord[] => collectionsByLocationId.get(locationId) ?? [],
+		[collectionsByLocationId]
+	);
 
 	const onDuplicateLocation = useCallback(
 		async (location: LocationRecord): Promise<void> => {
@@ -304,6 +395,109 @@ export function useLocationsController(
 		[config, loadLocations]
 	);
 
+	const onAssignLocationToCollection = useCallback(async (): Promise<void> => {
+		if (!selectedAssignmentLocation || !assignmentCollectionId) {
+			return;
+		}
+
+		const collectionId = Number(assignmentCollectionId);
+		const selectedCollection = collections.find((collection) => collection.id === collectionId);
+
+		if (!selectedCollection) {
+			setActionNotice({
+				status: 'error',
+				message: __('Selected collection could not be found.', 'minimal-map'),
+			});
+			return;
+		}
+
+		if (selectedCollection.location_ids.includes(selectedAssignmentLocation.id)) {
+			setActionNotice({
+				status: 'success',
+				message: __('Location is already assigned to that collection.', 'minimal-map'),
+			});
+			resetAssignToCollectionState();
+			return;
+		}
+
+		setAssignmentSaving(true);
+		setActionNotice(null);
+
+		try {
+			await updateCollection(
+				collectionsConfig,
+				selectedCollection.id,
+				selectedCollection.title,
+				Array.from(new Set([...selectedCollection.location_ids, selectedAssignmentLocation.id]))
+			);
+			await loadLocations();
+			setActionNotice({
+				status: 'success',
+				message: __('Location assigned to collection.', 'minimal-map'),
+			});
+			resetAssignToCollectionState();
+		} catch (error) {
+			setActionNotice({
+				status: 'error',
+				message:
+					error instanceof Error
+						? error.message
+						: __('Location could not be assigned to the collection.', 'minimal-map'),
+			});
+		} finally {
+			setAssignmentSaving(false);
+		}
+	}, [
+		assignmentCollectionId,
+		collections,
+		collectionsConfig,
+		loadLocations,
+		resetAssignToCollectionState,
+		selectedAssignmentLocation,
+	]);
+
+	const onRemoveCollectionAssignment = useCallback(async (): Promise<void> => {
+		if (!selectedRemovalLocation || !selectedRemovalCollection) {
+			return;
+		}
+
+		setRemovingCollectionAssignment(true);
+		setActionNotice(null);
+
+		try {
+			await updateCollection(
+				collectionsConfig,
+				selectedRemovalCollection.id,
+				selectedRemovalCollection.title,
+				selectedRemovalCollection.location_ids.filter(
+					(locationId) => locationId !== selectedRemovalLocation.id
+				)
+			);
+			await loadLocations();
+			setActionNotice({
+				status: 'success',
+				message: __('Collection removed from location.', 'minimal-map'),
+			});
+			resetRemoveCollectionAssignmentState();
+		} catch (error) {
+			setActionNotice({
+				status: 'error',
+				message:
+					error instanceof Error
+						? error.message
+						: __('Collection could not be removed from the location.', 'minimal-map'),
+			});
+		} finally {
+			setRemovingCollectionAssignment(false);
+		}
+	}, [
+		collectionsConfig,
+		loadLocations,
+		resetRemoveCollectionAssignmentState,
+		selectedRemovalCollection,
+		selectedRemovalLocation,
+	]);
+
 	const onMapLocationSelect = useCallback((coordinates: MapCoordinates): void => {
 		setSelectedCoordinates(coordinates);
 		setMapCenter(coordinates);
@@ -341,10 +535,7 @@ export function useLocationsController(
 				return;
 			}
 
-			if (
-				formMode === 'edit' &&
-				!hasLocationAddressChanged(form, originalForm)
-			) {
+			if (formMode === 'edit' && !hasLocationAddressChanged(form, originalForm)) {
 				const latitude = Number(originalForm?.latitude ?? '');
 				const longitude = Number(originalForm?.longitude ?? '');
 				const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude);
@@ -405,7 +596,10 @@ export function useLocationsController(
 				setGeocodeError(
 					error instanceof Error
 						? error.message
-						: __('The address could not be geocoded right now. Select the location manually on the map.', 'minimal-map')
+						: __(
+								'The address could not be geocoded right now. Select the location manually on the map.',
+								'minimal-map'
+						  )
 				);
 			} finally {
 				setGeocoding(false);
@@ -453,10 +647,13 @@ export function useLocationsController(
 
 	return {
 		actionNotice,
+		assignmentCollectionId,
+		collections,
 		dismissActionNotice,
 		fieldErrors,
 		form,
 		formMode,
+		getCollectionsForLocation,
 		geocodeError,
 		geocodeNotice,
 		headerAction: enabled ? (
@@ -469,9 +666,13 @@ export function useLocationsController(
 				{__('Add location', 'minimal-map')}
 			</Button>
 		) : null,
+		isAssignToCollectionModalOpen,
+		isAssignmentSaving,
 		isDialogOpen,
 		isGeocoding,
 		isLoading,
+		isRemoveCollectionAssignmentModalOpen,
+		isRemovingCollectionAssignment,
 		isRowActionPending,
 		isSubmitting,
 		loadError,
@@ -482,17 +683,27 @@ export function useLocationsController(
 				? __('Edit location', 'minimal-map')
 				: __('Add location', 'minimal-map'),
 		onBack,
+		onAssignLocationToCollection,
 		onCancel,
 		onChangeFormValue,
+		onCloseAssignToCollectionModal: closeAssignToCollectionModal,
+		onCloseRemoveCollectionAssignmentModal: closeRemoveCollectionAssignmentModal,
+		onOpenAssignToCollectionModal,
+		onOpenRemoveCollectionAssignmentModal,
 		onChangeView: (nextView) => setView(nextView),
 		onConfirm,
 		onDeleteLocation,
 		onDuplicateLocation,
 		onEditLocation,
 		onMapLocationSelect,
+		onRemoveCollectionAssignment,
 		onRetrieveLocation,
+		onSelectAssignmentCollection: setAssignmentCollectionId,
 		paginatedLocations,
+		selectedAssignmentLocation,
 		selectedCoordinates,
+		selectedRemovalCollection,
+		selectedRemovalLocation,
 		submitLabel:
 			formMode === 'edit'
 				? __('Save changes', 'minimal-map')

@@ -1,11 +1,14 @@
 import { Button, Modal, SearchControl } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews/wp';
 import type { Action, Field, View, ViewTable } from '@wordpress/dataviews';
+import type { KeyboardEvent } from 'react';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Plus, Trash2 } from 'lucide-react';
 import type { LocationRecord } from '../../types';
 import { formatLocationAddressLines } from '../../lib/locations/formatLocationAddressLines';
+import { shouldHandleDialogEnter } from '../../lib/locations/shouldHandleDialogEnter';
+import Kbd from '../../components/Kbd';
 import type { CollectionsController } from './types';
 
 function useLocationFields(): Field<LocationRecord>[] {
@@ -124,6 +127,23 @@ export default function CollectionAssignmentModal({ controller }: { controller: 
 		<Modal
 			className="minimal-map-admin__collection-assignment-modal"
 			contentLabel={__('Assign locations', 'minimal-map')}
+			focusOnMount="firstInputElement"
+			onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+				const target = event.target;
+				const isHTMLElement = target instanceof HTMLElement;
+
+				if (
+					controller.isAssignmentSaving ||
+					(isHTMLElement &&
+						target.closest('[data-minimal-map-dialog-ignore-enter="true"]')) ||
+					!shouldHandleDialogEnter(event)
+				) {
+					return;
+				}
+
+				event.preventDefault();
+				void controller.onSaveAssignments();
+			}}
 			onRequestClose={controller.onCloseAssignmentModal}
 			shouldCloseOnClickOutside={!controller.isAssignmentSaving}
 			shouldCloseOnEsc={!controller.isAssignmentSaving}
@@ -158,6 +178,7 @@ export default function CollectionAssignmentModal({ controller }: { controller: 
 						variant="tertiary"
 						onClick={controller.onCloseAssignmentModal}
 						disabled={controller.isAssignmentSaving}
+						data-minimal-map-dialog-ignore-enter="true"
 					>
 						{__('Cancel', 'minimal-map')}
 					</Button>
@@ -168,7 +189,10 @@ export default function CollectionAssignmentModal({ controller }: { controller: 
 						isBusy={controller.isAssignmentSaving}
 						disabled={controller.isAssignmentSaving}
 					>
-						{__('Save locations', 'minimal-map')}
+						<span className="minimal-map-admin__location-dialog-button-content">
+							<span>{__('Save locations', 'minimal-map')}</span>
+							<Kbd variant="blue">Enter</Kbd>
+						</span>
 					</Button>
 				</div>
 			</div>

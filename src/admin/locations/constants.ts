@@ -27,6 +27,7 @@ export const DEFAULT_VIEW: ViewTable = {
 		'email',
 		'website',
 		'address',
+		'collections',
 	],
 	layout: {
 		enableMoving: false,

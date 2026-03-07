@@ -216,6 +216,67 @@ body.toplevel_page_minimal-map svg.lucide {
   background: #f0f0f1;
 }
 
+.minimal-map-admin__location-collections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.minimal-map-admin__location-collection-trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.minimal-map-admin__location-collection-trigger:focus-visible {
+  outline: 2px solid #3858e8;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.minimal-map-admin__assign-to-collection-dialog {
+  display: grid;
+  gap: 16px;
+}
+
+.minimal-map-admin__assign-to-collection-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.minimal-map-admin__assign-to-collection-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.minimal-map-admin__assign-to-collection-empty {
+  margin: 0;
+  color: #646970;
+}
+
+.minimal-map-admin__assign-to-collection-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.minimal-map-admin__remove-collection-assignment-dialog {
+  display: grid;
+  gap: 16px;
+}
+
+.minimal-map-admin__remove-collection-assignment-copy {
+  margin: 0;
+  font-weight: 600;
+}
+
+.minimal-map-admin__remove-collection-assignment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .minimal-map-admin__feature-card,
 .minimal-map-admin__feature-card.components-card {
   height: 100%;
