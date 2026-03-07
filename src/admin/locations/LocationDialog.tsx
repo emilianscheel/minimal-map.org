@@ -8,6 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import { shouldHandleDialogEnter } from '../../lib/locations/shouldHandleDialogEnter';
 import Kbd from '../../components/Kbd';
+import MapStep from './MapStep';
 import type { LocationsController } from './types';
 import LocationDialogFields from './LocationDialogFields';
 
@@ -29,6 +30,14 @@ export default function LocationDialog({ controller }: { controller: LocationsCo
 			<div
 				className="minimal-map-admin__location-dialog"
 				onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+					if (
+						(controller.step === 'map' && !controller.selectedCoordinates) ||
+						controller.isSubmitting ||
+						controller.isGeocoding
+					) {
+						return;
+					}
+
 					if (!shouldHandleDialogEnter(event)) {
 						return;
 					}
@@ -42,15 +51,19 @@ export default function LocationDialog({ controller }: { controller: LocationsCo
 						{controller.submitError}
 					</Notice>
 				)}
-				<LocationDialogFields
-					fieldErrors={controller.fieldErrors}
-					form={controller.form}
-					onChange={controller.onChangeFormValue}
-					step={controller.step}
-				/>
+				{controller.step === 'map' ? (
+					<MapStep controller={controller} />
+				) : (
+					<LocationDialogFields
+						fieldErrors={controller.fieldErrors}
+						form={controller.form}
+						onChange={controller.onChangeFormValue}
+						step={controller.step}
+					/>
+				)}
 				<div className="minimal-map-admin__location-dialog-footer">
 					<div className="minimal-map-admin__location-dialog-footer-start">
-						{controller.step === 'address' ? (
+						{controller.step !== 'details' ? (
 							<Button
 								__next40pxDefaultSize
 								variant="tertiary"
@@ -68,7 +81,7 @@ export default function LocationDialog({ controller }: { controller: LocationsCo
 							__next40pxDefaultSize
 							variant="tertiary"
 							onClick={controller.onCancel}
-							disabled={controller.isSubmitting}
+							disabled={controller.isSubmitting || controller.isGeocoding}
 						>
 							{__('Cancel', 'minimal-map')}
 						</Button>
@@ -78,14 +91,18 @@ export default function LocationDialog({ controller }: { controller: LocationsCo
 							onClick={() => {
 								void controller.onConfirm();
 							}}
-							disabled={controller.isSubmitting}
-							isBusy={controller.isSubmitting}
+							disabled={
+								controller.isSubmitting ||
+								controller.isGeocoding ||
+								(controller.step === 'map' && !controller.selectedCoordinates)
+							}
+							isBusy={controller.isSubmitting || controller.isGeocoding}
 						>
 							<span className="minimal-map-admin__location-dialog-button-content">
 								<span>
-									{controller.step === 'details'
-										? __('Next', 'minimal-map')
-										: __('Finish', 'minimal-map')}
+									{controller.step === 'map'
+										? __('Finish', 'minimal-map')
+										: __('Next', 'minimal-map')}
 								</span>
 								<Kbd variant="blue">Enter</Kbd>
 							</span>

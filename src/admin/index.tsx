@@ -41,6 +41,7 @@ const DEFAULT_ADMIN_CONFIG: AdminAppConfig = {
 		nonce: '',
 		restBase: '',
 		restPath: '',
+		geocodePath: '',
 	},
 	mapConfig: {},
 };

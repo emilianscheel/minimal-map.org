@@ -8,6 +8,7 @@
 namespace MinimalMap;
 
 use MinimalMap\Locations\Location_Post_Type;
+use MinimalMap\Rest\Geocode_Route;
 
 /**
  * Provides shared config for PHP and JS consumers.
@@ -145,9 +146,10 @@ class Config {
 			),
 			'mapConfig'      => $this->get_client_config(),
 			'locationsConfig' => array(
-				'nonce'    => wp_create_nonce( 'wp_rest' ),
-				'restBase' => Location_Post_Type::REST_BASE,
-				'restPath' => Location_Post_Type::get_rest_path(),
+				'nonce'       => wp_create_nonce( 'wp_rest' ),
+				'restBase'    => Location_Post_Type::REST_BASE,
+				'restPath'    => Location_Post_Type::get_rest_path(),
+				'geocodePath' => Geocode_Route::get_rest_path(),
 			),
 		);
 	}

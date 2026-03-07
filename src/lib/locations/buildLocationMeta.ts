@@ -12,5 +12,7 @@ export function buildLocationMeta(form: LocationFormState): LocationMeta {
 		city: form.city.trim(),
 		state: form.state.trim(),
 		country: form.country.trim(),
+		latitude: form.latitude.trim(),
+		longitude: form.longitude.trim(),
 	};
 }

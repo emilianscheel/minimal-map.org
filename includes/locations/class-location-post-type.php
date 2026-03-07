@@ -41,6 +41,8 @@ class Location_Post_Type {
 		'city'         => 'sanitize_text_field',
 		'state'        => 'sanitize_text_field',
 		'country'      => 'sanitize_text_field',
+		'latitude'     => 'sanitize_text_field',
+		'longitude'    => 'sanitize_text_field',
 	);
 
 	/**

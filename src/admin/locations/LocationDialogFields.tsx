@@ -68,11 +68,13 @@ export default function LocationDialogFields({
 					label={__('Street', 'minimal-map')}
 					value={form.street}
 					onChange={(value) => onChange('street', value)}
+					help={fieldErrors.street}
 				/>
 				<TextControl
 					label={__('House number', 'minimal-map')}
 					value={form.house_number}
 					onChange={(value) => onChange('house_number', value)}
+					help={fieldErrors.house_number}
 				/>
 			</div>
 			<div className="minimal-map-admin__location-dialog-grid minimal-map-admin__location-dialog-grid--row-two">
@@ -80,11 +82,13 @@ export default function LocationDialogFields({
 					label={__('Postal code', 'minimal-map')}
 					value={form.postal_code}
 					onChange={(value) => onChange('postal_code', value)}
+					help={fieldErrors.postal_code}
 				/>
 				<TextControl
 					label={__('City', 'minimal-map')}
 					value={form.city}
 					onChange={(value) => onChange('city', value)}
+					help={fieldErrors.city}
 				/>
 			</div>
 			<div className="minimal-map-admin__location-dialog-grid minimal-map-admin__location-dialog-grid--row-three">
@@ -97,6 +101,7 @@ export default function LocationDialogFields({
 					label={__('Country', 'minimal-map')}
 					value={form.country}
 					onChange={(value) => onChange('country', value)}
+					help={fieldErrors.country}
 				/>
 			</div>
 		</div>

@@ -31,6 +31,7 @@ export interface MapRuntimeConfig {
 	heightUnits?: string[];
 	stylePresets?: StylePresets;
 	messages?: MapMessages;
+	onMapClick?: (coordinates: MapCoordinates) => void;
 }
 
 export interface RawMapConfig {
@@ -43,12 +44,16 @@ export interface RawMapConfig {
 	styleUrl?: string;
 	showZoomControls?: boolean;
 	fallbackMessage?: string;
+	markerLat?: number | string | null;
+	markerLng?: number | string | null;
 }
 
 export interface NormalizedMapConfig extends MapDefaults {
 	heightCssValue: string;
 	styleUrl: string;
 	fallbackMessage: string;
+	markerLat: number | null;
+	markerLng: number | null;
 }
 
 export interface MinimalMapInstance {
@@ -85,6 +90,7 @@ export interface LocationsAdminConfig {
 	nonce: string;
 	restBase: string;
 	restPath: string;
+	geocodePath: string;
 }
 
 export interface LocationRestResponse {
@@ -138,6 +144,8 @@ export interface LocationMeta {
 	city: string;
 	state: string;
 	country: string;
+	latitude: string;
+	longitude: string;
 }
 
 export interface LocationRecord extends LocationMeta {
@@ -149,10 +157,34 @@ export interface LocationFormState extends LocationMeta {
 	title: string;
 }
 
-export type LocationDialogStep = 'details' | 'address';
+export type LocationDialogStep = 'details' | 'address' | 'map';
 
 export interface FieldErrors {
 	title?: string;
 	email?: string;
 	website?: string;
+	street?: string;
+	house_number?: string;
+	postal_code?: string;
+	city?: string;
+	country?: string;
 }
+
+export interface MapCoordinates {
+	lat: number;
+	lng: number;
+}
+
+export interface GeocodeResponseSuccess {
+	success: true;
+	label: string;
+	lat: number;
+	lng: number;
+}
+
+export interface GeocodeResponseFailure {
+	success: false;
+	message: string;
+}
+
+export type GeocodeResponse = GeocodeResponseSuccess | GeocodeResponseFailure;

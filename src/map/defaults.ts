@@ -63,6 +63,8 @@ export function normalizeMapConfig(
 	const zoom = clampNumber(rawConfig.zoom ?? defaults.zoom, 0, 22);
 	const height = Math.max(1, Number(rawConfig.height ?? defaults.height));
 	const heightUnit = normalizeHeightUnit(rawConfig.heightUnit ?? defaults.heightUnit);
+	const markerLat = normalizeOptionalCoordinate(rawConfig.markerLat, -90, 90);
+	const markerLng = normalizeOptionalCoordinate(rawConfig.markerLng, -180, 180);
 
 	return {
 		centerLat,
@@ -75,6 +77,8 @@ export function normalizeMapConfig(
 		styleUrl,
 		showZoomControls: Boolean(rawConfig.showZoomControls ?? defaults.showZoomControls),
 		fallbackMessage: rawConfig.fallbackMessage || runtimeConfig.messages?.fallback || FALLBACK_MESSAGE,
+		markerLat,
+		markerLng,
 	};
 }
 
@@ -89,6 +93,24 @@ function clampNumber(value: number | string, minimum: number, maximum: number): 
 
 	if (Number.isNaN(numericValue)) {
 		return minimum;
+	}
+
+	return Math.max(minimum, Math.min(maximum, numericValue));
+}
+
+function normalizeOptionalCoordinate(
+	value: number | string | null | undefined,
+	minimum: number,
+	maximum: number
+): number | null {
+	if (value === null || typeof value === 'undefined' || value === '') {
+		return null;
+	}
+
+	const numericValue = Number(value);
+
+	if (Number.isNaN(numericValue)) {
+		return null;
 	}
 
 	return Math.max(minimum, Math.min(maximum, numericValue));

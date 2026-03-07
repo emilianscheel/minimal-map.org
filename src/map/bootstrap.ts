@@ -14,6 +14,7 @@ interface MinimalMapState {
 	config: NormalizedMapConfig | null;
 	controls: WordPressZoomControls | null;
 	map: MapLibreMap | null;
+	marker: maplibregl.Marker | null;
 	observer: ResizeObserver | null;
 }
 
@@ -66,8 +67,28 @@ export function createMinimalMap(
 		config: null,
 		controls: null,
 		map: null,
+		marker: null,
 		observer: null,
 	};
+
+	function syncMarker(config: NormalizedMapConfig): void {
+		if (!state.map) {
+			return;
+		}
+
+		if (config.markerLat === null || config.markerLng === null) {
+			state.marker?.remove();
+			state.marker = null;
+			return;
+		}
+
+		if (!state.marker) {
+			state.marker = new maplibregl.Marker().setLngLat([config.markerLng, config.markerLat]).addTo(state.map);
+			return;
+		}
+
+		state.marker.setLngLat([config.markerLng, config.markerLat]);
+	}
 
 	function syncControls(config: NormalizedMapConfig): void {
 		state.controls?.destroy();
@@ -106,6 +127,14 @@ export function createMinimalMap(
 
 		map.scrollZoom.disable();
 		map.on('load', () => map.resize());
+		map.on('click', (event) => {
+			const coordinates = {
+				lat: event.lngLat.lat,
+				lng: event.lngLat.lng,
+			};
+
+			runtimeConfig.onMapClick?.(coordinates);
+		});
 		map.on('error', () => {
 			if (map.loaded()) {
 				return;
@@ -121,6 +150,7 @@ export function createMinimalMap(
 			state.observer.observe(host);
 		}
 
+		syncMarker(config);
 		syncControls(config);
 	}
 
@@ -133,6 +163,7 @@ export function createMinimalMap(
 
 		state.map?.remove();
 		state.map = null;
+		state.marker = null;
 
 		host.innerHTML = '';
 	}
@@ -176,6 +207,14 @@ export function createMinimalMap(
 
 		if (!previousConfig || previousConfig.showZoomControls !== nextConfig.showZoomControls) {
 			syncControls(nextConfig);
+		}
+
+		if (
+			!previousConfig ||
+			previousConfig.markerLat !== nextConfig.markerLat ||
+			previousConfig.markerLng !== nextConfig.markerLng
+		) {
+			syncMarker(nextConfig);
 		}
 
 		state.config = nextConfig;

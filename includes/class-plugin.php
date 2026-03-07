@@ -10,6 +10,7 @@ namespace MinimalMap;
 use MinimalMap\Admin\Admin_Menu;
 use MinimalMap\Blocks\Map_Block;
 use MinimalMap\Locations\Location_Post_Type;
+use MinimalMap\Rest\Geocode_Route;
 
 /**
  * Boots the plugin services.
@@ -51,6 +52,13 @@ final class Plugin {
 	private $location_post_type;
 
 	/**
+	 * Geocoding REST route service.
+	 *
+	 * @var Geocode_Route
+	 */
+	private $geocode_route;
+
+	/**
 	 * Boot the plugin.
 	 *
 	 * @return Plugin
@@ -73,6 +81,7 @@ final class Plugin {
 		$this->map_block          = new Map_Block( $map_view );
 		$this->admin_menu         = new Admin_Menu();
 		$this->location_post_type = new Location_Post_Type();
+		$this->geocode_route      = new Geocode_Route();
 
 		$this->register_hooks();
 	}
@@ -88,5 +97,6 @@ final class Plugin {
 		add_action( 'init', array( $this->map_block, 'register' ) );
 		add_action( 'admin_menu', array( $this->admin_menu, 'register' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue_admin_assets' ) );
+		add_action( 'rest_api_init', array( $this->geocode_route, 'register' ) );
 	}
 }

@@ -12,6 +12,8 @@ export const DEFAULT_FORM_STATE: LocationFormState = {
 	city: '',
 	state: '',
 	country: '',
+	latitude: '',
+	longitude: '',
 };
 
 export const DEFAULT_VIEW: ViewTable = {
