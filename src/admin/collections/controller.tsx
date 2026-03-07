@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { Plus } from 'lucide-react';
-import type { ViewGrid, ViewTable } from '@wordpress/dataviews';
+import type { ViewGrid, ViewPickerTable } from '@wordpress/dataviews';
 import type {
 	CollectionFormState,
 	CollectionRecord,
@@ -29,7 +29,7 @@ export function useCollectionsController(
 ): CollectionsController {
 	const [actionNotice, setActionNotice] = useState<CollectionsController['actionNotice']>(null);
 	const [assignmentSearch, setAssignmentSearch] = useState('');
-	const [availableLocationsView, setAvailableLocationsView] = useState<ViewTable>(DEFAULT_ASSIGNMENT_VIEW);
+	const [assignmentLocationsView, setAssignmentLocationsView] = useState<ViewPickerTable>(DEFAULT_ASSIGNMENT_VIEW);
 	const [collections, setCollections] = useState<CollectionRecord[]>([]);
 	const [editingCollection, setEditingCollection] = useState<CollectionRecord | null>(null);
 	const [form, setForm] = useState<CollectionFormState>(DEFAULT_FORM_STATE);
@@ -44,7 +44,6 @@ export function useCollectionsController(
 	const [locations, setLocations] = useState<LocationRecord[]>([]);
 	const [selectedAssignmentCollection, setSelectedAssignmentCollection] = useState<CollectionRecord | null>(null);
 	const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
-	const [selectedLocationsView, setSelectedLocationsView] = useState<ViewTable>(DEFAULT_ASSIGNMENT_VIEW);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 	const [view, setView] = useState<ViewGrid>(DEFAULT_GRID_VIEW);
 
@@ -101,39 +100,17 @@ export function useCollectionsController(
 		[locations]
 	);
 
-	const selectedLocationsPool = useMemo(
-		() =>
-			selectedLocationIds
-				.map((locationId) => locationsById.get(locationId))
-				.filter((location): location is LocationRecord => Boolean(location)),
-		[locationsById, selectedLocationIds]
-	);
-
-	const selectedLocationsFiltered = useMemo(
-		() => filterLocationsForAssignment(selectedLocationsPool, assignmentSearch),
-		[assignmentSearch, selectedLocationsPool]
-	);
-
-	const availableLocationsPool = useMemo(
-		() => locations.filter((location) => !selectedLocationIds.includes(location.id)),
-		[locations, selectedLocationIds]
-	);
-
-	const availableLocationsFiltered = useMemo(
-		() => filterLocationsForAssignment(availableLocationsPool, assignmentSearch),
-		[assignmentSearch, availableLocationsPool]
+	const assignmentLocationsFiltered = useMemo(
+		() => filterLocationsForAssignment(locations, assignmentSearch),
+		[assignmentSearch, locations]
 	);
 
 	useEffect(() => {
-		setAvailableLocationsView((currentView) => ({
+		setAssignmentLocationsView((currentView) => ({
 			...currentView,
 			page: 1,
 		}));
-		setSelectedLocationsView((currentView) => ({
-			...currentView,
-			page: 1,
-		}));
-	}, [assignmentSearch, selectedLocationIds.length]);
+	}, [assignmentSearch]);
 
 	const { collections: paginatedCollections, totalPages } = useMemo(
 		() => paginateCollections(collections, view),
@@ -141,19 +118,10 @@ export function useCollectionsController(
 	);
 
 	const {
-		locations: paginatedAvailableLocations,
-		totalPages: availableLocationsTotalPages,
+		locations: paginatedAssignmentLocations,
 	} = useMemo(
-		() => paginateLocations(availableLocationsFiltered, availableLocationsView),
-		[availableLocationsFiltered, availableLocationsView]
-	);
-
-	const {
-		locations: paginatedSelectedLocations,
-		totalPages: selectedLocationsTotalPages,
-	} = useMemo(
-		() => paginateLocations(selectedLocationsFiltered, selectedLocationsView),
-		[selectedLocationsFiltered, selectedLocationsView]
+		() => paginateLocations(assignmentLocationsFiltered, assignmentLocationsView),
+		[assignmentLocationsFiltered, assignmentLocationsView]
 	);
 
 	const resetDialogState = useCallback((): void => {
@@ -275,8 +243,7 @@ export function useCollectionsController(
 		setSelectedAssignmentCollection(collection);
 		setSelectedLocationIds(collection.location_ids);
 		setAssignmentSearch('');
-		setAvailableLocationsView(DEFAULT_ASSIGNMENT_VIEW);
-		setSelectedLocationsView(DEFAULT_ASSIGNMENT_VIEW);
+		setAssignmentLocationsView(DEFAULT_ASSIGNMENT_VIEW);
 		setAssignmentModalOpen(true);
 	}, []);
 
@@ -291,15 +258,13 @@ export function useCollectionsController(
 		setAssignmentSearch('');
 	};
 
-	const onAddLocationToAssignment = (location: LocationRecord): void => {
-		setSelectedLocationIds((currentIds) => (
-			currentIds.includes(location.id) ? currentIds : [ ...currentIds, location.id ]
-		));
-	};
+	const onChangeAssignmentLocationsSelection = useCallback((nextSelection: string[]): void => {
+		const nextLocationIds = nextSelection
+			.map((locationId) => Number.parseInt(locationId, 10))
+			.filter((locationId) => Number.isInteger(locationId) && locationsById.has(locationId));
 
-	const onRemoveLocationFromAssignment = (location: LocationRecord): void => {
-		setSelectedLocationIds((currentIds) => currentIds.filter((locationId) => locationId !== location.id));
-	};
+		setSelectedLocationIds(nextLocationIds);
+	}, [locationsById]);
 
 	const onSaveAssignments = async (): Promise<void> => {
 		if (!selectedAssignmentCollection) {
@@ -339,12 +304,11 @@ export function useCollectionsController(
 
 	return {
 		actionNotice,
+		assignmentLocations: paginatedAssignmentLocations,
 		assignmentSearch,
-		availableLocations: paginatedAvailableLocations,
-		availableLocationsView,
+		assignmentLocationsView,
 		collections,
-		filteredAvailableLocationsCount: availableLocationsFiltered.length,
-		filteredAssignedLocationsCount: selectedLocationsFiltered.length,
+		filteredAssignmentLocationsCount: assignmentLocationsFiltered.length,
 		form,
 		formMode,
 		headerAction: enabled ? (
@@ -371,8 +335,6 @@ export function useCollectionsController(
 				: __('Add collection', 'minimal-map'),
 		selectedAssignmentCollection,
 		selectedLocationIds,
-		selectedLocations: paginatedSelectedLocations,
-		selectedLocationsView,
 		submitError,
 		submitLabel:
 			formMode === 'edit'
@@ -380,21 +342,19 @@ export function useCollectionsController(
 				: __('Add collection', 'minimal-map'),
 		view,
 		dismissActionNotice,
-		onAddLocationToAssignment,
 		onCancel,
 		onChangeAssignmentSearch: setAssignmentSearch,
-		onChangeAvailableLocationsView: (nextView: ViewTable) => setAvailableLocationsView(nextView),
+		onChangeAssignmentLocationsSelection,
+		onChangeAssignmentLocationsView: (nextView: ViewPickerTable) => setAssignmentLocationsView(nextView),
 		onChangeFormValue,
-		onChangeSelectedLocationsView: (nextView: ViewTable) => setSelectedLocationsView(nextView),
 		onChangeView: (nextView: ViewGrid) => setView(nextView),
 		onCloseAssignmentModal,
 		onConfirm,
 		onDeleteCollection,
 		onEditCollection,
 		onOpenAssignmentModal,
-		onRemoveLocationFromAssignment,
 		onSaveAssignments,
 		paginatedCollections,
-		totalPages,
+		totalPages: totalPages,
 	};
 }

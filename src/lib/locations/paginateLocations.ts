@@ -1,7 +1,11 @@
 import type { LocationRecord } from '../../types';
-import type { ViewTable } from '@wordpress/dataviews';
 
-export function paginateLocations(locations: LocationRecord[], view: ViewTable): {
+type PaginatedLocationView = {
+	page?: number;
+	perPage?: number;
+};
+
+export function paginateLocations(locations: LocationRecord[], view: PaginatedLocationView): {
 	locations: LocationRecord[];
 	totalPages: number;
 } {

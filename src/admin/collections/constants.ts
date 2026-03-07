@@ -1,4 +1,4 @@
-import type { ViewGrid, ViewTable } from '@wordpress/dataviews';
+import type { ViewGrid, ViewPickerTable } from '@wordpress/dataviews';
 import type { CollectionFormState } from '../../types';
 
 export const DEFAULT_FORM_STATE: CollectionFormState = {
@@ -21,8 +21,8 @@ export const DEFAULT_GRID_VIEW: ViewGrid = {
 	},
 };
 
-export const DEFAULT_ASSIGNMENT_VIEW: ViewTable = {
-	type: 'table',
+export const DEFAULT_ASSIGNMENT_VIEW: ViewPickerTable = {
+	type: 'pickerTable',
 	page: 1,
 	perPage: 5,
 	fields: [ 'title', 'address' ],
