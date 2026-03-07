@@ -9,6 +9,17 @@ interface LocationDialogFieldsProps {
 	step: LocationDialogStep;
 }
 
+function OptionalLabel({ label }: { label: string }) {
+	return (
+		<span className="minimal-map-admin__field-label-with-hint">
+			<span>{label}</span>
+			<span className="minimal-map-admin__field-optional-hint">
+				{__('Optional', 'minimal-map')}
+			</span>
+		</span>
+	);
+}
+
 export default function LocationDialogFields({
 	fieldErrors,
 	form,
@@ -26,20 +37,20 @@ export default function LocationDialogFields({
 					help={fieldErrors.title}
 				/>
 				<TextControl
-					label={__('Telephone', 'minimal-map')}
+					label={<OptionalLabel label={__('Telephone', 'minimal-map')} />}
 					type="tel"
 					value={form.telephone}
 					onChange={(value) => onChange('telephone', value)}
 				/>
 				<TextControl
-					label={__('Email address', 'minimal-map')}
+					label={<OptionalLabel label={__('Email address', 'minimal-map')} />}
 					type="email"
 					value={form.email}
 					onChange={(value) => onChange('email', value)}
 					help={fieldErrors.email}
 				/>
 				<TextControl
-					label={__('Website', 'minimal-map')}
+					label={<OptionalLabel label={__('Website', 'minimal-map')} />}
 					type="url"
 					value={form.website}
 					onChange={(value) => onChange('website', value)}
