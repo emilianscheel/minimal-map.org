@@ -115,6 +115,18 @@ export function useMarkersController(
 		[config.restPath, loadMarkers]
 	);
 
+	const onDownloadMarker = useCallback((marker: MarkerRecord): void => {
+		const blob = new Blob([marker.content], { type: 'image/svg+xml' });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = marker.title.endsWith('.svg') ? marker.title : `${marker.title}.svg`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
+	}, []);
+
 	const onUploadMarkers = useCallback(
 		async (files: FileList | File[]): Promise<void> => {
 			const fileList = Array.from(files).filter((file) => file.type === 'image/svg+xml' || file.name.endsWith('.svg'));
@@ -198,6 +210,7 @@ export function useMarkersController(
 		loadError,
 		markers,
 		onDeleteMarker,
+		onDownloadMarker,
 		onUploadMarkers,
 		onChangeView: (nextView: ViewGrid) => setView(nextView),
 		paginatedMarkers,

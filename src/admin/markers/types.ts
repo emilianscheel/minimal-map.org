@@ -17,6 +17,7 @@ export interface MarkersController {
 	loadError: string | null;
 	markers: MarkerRecord[];
 	onDeleteMarker: (marker: MarkerRecord) => Promise<void>;
+	onDownloadMarker: (marker: MarkerRecord) => void;
 	onUploadMarkers: (files: FileList) => Promise<void>;
 	onChangeView: (nextView: ViewGrid) => void;
 	paginatedMarkers: MarkerRecord[];

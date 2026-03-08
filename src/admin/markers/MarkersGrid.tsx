@@ -2,7 +2,7 @@ import { DataViews } from '@wordpress/dataviews/wp';
 import type { Action, Field, View, ViewGrid } from '@wordpress/dataviews';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Trash2 } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 import type { MarkerRecord } from '../../types';
 import MarkerMiniMap from '../../components/MarkerMiniMap';
 import type { MarkersController } from './types';
@@ -32,6 +32,17 @@ export default function MarkersGrid({ controller }: { controller: MarkersControl
 
 	const actions = useMemo<Action<MarkerRecord>[]>(
 		() => [
+			{
+				id: 'download',
+				label: __('Download', 'minimal-map'),
+				isPrimary: true,
+				icon: <Download size={18} />,
+				callback: (items) => {
+					if (items.length === 1) {
+						controller.onDownloadMarker(items[0]);
+					}
+				},
+			},
 			{
 				id: 'delete',
 				label: __('Delete', 'minimal-map'),
