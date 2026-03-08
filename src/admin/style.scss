@@ -913,7 +913,6 @@ body.toplevel_page_minimal-map svg.lucide {
 
   &__controls {
     display: grid;
-    gap: 24px;
     height: calc(100% - 12px);
     overflow-y: auto;
     border: 1px solid #dcdcde;
@@ -935,16 +934,15 @@ body.toplevel_page_minimal-map svg.lucide {
     }
   }
 
-  &__group_card.components-card:not(:first-child) {
-    border-top: 1px solid #dcdcde;
-  }
-
-  &__group_card.components-card:not(:last-child) {
-    border-bottom: 1px solid #dcdcde;
-  }
-
   &__group-card.components-card {
     box-shadow: none;
+    border-radius: 0;
+    margin: 0;
+    border-bottom: 1px solid #dcdcde;
+
+    &:last-child {
+      border-bottom: none;
+    }
   }
 
   &__group-card .components-card__body {
