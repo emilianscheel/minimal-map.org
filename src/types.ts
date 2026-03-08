@@ -76,6 +76,7 @@ export interface RawMapConfig {
 	heightUnit?: string;
 	stylePreset?: string;
 	styleUrl?: string;
+	styleTheme?: Partial<StyleThemeColors>;
 	showZoomControls?: boolean;
 	zoomControlsPosition?: string;
 	zoomControlsPadding?: BoxValue | null;
@@ -101,6 +102,7 @@ export interface RawMapConfig {
 export interface NormalizedMapConfig extends MapDefaults {
 	heightCssValue: string;
 	styleUrl: string;
+	styleTheme: Partial<StyleThemeColors>;
 	fallbackMessage: string;
 	zoomControlsPadding: Required<BoxValue>;
 	zoomControlsOuterMargin: Required<BoxValue>;
@@ -159,6 +161,12 @@ export interface CollectionsAdminConfig {
 	restPath: string;
 }
 
+export interface StylesAdminConfig {
+	nonce: string;
+	restBase: string;
+	restPath: string;
+}
+
 export interface LocationRestResponse {
 	id: number;
 	title?: {
@@ -188,6 +196,7 @@ export interface AdminAppConfig {
 	mapConfig: MapRuntimeConfig;
 	locationsConfig: LocationsAdminConfig;
 	collectionsConfig: CollectionsAdminConfig;
+	stylesConfig: StylesAdminConfig;
 }
 
 export type DashboardCardView = Extract<
@@ -291,3 +300,40 @@ export interface GeocodeResponseFailure {
 }
 
 export type GeocodeResponse = GeocodeResponseSuccess | GeocodeResponseFailure;
+
+export type StyleThemeSlot =
+	| 'background'
+	| 'park'
+	| 'residential'
+	| 'forest'
+	| 'ice'
+	| 'water'
+	| 'waterway'
+	| 'building'
+	| 'buildingOutline'
+	| 'path'
+	| 'roadMinor'
+	| 'roadMajorCasing'
+	| 'roadMajorFill'
+	| 'motorwayCasing'
+	| 'motorwayFill'
+	| 'rail'
+	| 'railDash'
+	| 'boundary'
+	| 'aerowayLine'
+	| 'aerowayArea'
+	| 'waterLabel'
+	| 'waterLabelHalo'
+	| 'roadLabel'
+	| 'roadLabelHalo'
+	| 'placeLabel'
+	| 'placeLabelHalo';
+
+export type StyleThemeColors = Record<StyleThemeSlot, string>;
+
+export interface StyleThemeRecord {
+	slug: string;
+	label: string;
+	basePreset: string;
+	colors: StyleThemeColors;
+}

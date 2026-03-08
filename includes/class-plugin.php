@@ -12,6 +12,7 @@ use MinimalMap\Blocks\Map_Block;
 use MinimalMap\Collections\Collection_Post_Type;
 use MinimalMap\Locations\Location_Post_Type;
 use MinimalMap\Rest\Geocode_Route;
+use MinimalMap\Rest\Styles_Route;
 
 /**
  * Boots the plugin services.
@@ -67,6 +68,13 @@ final class Plugin {
 	private $geocode_route;
 
 	/**
+	 * Styles REST route service.
+	 *
+	 * @var Styles_Route
+	 */
+	private $styles_route;
+
+	/**
 	 * Boot the plugin.
 	 *
 	 * @return Plugin
@@ -91,6 +99,7 @@ final class Plugin {
 		$this->collection_post_type = new Collection_Post_Type();
 		$this->location_post_type = new Location_Post_Type();
 		$this->geocode_route      = new Geocode_Route();
+		$this->styles_route       = new Styles_Route();
 
 		$this->register_hooks();
 	}
@@ -108,5 +117,6 @@ final class Plugin {
 		add_action( 'admin_menu', array( $this->admin_menu, 'register' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue_admin_assets' ) );
 		add_action( 'rest_api_init', array( $this->geocode_route, 'register' ) );
+		add_action( 'rest_api_init', array( $this->styles_route, 'register' ) );
 	}
 }

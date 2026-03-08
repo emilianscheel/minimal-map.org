@@ -1,4 +1,4 @@
-import { Button, Card, CardBody } from '@wordpress/components';
+import { Button, Card, CardBody, Popover, SlotFillProvider } from '@wordpress/components';
 import domReady from '@wordpress/dom-ready';
 import { createRoot, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import CollectionsView, { useCollectionsController } from './collections';
 import LocationsView, { useLocationsController } from './locations';
+import StylesView from './styles';
+import { useStylesController } from './styles/controller';
 import { createMinimalMap } from '../map/bootstrap';
 import type {
 	AdminAppConfig,
@@ -50,6 +52,11 @@ const DEFAULT_ADMIN_CONFIG: AdminAppConfig = {
 		restBase: '',
 		restPath: '',
 		geocodePath: '',
+	},
+	stylesConfig: {
+		nonce: '',
+		restBase: '',
+		restPath: '',
 	},
 	mapConfig: {},
 };
@@ -266,40 +273,55 @@ function App({ currentView }: { currentView: AdminSectionView }) {
 		adminConfig.locationsConfig,
 		activeSection.view === 'collections'
 	);
+	const stylesController = useStylesController(
+		adminConfig.stylesConfig,
+		activeSection.view === 'styles'
+	);
+	const mapRuntimeConfig: MapRuntimeConfig = adminConfig.mapConfig ?? {};
 
 	return (
-		<div className="minimal-map-admin__app">
-			<AdminSidebar currentView={activeSection.view} />
-			<div className="minimal-map-admin__panel">
-				<ContentHeader
-					title={activeSection.title}
-					description={activeSection.description}
-					actions={
-						activeSection.view === 'locations'
-							? locationsController.headerAction
-							: activeSection.view === 'collections'
-								? collectionsController.headerAction
-								: undefined
-					}
-				/>
-				<div
-					className={[
-						'minimal-map-admin__content',
-						activeSection.view === 'dashboard' ? 'minimal-map-admin__content--dashboard' : '',
-					].filter(Boolean).join(' ')}
-				>
-					{activeSection.view === 'dashboard' ? (
-						<Dashboard sectionMap={sectionMap} />
-					) : activeSection.view === 'locations' ? (
-						<LocationsView controller={locationsController} />
-					) : activeSection.view === 'collections' ? (
-						<CollectionsView controller={collectionsController} />
-					) : (
-						<PlaceholderView title={activeSection.title} />
-					)}
+		<SlotFillProvider>
+			<div className="minimal-map-admin__app">
+				<AdminSidebar currentView={activeSection.view} />
+				<div className="minimal-map-admin__panel">
+					<ContentHeader
+						title={activeSection.title}
+						description={activeSection.description}
+						actions={
+							activeSection.view === 'locations'
+								? locationsController.headerAction
+								: activeSection.view === 'collections'
+									? collectionsController.headerAction
+									: activeSection.view === 'styles'
+										? stylesController.headerAction
+										: undefined
+						}
+					/>
+					<div
+						className={[
+							'minimal-map-admin__content',
+							activeSection.view === 'dashboard' ? 'minimal-map-admin__content--dashboard' : '',
+						].filter(Boolean).join(' ')}
+					>
+						{activeSection.view === 'dashboard' ? (
+							<Dashboard sectionMap={sectionMap} />
+						) : activeSection.view === 'locations' ? (
+							<LocationsView controller={locationsController} />
+						) : activeSection.view === 'collections' ? (
+							<CollectionsView controller={collectionsController} />
+						) : activeSection.view === 'styles' ? (
+							<StylesView
+								controller={stylesController}
+								runtimeConfig={mapRuntimeConfig}
+							/>
+						) : (
+							<PlaceholderView title={activeSection.title} />
+						)}
+					</div>
 				</div>
 			</div>
-		</div>
+			<Popover.Slot />
+		</SlotFillProvider>
 	);
 }
 

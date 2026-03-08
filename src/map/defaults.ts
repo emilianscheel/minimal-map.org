@@ -202,7 +202,8 @@ export function normalizeMapConfig(
 		rawConfig.styleUrl ||
 		stylePresets[ stylePreset ]?.style_url ||
 		stylePresets[ fallbackPreset ]?.style_url ||
-		DEFAULT_MAP_DEFAULTS.stylePreset;
+		stylePresets[ defaults.stylePreset ]?.style_url ||
+		'https://tiles.openfreemap.org/styles/liberty';
 	const centerLat = clampNumber(rawConfig.centerLat ?? defaults.centerLat, -90, 90);
 	const centerLng = clampNumber(rawConfig.centerLng ?? defaults.centerLng, -180, 180);
 	const zoom = clampNumber(rawConfig.zoom ?? defaults.zoom, 0, 22);
@@ -256,6 +257,7 @@ export function normalizeMapConfig(
 	const markerOffsetY = Number.isFinite(Number(rawConfig.markerOffsetY)) ? Number(rawConfig.markerOffsetY) : 0;
 	const centerOffsetY = Number.isFinite(Number(rawConfig.centerOffsetY)) ? Number(rawConfig.centerOffsetY) : 0;
 	const locations = normalizeLocations(rawConfig.locations ?? runtimeConfig.locations);
+	const styleTheme = rawConfig.styleTheme || {};
 
 	return {
 		centerLat,
@@ -267,6 +269,7 @@ export function normalizeMapConfig(
 		heightCssValue: `${trimNumber(height)}${heightUnit}`,
 		stylePreset,
 		styleUrl,
+		styleTheme,
 		showZoomControls: Boolean(rawConfig.showZoomControls ?? defaults.showZoomControls),
 		zoomControlsPosition,
 		zoomControlsPadding,

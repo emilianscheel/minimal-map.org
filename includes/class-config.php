@@ -10,6 +10,7 @@ namespace MinimalMap;
 use MinimalMap\Collections\Collection_Post_Type;
 use MinimalMap\Locations\Location_Post_Type;
 use MinimalMap\Rest\Geocode_Route;
+use MinimalMap\Rest\Styles_Route;
 use WP_Post;
 
 /**
@@ -117,6 +118,15 @@ class Config {
 			? $this->get_map_locations( $this->get_collection_location_ids( $collection_id ) )
 			: $this->get_map_locations();
 
+		$style_theme = array();
+		if ( 'positron' === $preset ) {
+			$styles_route = new Styles_Route();
+			$themes       = $styles_route->get_themes();
+			if ( isset( $themes['default']['colors'] ) ) {
+				$style_theme = $themes['default']['colors'];
+			}
+		}
+
 		return array(
 			'centerLat'        => max( -90, min( 90, $center_lat ) ),
 			'centerLng'        => max( -180, min( 180, $center_lng ) ),
@@ -127,6 +137,7 @@ class Config {
 			'heightCssValue'   => $this->format_dimension_value( $height, $height_unit ),
 			'stylePreset'      => $preset,
 			'styleUrl'         => $presets[ $preset ]['style_url'],
+			'styleTheme'       => $style_theme,
 			'showZoomControls' => ! empty( $attributes['showZoomControls'] ),
 			'zoomControlsPosition'        => $this->sanitize_zoom_controls_position( $attributes['zoomControlsPosition'] ?? '' ),
 			'zoomControlsPadding'         => $this->sanitize_box_value( $attributes['zoomControlsPadding'] ?? array(), $this->get_default_block_attributes()['zoomControlsPadding'] ),
@@ -361,6 +372,11 @@ class Config {
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'restBase' => Collection_Post_Type::REST_BASE,
 				'restPath' => Collection_Post_Type::get_rest_path(),
+			),
+			'stylesConfig' => array(
+				'nonce'    => wp_create_nonce( 'wp_rest' ),
+				'restBase' => 'styles',
+				'restPath' => Styles_Route::get_rest_path(),
 			),
 		);
 	}

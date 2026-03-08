@@ -2,6 +2,7 @@ import maplibregl, { LngLatBounds, type Map as MapLibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { createAttributionPill } from './attribution-pill';
 import { normalizeMapConfig } from './defaults';
+import { applyStyleTheme } from '../lib/styles/themeEngine';
 import { createWordPressZoomControls } from './wp-controls';
 import type {
 	MapRuntimeConfig,
@@ -291,6 +292,24 @@ export function createMinimalMap(
 		map.on('load', () => {
 			syncViewport(map, config);
 			map.resize();
+
+			if (config.styleTheme) {
+				try {
+					applyStyleTheme(map, config.styleTheme, config.stylePreset);
+				} catch (e) {
+					console.warn('Initial theme application failed', e);
+				}
+			}
+		});
+
+		map.on('style.load', () => {
+			if (config.styleTheme) {
+				try {
+					applyStyleTheme(map, config.styleTheme, config.stylePreset);
+				} catch (e) {
+					console.warn('Style theme re-application failed', e);
+				}
+			}
 		});
 		map.on('click', (event) => {
 			if (!config.interactive) {
@@ -355,6 +374,14 @@ export function createMinimalMap(
 
 		if (!previousConfig || previousConfig.styleUrl !== nextConfig.styleUrl) {
 			state.map.setStyle(nextConfig.styleUrl);
+		}
+
+		if (JSON.stringify(previousConfig?.styleTheme) !== JSON.stringify(nextConfig.styleTheme)) {
+			try {
+				applyStyleTheme(state.map, nextConfig.styleTheme, nextConfig.stylePreset);
+			} catch (e) {
+				console.warn('Live theme update failed', e);
+			}
 		}
 
 		const centerChanged =
