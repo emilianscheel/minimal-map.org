@@ -58,6 +58,8 @@ function createShell(host: HTMLElement, config: NormalizedMapConfig): HTMLElemen
 
 	const viewport = document.createElement('div');
 	viewport.className = 'minimal-map-runtime__viewport';
+	viewport.style.height = '100%';
+	viewport.style.width = '100%';
 	host.appendChild(viewport);
 
 	return viewport;
@@ -66,6 +68,7 @@ function createShell(host: HTMLElement, config: NormalizedMapConfig): HTMLElemen
 function createMarker(config: NormalizedMapConfig, point: MapLocationPoint): maplibregl.Marker {
 	const options: maplibregl.MarkerOptions = {
 		offset: [ 0, config.markerOffsetY ],
+		anchor: 'center',
 	};
 
 	if (config.markerContent) {

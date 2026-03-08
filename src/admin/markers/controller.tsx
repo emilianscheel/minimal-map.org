@@ -7,9 +7,11 @@ import apiFetch from '@wordpress/api-fetch';
 import type {
 	MarkerRecord,
 	MarkersAdminConfig,
+	StyleThemeRecord,
 } from '../../types';
 import { configureApiFetch } from '../../lib/locations/configureApiFetch';
 import { UploadMarkerButton } from './UploadMarkerButton';
+import { ThemeSelector } from '../styles/ThemeSelector';
 import type { MarkersController } from './types';
 
 const DEFAULT_GRID_VIEW: ViewGrid = {
@@ -30,7 +32,12 @@ const DEFAULT_GRID_VIEW: ViewGrid = {
 
 export function useMarkersController(
 	config: MarkersAdminConfig,
-	enabled: boolean
+	enabled: boolean,
+	themeData: {
+		activeTheme: StyleThemeRecord | null;
+		themes: StyleThemeRecord[];
+		onSwitchTheme: (slug: string) => void;
+	}
 ): MarkersController {
 	const [actionNotice, setActionNotice] = useState<MarkersController['actionNotice']>(null);
 	const [markers, setMarkers] = useState<MarkerRecord[]>([]);
@@ -200,9 +207,17 @@ export function useMarkersController(
 
 	return {
 		actionNotice,
+		activeTheme: themeData.activeTheme,
 		dismissActionNotice,
 		headerAction: enabled ? (
-			<UploadMarkerButton onUpload={onUploadMarkers} isUploading={isUploading} />
+			<div className="minimal-map-admin__header-actions-group">
+				<ThemeSelector
+					activeTheme={themeData.activeTheme}
+					themes={themeData.themes}
+					onSwitch={themeData.onSwitchTheme}
+				/>
+				<UploadMarkerButton onUpload={onUploadMarkers} isUploading={isUploading} />
+			</div>
 		) : null,
 		isLoading,
 		isRowActionPending,

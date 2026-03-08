@@ -271,13 +271,18 @@ function App({ currentView }: { currentView: AdminSectionView }) {
 		adminConfig.locationsConfig,
 		activeSection.view === 'collections'
 	);
-	const markersController = useMarkersController(
-		adminConfig.markersConfig,
-		activeSection.view === 'markers'
-	);
 	const stylesController = useStylesController(
 		adminConfig.stylesConfig,
-		activeSection.view === 'styles'
+		activeSection.view === 'styles' || activeSection.view === 'markers'
+	);
+	const markersController = useMarkersController(
+		adminConfig.markersConfig,
+		activeSection.view === 'markers',
+		{
+			activeTheme: stylesController.activeTheme,
+			themes: stylesController.themes,
+			onSwitchTheme: stylesController.switchTheme,
+		}
 	);
 	const mapRuntimeConfig: MapRuntimeConfig = adminConfig.mapConfig ?? {};
 

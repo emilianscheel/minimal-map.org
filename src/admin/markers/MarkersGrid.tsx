@@ -24,10 +24,10 @@ export default function MarkersGrid({ controller }: { controller: MarkersControl
 				enableHiding: false,
 				enableSorting: false,
 				filterBy: false,
-				render: ({ item }) => <MarkerMiniMap marker={item} />,
+				render: ({ item }) => <MarkerMiniMap marker={item} theme={controller.activeTheme} />,
 			},
 		],
-		[]
+		[controller.activeTheme]
 	);
 
 	const actions = useMemo<Action<MarkerRecord>[]>(

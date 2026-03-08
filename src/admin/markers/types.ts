@@ -1,6 +1,6 @@
 import type { ViewGrid } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
-import type { MarkerRecord } from '../../types';
+import type { MarkerRecord, StyleThemeRecord } from '../../types';
 
 export interface MarkersNotice {
 	status: 'success' | 'error';
@@ -9,6 +9,7 @@ export interface MarkersNotice {
 
 export interface MarkersController {
 	actionNotice: MarkersNotice | null;
+	activeTheme: StyleThemeRecord | null;
 	dismissActionNotice: () => void;
 	headerAction: ReactNode;
 	isLoading: boolean;
