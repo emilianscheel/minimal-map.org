@@ -250,6 +250,7 @@ export interface WordPressZoomControls {
 
 export interface WordPressSearchControl {
 	destroy: () => void;
+	update: (config: NormalizedMapConfig, selectedId?: number) => void;
 }
 
 export interface WordPressAttributionControl {

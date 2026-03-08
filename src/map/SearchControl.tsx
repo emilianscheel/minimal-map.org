@@ -9,6 +9,7 @@ interface SearchControlProps {
 	locations: MapLocationPoint[];
 	onSelect: (location: MapLocationPoint) => void;
 	config: NormalizedMapConfig;
+	selectedId?: number;
 }
 
 const formatDisplayUrl = (url: string): string => {
@@ -19,13 +20,21 @@ const formatDisplayUrl = (url: string): string => {
 		.replace(/\/$/, '');
 };
 
-const MapSearchControl = ({ locations, onSelect, config }: SearchControlProps) => {
+const MapSearchControl = ({ locations, onSelect, config, selectedId: selectedIdProp }: SearchControlProps) => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [isFocused, setIsFocused] = useState(false);
+	const [selectedId, setSelectedId] = useState(selectedIdProp);
 	const containerRef = useRef<HTMLDivElement>(null);
 
+	const isOpen = isFocused || !!selectedId;
+
+	// Sync local state with prop updates (e.g. from marker clicks)
+	useEffect(() => {
+		setSelectedId(selectedIdProp);
+	}, [selectedIdProp]);
+
 	const filteredLocations = useMemo(() => {
-		if (!isFocused) return [];
+		if (!isOpen) return [];
 		
 		const term = searchTerm.toLowerCase().trim();
 		if (!term) return locations;
@@ -35,7 +44,7 @@ const MapSearchControl = ({ locations, onSelect, config }: SearchControlProps) =
 			loc.city?.toLowerCase().includes(term) ||
 			loc.street?.toLowerCase().includes(term)
 		);
-	}, [locations, searchTerm, isFocused]);
+	}, [locations, searchTerm, isOpen]);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -50,9 +59,24 @@ const MapSearchControl = ({ locations, onSelect, config }: SearchControlProps) =
 		};
 	}, []);
 
+	// Scroll selected item into view when it changes
+	useEffect(() => {
+		if (selectedId) {
+			const element = document.getElementById(`minimal-map-result-${selectedId}`);
+			if (element) {
+				element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+			}
+		}
+	}, [selectedId]);
+
+	const handleSelect = (loc: MapLocationPoint) => {
+		setSelectedId(loc.id);
+		onSelect(loc);
+	};
+
 	return (
 		<>
-			{isFocused && (
+			{isOpen && (
 				<div 
 					className="minimal-map-search-backdrop" 
 					onClick={() => setIsFocused(false)}
@@ -60,7 +84,7 @@ const MapSearchControl = ({ locations, onSelect, config }: SearchControlProps) =
 			)}
 			<div 
 				ref={containerRef}
-				className={`minimal-map-search ${isFocused ? 'is-focused' : ''}`}
+				className={`minimal-map-search ${isOpen ? 'is-focused' : ''}`}
 				style={{
 					'--minimal-map-search-background': config.zoomControlsBackgroundColor,
 					'--minimal-map-search-color': config.zoomControlsIconColor,
@@ -80,20 +104,17 @@ const MapSearchControl = ({ locations, onSelect, config }: SearchControlProps) =
 					/>
 				</div>
 				
-				{isFocused && (
+				{isOpen && (
 					<div className="minimal-map-search__results-container">
 						{filteredLocations.length > 0 ? (
 							<div className="minimal-map-search__results">
 								{filteredLocations.map(loc => (
 									<button 
 										key={loc.id} 
+										id={`minimal-map-result-${loc.id}`}
 										type="button"
-										className="minimal-map-search__result-item"
-										onClick={() => {
-											onSelect(loc);
-											setSearchTerm('');
-											setIsFocused(false);
-										}}
+										className={`minimal-map-search__result-item ${selectedId === loc.id ? 'is-selected' : ''}`}
+										onClick={() => handleSelect(loc)}
 									>
 										<div className="minimal-map-search__result-title">{loc.title}</div>
 										<div className="minimal-map-search__result-address">
@@ -142,12 +163,15 @@ const MapSearchControl = ({ locations, onSelect, config }: SearchControlProps) =
 
 export interface WordPressSearchControl {
 	destroy: () => void;
+	update: (config: NormalizedMapConfig, selectedId?: number) => void;
 }
 
 export function createWordPressSearchControl(
 	host: HTMLElement,
 	map: MapLibreMap,
-	config: NormalizedMapConfig
+	initialConfig: NormalizedMapConfig,
+	initialSelectedId?: number,
+	onLocationSelect?: (location: MapLocationPoint) => void
 ): WordPressSearchControl {
 	const container = document.createElement('div');
 	container.className = 'minimal-map-search-host';
@@ -165,6 +189,7 @@ export function createWordPressSearchControl(
 	const root = createRoot(container);
 	
 	const onSelect = (location: MapLocationPoint) => {
+		onLocationSelect?.(location);
 		map.easeTo({
 			center: [location.lng, location.lat],
 			zoom: Math.max(map.getZoom(), 15),
@@ -172,18 +197,26 @@ export function createWordPressSearchControl(
 		});
 	};
 
-	root.render(
-		<MapSearchControl 
-			locations={config.locations} 
-			onSelect={onSelect} 
-			config={config} 
-		/>
-	);
+	const render = (cfg: NormalizedMapConfig, selId?: number) => {
+		root.render(
+			<MapSearchControl 
+				locations={cfg.locations} 
+				onSelect={onSelect} 
+				config={cfg} 
+				selectedId={selId}
+			/>
+		);
+	};
+
+	render(initialConfig, initialSelectedId);
 
 	return {
 		destroy() {
 			root.unmount();
 			container.remove();
 		},
+		update(cfg, selId) {
+			render(cfg, selId);
+		}
 	};
 }

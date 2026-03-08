@@ -21,6 +21,7 @@ interface MinimalMapState {
 	config: NormalizedMapConfig | null;
 	controls: WordPressZoomControls | null;
 	searchControl: WordPressSearchControl | null;
+	selectedLocationId: number | null;
 	map: MapLibreMap | null;
 	markers: maplibregl.Marker[];
 	observer: ResizeObserver | null;
@@ -66,7 +67,11 @@ function createShell(host: HTMLElement, config: NormalizedMapConfig): HTMLElemen
 	return viewport;
 }
 
-function createMarker(config: NormalizedMapConfig, point: MapLocationPoint): maplibregl.Marker {
+function createMarker(
+	config: NormalizedMapConfig, 
+	point: MapLocationPoint,
+	onClick?: (id: number) => void
+): maplibregl.Marker {
 	const options: maplibregl.MarkerOptions = {
 		offset: [ 0, config.markerOffsetY ],
 		anchor: 'center',
@@ -91,6 +96,11 @@ function createMarker(config: NormalizedMapConfig, point: MapLocationPoint): map
 
 	if (config.markerClassName) {
 		marker.getElement().classList.add(...config.markerClassName.split(/\s+/).filter(Boolean));
+	}
+
+	if (point.id && onClick) {
+		marker.getElement().style.cursor = 'pointer';
+		marker.getElement().addEventListener('click', () => onClick(point.id as number));
 	}
 
 	return marker;
@@ -228,6 +238,7 @@ export function createMinimalMap(
 		config: null,
 		controls: null,
 		searchControl: null,
+		selectedLocationId: null,
 		map: null,
 		markers: [],
 		observer: null,
@@ -249,7 +260,24 @@ export function createMinimalMap(
 			return;
 		}
 
-		state.markers = points.map((point) => createMarker(config, point).addTo(state.map as MapLibreMap));
+		const onMarkerClick = (id: number) => {
+			const point = points.find(p => p.id === id);
+			if (point && state.map) {
+				state.selectedLocationId = id;
+				state.map.easeTo({
+					center: [point.lng, point.lat],
+					zoom: Math.max(state.map.getZoom(), 15),
+					essential: true
+				});
+				if (state.searchControl) {
+					state.searchControl.update(config, id);
+				}
+			}
+		};
+
+		state.markers = points.map((point) => 
+			createMarker(config, point, onMarkerClick).addTo(state.map as MapLibreMap)
+		);
 	}
 
 	function syncControls(config: NormalizedMapConfig): void {
@@ -262,11 +290,25 @@ export function createMinimalMap(
 	}
 
 	function syncSearch(config: NormalizedMapConfig): void {
-		state.searchControl?.destroy();
-		state.searchControl = null;
-
 		if (config.locations.length > 0 && state.map) {
-			state.searchControl = createWordPressSearchControl(host, state.map, config);
+			if (!state.searchControl) {
+				state.searchControl = createWordPressSearchControl(
+					host, 
+					state.map, 
+					config, 
+					state.selectedLocationId ?? undefined,
+					(location) => {
+						if (location.id) {
+							state.selectedLocationId = location.id;
+						}
+					}
+				);
+			} else {
+				state.searchControl.update(config, state.selectedLocationId ?? undefined);
+			}
+		} else {
+			state.searchControl?.destroy();
+			state.searchControl = null;
 		}
 	}
 

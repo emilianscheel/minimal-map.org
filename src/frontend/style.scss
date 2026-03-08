@@ -329,10 +329,17 @@
 
 .minimal-map-search__result-item:hover,
 .minimal-map-search__result-item:focus {
-  background: #f8f8f8;
-  outline: none;
+	background: #f8f8f8;
+	outline: none;
 }
 
+.minimal-map-search__result-item.is-selected {
+	background: #f0f0f1;
+}
+
+.minimal-map-search__result-item.is-selected:hover {
+	background: #e8e8e9;
+}
 .minimal-map-search__result-title {
   font-weight: 600;
   font-size: 15px;
