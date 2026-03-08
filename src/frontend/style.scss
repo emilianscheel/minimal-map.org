@@ -259,12 +259,74 @@
 }
 
 .minimal-map-search__input-wrapper {
-  background: #ffffff !important;
+  background: var(--minimal-map-search-background, #ffffff) !important;
   border: var(--minimal-map-search-border-width, 1px) solid
     var(--minimal-map-search-border-color, #dcdcde);
   border-radius: var(--minimal-map-search-border-radius, 2px);
   overflow: hidden;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.minimal-map-search__icon-container {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--minimal-map-search-color, #1e1e1e);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.minimal-map-search__input {
+  width: 100%;
+  height: 44px !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--minimal-map-search-color, #1e1e1e) !important;
+  padding: 0 40px !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  line-height: 44px !important;
+}
+
+.minimal-map-search__input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.minimal-map-search__input::placeholder {
+  color: var(--minimal-map-search-color, #1e1e1e) !important;
+  opacity: 0.5;
+}
+
+.minimal-map-search__clear {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--minimal-map-search-color, #1e1e1e);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.1s ease-in-out;
+}
+
+.minimal-map-search__clear:hover {
+  opacity: 0.8;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .minimal-map-search__results-container {
@@ -278,30 +340,6 @@
   overflow: hidden;
   min-height: 0;
   animation: minimal-map-fade-in 0.3s ease-out forwards;
-}
-
-.minimal-map-search.is-focused {
-  box-shadow: none;
-}
-
-.minimal-map-search .components-search-control {
-  margin-bottom: 0;
-  flex-shrink: 0;
-}
-
-.minimal-map-search .components-search-control__input {
-  height: 44px !important;
-  border: none !important;
-  background: #ffffff !important;
-  color: #1e1e1e !important;
-  padding-left: 40px !important;
-  box-shadow: none !important;
-  font-size: 14px !important;
-}
-
-.minimal-map-search .components-search-control__icon {
-  left: 12px !important;
-  color: #1e1e1e !important;
 }
 
 .minimal-map-search__results {
