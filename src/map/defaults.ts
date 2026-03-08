@@ -35,6 +35,7 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 	height: 420,
 	heightUnit: 'px',
 	stylePreset: 'liberty',
+	styleThemeSlug: 'default',
 	showZoomControls: true,
 	zoomControlsPosition: DEFAULT_ZOOM_CONTROLS_POSITION,
 	zoomControlsPadding: DEFAULT_ZOOM_CONTROLS_PADDING,
@@ -204,6 +205,7 @@ export function normalizeMapConfig(
 		stylePresets[ fallbackPreset ]?.style_url ||
 		stylePresets[ defaults.stylePreset ]?.style_url ||
 		'https://tiles.openfreemap.org/styles/liberty';
+	const styleThemeSlug = `${rawConfig.styleThemeSlug ?? defaults.styleThemeSlug}`;
 	const centerLat = clampNumber(rawConfig.centerLat ?? defaults.centerLat, -90, 90);
 	const centerLng = clampNumber(rawConfig.centerLng ?? defaults.centerLng, -180, 180);
 	const zoom = clampNumber(rawConfig.zoom ?? defaults.zoom, 0, 22);
@@ -270,6 +272,7 @@ export function normalizeMapConfig(
 		stylePreset,
 		styleUrl,
 		styleTheme,
+		styleThemeSlug,
 		showZoomControls: Boolean(rawConfig.showZoomControls ?? defaults.showZoomControls),
 		zoomControlsPosition,
 		zoomControlsPadding,

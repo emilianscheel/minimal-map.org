@@ -29,6 +29,7 @@ export interface MapDefaults {
 	height: number;
 	heightUnit: HeightUnit;
 	stylePreset: string;
+	styleThemeSlug: string;
 	showZoomControls: boolean;
 	zoomControlsPosition: ZoomControlsPosition;
 	zoomControlsPadding: BoxValue;
@@ -61,6 +62,7 @@ export interface MapRuntimeConfig {
 	defaults?: Partial<MapDefaults>;
 	heightUnits?: string[];
 	stylePresets?: StylePresets;
+	styleThemes?: StyleThemeRecord[];
 	locations?: MapLocationPoint[];
 	collections?: MapCollectionOption[];
 	messages?: MapMessages;
@@ -77,6 +79,7 @@ export interface RawMapConfig {
 	stylePreset?: string;
 	styleUrl?: string;
 	styleTheme?: Partial<StyleThemeColors>;
+	styleThemeSlug?: string;
 	showZoomControls?: boolean;
 	zoomControlsPosition?: string;
 	zoomControlsPadding?: BoxValue | null;
@@ -212,6 +215,7 @@ export interface MapBlockAttributes {
 	height: number;
 	heightUnit: HeightUnit;
 	stylePreset: string;
+	styleThemeSlug: string;
 	showZoomControls: boolean;
 	zoomControlsPosition: ZoomControlsPosition;
 	zoomControlsPadding: BoxValue;

@@ -15,6 +15,8 @@ import {
 	SelectControl,
 	TextControl,
 	ToggleControl,
+	MenuGroup,
+	MenuItem,
 	__experimentalDropdownContentWrapper as DropdownContentWrapper,
 	__experimentalHStack as HStack,
 	__experimentalToggleGroupControl as ToggleGroupControl,
@@ -23,6 +25,7 @@ import {
 } from '@wordpress/components';
 import { useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { ChevronDown, Check } from 'lucide-react';
 import { createMinimalMap } from '../map/bootstrap';
 import { normalizeHeightUnit, normalizeMapConfig } from '../map/defaults';
 import {
@@ -38,6 +41,7 @@ import type {
 	MinimalMapInstance,
 	RawMapConfig,
 	StyleOption,
+	StyleThemeRecord,
 	ZoomControlsPosition,
 } from '../types';
 
@@ -418,6 +422,66 @@ function CollectionDropdown({
 	);
 }
 
+function ThemeDropdown({
+	themes,
+	selectedSlug,
+	onChange,
+}: {
+	themes: StyleThemeRecord[];
+	selectedSlug: string;
+	onChange: (value: string) => void;
+}) {
+	const selectedTheme =
+		themes.find((theme) => theme.slug === selectedSlug) || themes.find((theme) => theme.slug === 'default');
+	const selectedLabel = selectedTheme?.label || __('Default', 'minimal-map');
+
+	return (
+		<div style={{ display: 'grid', gap: '8px', marginBottom: '16px' }}>
+			<span>{__('Style Theme', 'minimal-map')}</span>
+			<Dropdown
+				className="minimal-map-editor__theme-dropdown"
+				popoverProps={{
+					placement: 'left-start',
+					offset: 36,
+					shift: true,
+				}}
+				renderToggle={({ isOpen, onToggle }) => (
+					<Button
+						__next40pxDefaultSize
+						variant="secondary"
+						onClick={onToggle}
+						aria-expanded={isOpen}
+						style={{
+							width: '100%',
+							justifyContent: 'space-between',
+							paddingInline: '12px',
+						}}
+					>
+						<span>{selectedLabel}</span>
+						<ChevronDown size={16} />
+					</Button>
+				)}
+				renderContent={({ onClose }) => (
+					<MenuGroup label={__('Switch Theme', 'minimal-map')}>
+						{themes.map((theme) => (
+							<MenuItem
+								key={theme.slug}
+								onClick={() => {
+									onChange(theme.slug);
+									onClose();
+								}}
+								icon={theme.slug === selectedSlug ? <Check size={16} /> : undefined}
+							>
+								{theme.label}
+							</MenuItem>
+						))}
+					</MenuGroup>
+				)}
+			/>
+		</div>
+	);
+}
+
 export default function Edit({ attributes, setAttributes }: EditProps) {
 	const mapRef = useRef<HTMLDivElement | null>(null);
 	const mapInstanceRef = useRef<MinimalMapInstance | null>(null);
@@ -513,6 +577,11 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
 						options={runtimeConfig.collections ?? []}
 						selectedId={attributes.collectionId}
 						onChange={(value) => setAttributes({ collectionId: value })}
+					/>
+					<ThemeDropdown
+						themes={runtimeConfig.styleThemes ?? []}
+						selectedSlug={attributes.styleThemeSlug}
+						onChange={(value) => setAttributes({ styleThemeSlug: value })}
 					/>
 					<TextControl
 						label={__('Center Latitude', 'minimal-map')}

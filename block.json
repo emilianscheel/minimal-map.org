@@ -37,6 +37,10 @@
       "type": "string",
       "default": "liberty"
     },
+    "styleThemeSlug": {
+      "type": "string",
+      "default": "default"
+    },
     "showZoomControls": {
       "type": "boolean",
       "default": true

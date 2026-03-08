@@ -88,6 +88,7 @@ class Config {
 			'zoomControlsBorderWidth'     => '1px',
 			'zoomControlsPlusIcon'        => 'plus',
 			'zoomControlsMinusIcon'       => 'line-solid',
+			'styleThemeSlug'              => 'default',
 		);
 	}
 
@@ -118,11 +119,15 @@ class Config {
 			? $this->get_map_locations( $this->get_collection_location_ids( $collection_id ) )
 			: $this->get_map_locations();
 
-		$style_theme = array();
+		$style_theme_slug = isset( $attributes['styleThemeSlug'] ) ? sanitize_key( (string) $attributes['styleThemeSlug'] ) : 'default';
+		$style_theme      = array();
+
 		if ( 'positron' === $preset ) {
 			$styles_route = new Styles_Route();
 			$themes       = $styles_route->get_themes();
-			if ( isset( $themes['default']['colors'] ) ) {
+			if ( isset( $themes[ $style_theme_slug ]['colors'] ) ) {
+				$style_theme = $themes[ $style_theme_slug ]['colors'];
+			} elseif ( isset( $themes['default']['colors'] ) ) {
 				$style_theme = $themes['default']['colors'];
 			}
 		}
@@ -138,6 +143,7 @@ class Config {
 			'stylePreset'      => $preset,
 			'styleUrl'         => $presets[ $preset ]['style_url'],
 			'styleTheme'       => $style_theme,
+			'styleThemeSlug'   => $style_theme_slug,
 			'showZoomControls' => ! empty( $attributes['showZoomControls'] ),
 			'zoomControlsPosition'        => $this->sanitize_zoom_controls_position( $attributes['zoomControlsPosition'] ?? '' ),
 			'zoomControlsPadding'         => $this->sanitize_box_value( $attributes['zoomControlsPadding'] ?? array(), $this->get_default_block_attributes()['zoomControlsPadding'] ),
@@ -160,10 +166,13 @@ class Config {
 	 * @return array<string, mixed>
 	 */
 	public function get_client_config() {
+		$styles_route = new Styles_Route();
+
 		return array(
 			'defaults'      => $this->get_default_block_attributes(),
 			'heightUnits'   => self::HEIGHT_UNITS,
 			'stylePresets'  => $this->get_style_presets(),
+			'styleThemes'   => array_values( $styles_route->get_themes() ),
 			'locations'     => $this->get_map_locations(),
 			'collections'   => $this->get_map_collections(),
 			'messages'      => array(
