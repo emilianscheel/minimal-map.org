@@ -58,6 +58,8 @@ export default function MarkerMiniMap({ marker, theme }: { marker: MarkerRecord;
 			interactive: false,
 			showZoomControls: false,
 			showAttribution: false,
+			height: 100,
+			heightUnit: '%',
 			styleTheme: theme?.colors,
 			stylePreset: theme?.basePreset,
 		});

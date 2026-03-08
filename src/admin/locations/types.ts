@@ -8,6 +8,7 @@ import type {
 	LocationFormState,
 	LocationRecord,
 	MapCoordinates,
+	StyleThemeRecord,
 } from '../../types';
 
 export interface LocationsNotice {
@@ -17,6 +18,7 @@ export interface LocationsNotice {
 
 export interface LocationsController {
 	actionNotice: LocationsNotice | null;
+	activeTheme: StyleThemeRecord | null;
 	assignmentCollectionId: string;
 	collections: CollectionRecord[];
 	fieldErrors: FieldErrors;

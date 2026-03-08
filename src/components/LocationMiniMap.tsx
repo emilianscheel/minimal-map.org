@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef } from '@wordpress/element';
 import { createMinimalMap } from '../map/bootstrap';
-import type { LocationRecord, MinimalMapInstance, RawMapConfig } from '../types';
+import type { LocationRecord, MinimalMapInstance, RawMapConfig, StyleThemeRecord } from '../types';
 
-export default function LocationMiniMap({ location }: { location: LocationRecord }) {
+export default function LocationMiniMap({ location, theme }: { location: LocationRecord; theme: StyleThemeRecord | null }) {
 	const hostRef = useRef<HTMLDivElement | null>(null);
 	const mapRef = useRef<MinimalMapInstance | null>(null);
 	const latitude = Number(location.latitude);
@@ -14,7 +14,8 @@ export default function LocationMiniMap({ location }: { location: LocationRecord
 		zoom: hasCoordinates ? 13 : 8.5,
 		height: 60,
 		heightUnit: 'px',
-		stylePreset: 'positron',
+		stylePreset: theme?.basePreset || 'positron',
+		styleTheme: theme?.colors,
 		showZoomControls: false,
 		markerLat: hasCoordinates ? latitude : null,
 		markerLng: hasCoordinates ? longitude : null,
@@ -23,7 +24,7 @@ export default function LocationMiniMap({ location }: { location: LocationRecord
 		centerOffsetY: 13,
 		interactive: false,
 		showAttribution: false,
-	}), [hasCoordinates, latitude, longitude]);
+	}), [hasCoordinates, latitude, longitude, theme]);
 
 	useEffect(() => {
 		if (!hostRef.current) {

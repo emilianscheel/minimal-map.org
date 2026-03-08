@@ -13,6 +13,7 @@ import type { CollectionsController } from "./types";
 function useCollectionFields(
   locations: LocationRecord[],
   onOpenAssignmentModal: CollectionsController["onOpenAssignmentModal"],
+  activeTheme: CollectionsController["activeTheme"],
 ): Field<CollectionRecord>[] {
   return useMemo<Field<CollectionRecord>[]>(
     () => [
@@ -24,7 +25,7 @@ function useCollectionFields(
         enableSorting: false,
         filterBy: false,
         render: ({ item }) => (
-          <CollectionMiniMap collection={item} locations={locations} />
+          <CollectionMiniMap collection={item} locations={locations} theme={activeTheme} />
         ),
       },
       {
@@ -56,7 +57,7 @@ function useCollectionFields(
         ),
       },
     ],
-    [locations, onOpenAssignmentModal],
+    [locations, onOpenAssignmentModal, activeTheme],
   );
 }
 
@@ -123,6 +124,7 @@ export default function CollectionsGrid({
   const fields = useCollectionFields(
     controller.locations,
     controller.onOpenAssignmentModal,
+    controller.activeTheme,
   );
 
   return (

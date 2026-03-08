@@ -261,19 +261,29 @@ function getActiveSection(currentView: AdminSectionView): AdminSection {
 function App({ currentView }: { currentView: AdminSectionView }) {
 	const sectionMap = getSectionMap();
 	const activeSection = getActiveSection(currentView);
+	const stylesController = useStylesController(
+		adminConfig.stylesConfig,
+		activeSection.view === 'styles' || activeSection.view === 'markers' || activeSection.view === 'locations' || activeSection.view === 'collections'
+	);
 	const locationsController = useLocationsController(
 		adminConfig.locationsConfig,
 		adminConfig.collectionsConfig,
-		activeSection.view === 'locations'
+		activeSection.view === 'locations',
+		{
+			activeTheme: stylesController.activeTheme,
+			themes: stylesController.themes,
+			onSwitchTheme: stylesController.switchTheme,
+		}
 	);
 	const collectionsController = useCollectionsController(
 		adminConfig.collectionsConfig,
 		adminConfig.locationsConfig,
-		activeSection.view === 'collections'
-	);
-	const stylesController = useStylesController(
-		adminConfig.stylesConfig,
-		activeSection.view === 'styles' || activeSection.view === 'markers'
+		activeSection.view === 'collections',
+		{
+			activeTheme: stylesController.activeTheme,
+			themes: stylesController.themes,
+			onSwitchTheme: stylesController.switchTheme,
+		}
 	);
 	const markersController = useMarkersController(
 		adminConfig.markersConfig,

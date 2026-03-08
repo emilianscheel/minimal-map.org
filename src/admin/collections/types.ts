@@ -5,6 +5,7 @@ import type {
 	CollectionFormState,
 	CollectionRecord,
 	LocationRecord,
+	StyleThemeRecord,
 } from '../../types';
 
 export interface CollectionsNotice {
@@ -16,6 +17,7 @@ export type MergeCollectionsStep = 'selection' | 'details';
 
 export interface CollectionsController {
 	actionNotice: CollectionsNotice | null;
+	activeTheme: StyleThemeRecord | null;
 	assignmentLocations: LocationRecord[];
 	assignmentSearch: string;
 	assignmentLocationsView: ViewPickerTable;

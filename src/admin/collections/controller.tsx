@@ -9,6 +9,7 @@ import type {
 	CollectionsAdminConfig,
 	LocationRecord,
 	LocationsAdminConfig,
+	StyleThemeRecord,
 } from '../../types';
 import { DEFAULT_ASSIGNMENT_VIEW, DEFAULT_FORM_STATE, DEFAULT_GRID_VIEW } from './constants';
 import { configureApiFetch } from '../../lib/locations/configureApiFetch';
@@ -20,12 +21,18 @@ import { fetchAllCollections } from '../../lib/collections/fetchAllCollections';
 import { filterLocationsForAssignment } from '../../lib/collections/filterLocationsForAssignment';
 import { paginateCollections } from '../../lib/collections/paginateCollections';
 import { updateCollection } from '../../lib/collections/updateCollection';
+import { ThemeSelector } from '../styles/ThemeSelector';
 import type { CollectionsController, MergeCollectionsStep } from './types';
 
 export function useCollectionsController(
 	collectionsConfig: CollectionsAdminConfig,
 	locationsConfig: LocationsAdminConfig,
-	enabled: boolean
+	enabled: boolean,
+	themeData: {
+		activeTheme: StyleThemeRecord | null;
+		themes: StyleThemeRecord[];
+		onSwitchTheme: (slug: string) => void;
+	}
 ): CollectionsController {
 	const [actionNotice, setActionNotice] = useState<CollectionsController['actionNotice']>(null);
 	const [assignmentSearch, setAssignmentSearch] = useState('');
@@ -421,6 +428,7 @@ export function useCollectionsController(
 
 	return {
 		actionNotice,
+		activeTheme: themeData.activeTheme,
 		assignmentLocations: paginatedAssignmentLocations,
 		assignmentSearch,
 		assignmentLocationsView,
@@ -430,6 +438,11 @@ export function useCollectionsController(
 		formMode,
 		headerAction: enabled ? (
 			<div className="minimal-map-admin__header-actions-group">
+				<ThemeSelector
+					activeTheme={themeData.activeTheme}
+					themes={themeData.themes}
+					onSwitch={themeData.onSwitchTheme}
+				/>
 				<Button
 					__next40pxDefaultSize
 					variant="secondary"

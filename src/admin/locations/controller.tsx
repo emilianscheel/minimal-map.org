@@ -15,6 +15,7 @@ import type {
 	LocationRecord,
 	LocationsAdminConfig,
 	MapCoordinates,
+	StyleThemeRecord,
 } from '../../types';
 import { fetchAllCollections } from '../../lib/collections/fetchAllCollections';
 import { updateCollection } from '../../lib/collections/updateCollection';
@@ -34,6 +35,7 @@ import { updateLocation } from '../../lib/locations/updateLocation';
 import { validateAddressStep } from '../../lib/locations/validateAddressStep';
 import { validateDetailsStep } from '../../lib/locations/validateDetailsStep';
 import { DEFAULT_FORM_STATE, DEFAULT_VIEW } from './constants';
+import { ThemeSelector } from '../styles/ThemeSelector';
 import type { LocationsController } from './types';
 
 const DEFAULT_MAP_CENTER: MapCoordinates = {
@@ -44,7 +46,12 @@ const DEFAULT_MAP_CENTER: MapCoordinates = {
 export function useLocationsController(
 	config: LocationsAdminConfig,
 	collectionsConfig: CollectionsAdminConfig,
-	enabled: boolean
+	enabled: boolean,
+	themeData: {
+		activeTheme: StyleThemeRecord | null;
+		themes: StyleThemeRecord[];
+		onSwitchTheme: (slug: string) => void;
+	}
 ): LocationsController {
 	const [form, setForm] = useState<LocationFormState>(DEFAULT_FORM_STATE);
 	const [formMode, setFormMode] = useState<LocationFormMode>('create');
@@ -783,6 +790,7 @@ export function useLocationsController(
 
 	return {
 		actionNotice,
+		activeTheme: themeData.activeTheme,
 		assignmentCollectionId,
 		collections,
 		dismissActionNotice,
@@ -798,6 +806,11 @@ export function useLocationsController(
 					<ImportLocationsButton onImport={onImportLocations} isImporting={isImporting} />
 					<ExportLocationsDropdown onExport={onExportLocations} onExportExample={onExportExample} />
 				</div>
+				<ThemeSelector
+					activeTheme={themeData.activeTheme}
+					themes={themeData.themes}
+					onSwitch={themeData.onSwitchTheme}
+				/>
 				<Button
 					variant="primary"
 					onClick={openDialog}

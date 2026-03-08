@@ -7,14 +7,17 @@ import type {
 	LocationRecord,
 	MinimalMapInstance,
 	RawMapConfig,
+	StyleThemeRecord,
 } from '../types';
 
 function CollectionMiniMap({
 	collection,
 	locations,
+	theme,
 }: {
 	collection: CollectionRecord;
 	locations: LocationRecord[];
+	theme: StyleThemeRecord | null;
 }) {
 	const hostRef = useRef<HTMLDivElement | null>(null);
 	const mapRef = useRef<MinimalMapInstance | null>(null);
@@ -32,7 +35,8 @@ function CollectionMiniMap({
 		zoom: previewLocations.length > 1 ? 7.5 : 11,
 		height: 100,
 		heightUnit: '%',
-		stylePreset: 'positron',
+		stylePreset: theme?.basePreset || 'positron',
+		styleTheme: theme?.colors,
 		showZoomControls: false,
 		markerClassName: 'minimal-map-admin__collection-mini-map-marker',
 		markerOffsetY: 0,
@@ -40,7 +44,7 @@ function CollectionMiniMap({
 		locations: previewLocations,
 		interactive: false,
 		showAttribution: false,
-	}), [previewLocations]);
+	}), [previewLocations, theme]);
 
 	useEffect(() => {
 		if (!hostRef.current) {

@@ -159,6 +159,7 @@ describe('collection helpers', () => {
 						location_ids: [ 2, 1 ],
 					},
 					locations: LOCATIONS,
+					theme: null,
 				},
 				{
 					collection: {
@@ -166,6 +167,7 @@ describe('collection helpers', () => {
 						location_ids: [ 2, 1 ],
 					},
 					locations: LOCATIONS,
+					theme: null,
 				}
 			)
 		).toBe(true);
@@ -178,6 +180,7 @@ describe('collection helpers', () => {
 						location_ids: [ 2, 1 ],
 					},
 					locations: LOCATIONS,
+					theme: null,
 				},
 				{
 					collection: {
@@ -185,6 +188,7 @@ describe('collection helpers', () => {
 						location_ids: [ 1, 2 ],
 					},
 					locations: LOCATIONS,
+					theme: null,
 				}
 			)
 		).toBe(false);

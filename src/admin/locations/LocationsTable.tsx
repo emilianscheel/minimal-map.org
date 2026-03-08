@@ -34,7 +34,7 @@ function useLocationFields(controller: LocationsController): Field<LocationRecor
 				enableHiding: false,
 				enableSorting: false,
 				filterBy: false,
-				render: ({ item }) => <LocationMiniMap location={item} />,
+				render: ({ item }) => <LocationMiniMap location={item} theme={controller.activeTheme} />,
 			},
 			{
 				id: 'title',

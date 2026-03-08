@@ -58,8 +58,6 @@ function createShell(host: HTMLElement, config: NormalizedMapConfig): HTMLElemen
 
 	const viewport = document.createElement('div');
 	viewport.className = 'minimal-map-runtime__viewport';
-	viewport.style.height = '100%';
-	viewport.style.width = '100%';
 	host.appendChild(viewport);
 
 	return viewport;
@@ -74,10 +72,15 @@ function createMarker(config: NormalizedMapConfig, point: MapLocationPoint): map
 	if (config.markerContent) {
 		const el = document.createElement('div');
 		el.className = 'minimal-map-custom-marker';
-		el.innerHTML = config.markerContent;
-		// Ensure MapLibre sees a size for centering calculation
-		el.style.width = '32px';
-		el.style.height = '32px';
+		
+		// Create inner wrapper for transform-based centering
+		const inner = document.createElement('div');
+		inner.innerHTML = config.markerContent;
+		el.appendChild(inner);
+
+		// Ensure MapLibre sees zero size for absolute coordinate alignment
+		el.style.width = '0';
+		el.style.height = '0';
 		options.element = el;
 	}
 

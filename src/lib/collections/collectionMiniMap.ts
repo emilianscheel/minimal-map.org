@@ -1,8 +1,9 @@
-import type { CollectionRecord, LocationRecord } from '../../types';
+import type { CollectionRecord, LocationRecord, StyleThemeRecord } from '../../types';
 
 export interface CollectionMiniMapComparableProps {
 	collection: Pick<CollectionRecord, 'id' | 'location_ids'>;
 	locations: LocationRecord[];
+	theme: StyleThemeRecord | null;
 }
 
 export function haveSameCollectionLocationIds(
@@ -31,6 +32,10 @@ export function areCollectionMiniMapPropsEqual(
 	}
 
 	if (!haveSameCollectionLocationIds(previousProps.collection.location_ids, nextProps.collection.location_ids)) {
+		return false;
+	}
+
+	if (previousProps.theme !== nextProps.theme) {
 		return false;
 	}
 
