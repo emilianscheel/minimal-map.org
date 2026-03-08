@@ -1,5 +1,6 @@
 import { Notice, Spinner } from '@wordpress/components';
 import CollectionAssignmentModal from './CollectionAssignmentModal';
+import MergeCollectionsModal from './MergeCollectionsModal';
 import CollectionDialog from './CollectionDialog';
 import CollectionsEmptyState from './CollectionsEmptyState';
 import CollectionsGrid from './CollectionsGrid';
@@ -36,6 +37,7 @@ export default function CollectionsView({ controller }: { controller: Collection
 			)}
 			<CollectionDialog controller={controller} />
 			<CollectionAssignmentModal controller={controller} />
+			<MergeCollectionsModal controller={controller} />
 		</>
 	);
 }

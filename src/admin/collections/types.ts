@@ -12,6 +12,8 @@ export interface CollectionsNotice {
 	message: string;
 }
 
+export type MergeCollectionsStep = 'selection' | 'details';
+
 export interface CollectionsController {
 	actionNotice: CollectionsNotice | null;
 	assignmentLocations: LocationRecord[];
@@ -28,6 +30,13 @@ export interface CollectionsController {
 	isLoading: boolean;
 	isRowActionPending: boolean;
 	isSubmitting: boolean;
+	isMergeModalOpen: boolean;
+	isMerging: boolean;
+	mergeStep: MergeCollectionsStep;
+	mergeSelectionView: ViewPickerTable;
+	selectedMergeCollectionIds: number[];
+	mergeTitle: string;
+	shouldDeleteAfterMerge: boolean;
 	loadError: string | null;
 	locations: LocationRecord[];
 	modalTitle: string;
@@ -49,6 +58,14 @@ export interface CollectionsController {
 	onEditCollection: (collection: CollectionRecord) => void;
 	onOpenAssignmentModal: (collection: CollectionRecord) => void;
 	onSaveAssignments: () => Promise<void>;
+	onOpenMergeModal: () => void;
+	onCloseMergeModal: () => void;
+	onMergeConfirm: () => Promise<void>;
+	onMergeBack: () => void;
+	onChangeMergeSelection: (nextSelection: string[]) => void;
+	onChangeMergeView: (nextView: ViewPickerTable) => void;
+	onChangeMergeTitle: (value: string) => void;
+	onToggleDeleteAfterMerge: () => void;
 	paginatedCollections: CollectionRecord[];
 	totalPages: number;
 }

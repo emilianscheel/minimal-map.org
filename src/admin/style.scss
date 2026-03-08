@@ -160,6 +160,12 @@ svg.lucide {
   margin-left: auto;
 }
 
+.minimal-map-admin__header-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .minimal-map-admin__header-title {
   margin: 0;
   font-size: 1.125rem;

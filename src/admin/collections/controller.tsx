@@ -20,7 +20,7 @@ import { fetchAllCollections } from '../../lib/collections/fetchAllCollections';
 import { filterLocationsForAssignment } from '../../lib/collections/filterLocationsForAssignment';
 import { paginateCollections } from '../../lib/collections/paginateCollections';
 import { updateCollection } from '../../lib/collections/updateCollection';
-import type { CollectionsController } from './types';
+import type { CollectionsController, MergeCollectionsStep } from './types';
 
 export function useCollectionsController(
 	collectionsConfig: CollectionsAdminConfig,
@@ -40,6 +40,19 @@ export function useCollectionsController(
 	const [isLoading, setLoading] = useState(enabled);
 	const [isRowActionPending, setRowActionPending] = useState(false);
 	const [isSubmitting, setSubmitting] = useState(false);
+	const [isMergeModalOpen, setMergeModalOpen] = useState(false);
+	const [isMerging, setMerging] = useState(false);
+	const [mergeStep, setMergeStep] = useState<MergeCollectionsStep>('selection');
+	const [selectedMergeCollectionIds, setSelectedMergeCollectionIds] = useState<number[]>([]);
+	const [mergeTitle, setMergeTitle] = useState('');
+	const [shouldDeleteAfterMerge, setShouldDeleteAfterMerge] = useState(false);
+	const [mergeSelectionView, setMergeSelectionView] = useState<ViewPickerTable>({
+		type: 'pickerTable',
+		page: 1,
+		perPage: 100,
+		fields: ['title', 'location_count'],
+		layout: { enableMoving: false },
+	});
 	const [loadError, setLoadError] = useState<string | null>(null);
 	const [locations, setLocations] = useState<LocationRecord[]>([]);
 	const [selectedAssignmentCollection, setSelectedAssignmentCollection] = useState<CollectionRecord | null>(null);
@@ -303,6 +316,109 @@ export function useCollectionsController(
 		}
 	};
 
+	const onOpenMergeModal = useCallback((): void => {
+		setMergeStep('selection');
+		setSelectedMergeCollectionIds([]);
+		setMergeTitle('');
+		setShouldDeleteAfterMerge(false);
+		setSubmitError(null);
+		setMergeModalOpen(true);
+	}, []);
+
+	const onCloseMergeModal = useCallback((): void => {
+		if (isMerging) {
+			return;
+		}
+
+		setMergeModalOpen(false);
+	}, [isMerging]);
+
+	const onMergeConfirm = async (): Promise<void> => {
+		if (mergeStep === 'selection') {
+			if (selectedMergeCollectionIds.length < 2) {
+				setSubmitError(__('Select at least two collections to merge.', 'minimal-map'));
+				return;
+			}
+			setSubmitError(null);
+			setMergeStep('details');
+			return;
+		}
+
+		if (!mergeTitle.trim()) {
+			setSubmitError(__('Collection title is required.', 'minimal-map'));
+			return;
+		}
+
+		setMerging(true);
+		setSubmitError(null);
+		setActionNotice(null);
+
+		try {
+			// 1. Gather all unique location IDs
+			const allLocationIds = new Set<number>();
+			collections.forEach((collection) => {
+				if (selectedMergeCollectionIds.includes(collection.id)) {
+					collection.location_ids.forEach((id) => allLocationIds.add(id));
+				}
+			});
+
+			// 2. Create new collection
+			await createCollection(
+				collectionsConfig,
+				mergeTitle,
+				Array.from(allLocationIds)
+			);
+
+			// 3. Delete old collections if requested
+			if (shouldDeleteAfterMerge) {
+				await Promise.all(
+					selectedMergeCollectionIds.map((id) =>
+						deleteCollection(collectionsConfig, id)
+					)
+				);
+			}
+
+			await loadCollections();
+			setMergeModalOpen(false);
+			setActionNotice({
+				status: 'success',
+				message: __('Collections merged successfully.', 'minimal-map'),
+			});
+		} catch (error) {
+			setSubmitError(
+				error instanceof Error
+					? error.message
+					: __('Collections could not be merged.', 'minimal-map')
+			);
+		} finally {
+			setMerging(false);
+		}
+	};
+
+	const onMergeBack = useCallback((): void => {
+		if (isMerging) {
+			return;
+		}
+		setMergeStep('selection');
+	}, [isMerging]);
+
+	const onChangeMergeSelection = useCallback((nextSelection: string[]): void => {
+		const nextIds = nextSelection
+			.map((id) => Number.parseInt(id, 10))
+			.filter((id) => !Number.isNaN(id));
+		setSelectedMergeCollectionIds(nextIds);
+		setSubmitError(null);
+	}, []);
+
+	const onChangeMergeTitle = useCallback((value: string): void => {
+		setMergeTitle(value);
+		setSubmitError(null);
+	}, []);
+
+	const onToggleDeleteAfterMerge = useCallback((): void => {
+		setShouldDeleteAfterMerge((current) => !current);
+	}, []);
+
 	return {
 		actionNotice,
 		assignmentLocations: paginatedAssignmentLocations,
@@ -313,14 +429,25 @@ export function useCollectionsController(
 		form,
 		formMode,
 		headerAction: enabled ? (
-			<Button
-				variant="primary"
-				onClick={openDialog}
-				icon={<Plus size={18} strokeWidth={2} />}
-				iconPosition="left"
-			>
-				{__('Add collection', 'minimal-map')}
-			</Button>
+			<div className="minimal-map-admin__header-actions-group">
+				<Button
+					__next40pxDefaultSize
+					variant="secondary"
+					onClick={onOpenMergeModal}
+					disabled={isRowActionPending}
+				>
+					{__('Merge collections', 'minimal-map')}
+				</Button>
+				<Button
+					__next40pxDefaultSize
+					variant="primary"
+					onClick={openDialog}
+					icon={<Plus size={18} strokeWidth={2} />}
+					iconPosition="left"
+				>
+					{__('Add collection', 'minimal-map')}
+				</Button>
+			</div>
 		) : null,
 		isAssignmentModalOpen,
 		isAssignmentSaving,
@@ -328,6 +455,13 @@ export function useCollectionsController(
 		isLoading,
 		isRowActionPending,
 		isSubmitting,
+		isMergeModalOpen,
+		isMerging,
+		mergeStep,
+		mergeSelectionView,
+		selectedMergeCollectionIds,
+		mergeTitle,
+		shouldDeleteAfterMerge,
 		loadError,
 		locations,
 		modalTitle:
@@ -355,6 +489,14 @@ export function useCollectionsController(
 		onEditCollection,
 		onOpenAssignmentModal,
 		onSaveAssignments,
+		onOpenMergeModal,
+		onCloseMergeModal,
+		onMergeConfirm,
+		onMergeBack,
+		onChangeMergeSelection,
+		onChangeMergeView: (nextView: ViewPickerTable) => setMergeSelectionView(nextView),
+		onChangeMergeTitle,
+		onToggleDeleteAfterMerge,
 		paginatedCollections,
 		totalPages: totalPages,
 	};
