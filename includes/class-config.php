@@ -69,6 +69,7 @@ class Config {
 			'heightUnit'       => 'px',
 			'stylePreset'      => self::DEFAULT_STYLE_PRESET,
 			'showZoomControls' => true,
+			'allowSearch'      => true,
 			'zoomControlsPosition'        => 'top-right',
 			'zoomControlsPadding'         => array(
 				'top'    => '8px',
@@ -146,6 +147,7 @@ class Config {
 			'styleTheme'       => $style_theme,
 			'styleThemeSlug'   => $style_theme_slug,
 			'showZoomControls' => ! empty( $attributes['showZoomControls'] ),
+			'allowSearch'      => ! empty( $attributes['allowSearch'] ),
 			'zoomControlsPosition'        => $this->sanitize_zoom_controls_position( $attributes['zoomControlsPosition'] ?? '' ),
 			'zoomControlsPadding'         => $this->sanitize_box_value( $attributes['zoomControlsPadding'] ?? array(), $this->get_default_block_attributes()['zoomControlsPadding'] ),
 			'zoomControlsOuterMargin'     => $this->sanitize_box_value( $attributes['zoomControlsOuterMargin'] ?? array(), $this->get_default_block_attributes()['zoomControlsOuterMargin'] ),

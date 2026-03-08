@@ -45,6 +45,10 @@
       "type": "boolean",
       "default": true
     },
+    "allowSearch": {
+      "type": "boolean",
+      "default": true
+    },
     "zoomControlsPosition": {
       "type": "string",
       "default": "top-right"

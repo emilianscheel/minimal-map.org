@@ -267,7 +267,7 @@ export function createMinimalMap(
 				state.map.easeTo({
 					center: [point.lng, point.lat],
 					zoom: Math.max(state.map.getZoom(), 15),
-					padding: { left: 368, top: 0, right: 0, bottom: 0 },
+					padding: { left: config.allowSearch ? 368 : 0, top: 0, right: 0, bottom: 0 },
 					essential: true
 				}, { isMinimalMapInternal: true });
 				if (state.searchControl) {
@@ -309,7 +309,7 @@ export function createMinimalMap(
 	}
 
 	function syncSearch(config: NormalizedMapConfig): void {
-		if (config.locations.length > 0 && state.map) {
+		if (config.allowSearch && config.locations.length > 0 && state.map) {
 			if (!state.searchControl) {
 				state.searchControl = createWordPressSearchControl(
 					host, 
@@ -500,7 +500,10 @@ export function createMinimalMap(
 			syncControls(nextConfig);
 		}
 
-		if (didRenderedPointsChange(previousConfig, nextConfig)) {
+		if (
+			didRenderedPointsChange(previousConfig, nextConfig) ||
+			previousConfig?.allowSearch !== nextConfig.allowSearch
+		) {
 			syncSearch(nextConfig);
 		}
 

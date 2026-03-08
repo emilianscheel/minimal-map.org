@@ -31,6 +31,7 @@ export interface MapDefaults {
 	stylePreset: string;
 	styleThemeSlug: string;
 	showZoomControls: boolean;
+	allowSearch: boolean;
 	zoomControlsPosition: ZoomControlsPosition;
 	zoomControlsPadding: BoxValue;
 	zoomControlsOuterMargin: BoxValue;
@@ -92,6 +93,7 @@ export interface RawMapConfig {
 	styleTheme?: Partial<StyleThemeColors>;
 	styleThemeSlug?: string;
 	showZoomControls?: boolean;
+	allowSearch?: boolean;
 	zoomControlsPosition?: string;
 	zoomControlsPadding?: BoxValue | null;
 	zoomControlsOuterMargin?: BoxValue | null;
@@ -130,6 +132,7 @@ export interface NormalizedMapConfig extends MapDefaults {
 	locations: MapLocationPoint[];
 	interactive: boolean;
 	showAttribution: boolean;
+	allowSearch: boolean;
 }
 
 export interface MinimalMapInstance {
@@ -232,6 +235,7 @@ export interface MapBlockAttributes {
 	stylePreset: string;
 	styleThemeSlug: string;
 	showZoomControls: boolean;
+	allowSearch: boolean;
 	zoomControlsPosition: ZoomControlsPosition;
 	zoomControlsPadding: BoxValue;
 	zoomControlsOuterMargin: BoxValue;

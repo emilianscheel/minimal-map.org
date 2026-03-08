@@ -639,6 +639,11 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
 						checked={attributes.showZoomControls}
 						onChange={(value: boolean) => setAttributes({ showZoomControls: value })}
 					/>
+					<ToggleControl
+						label={__('Allow Search', 'minimal-map')}
+						checked={attributes.allowSearch}
+						onChange={(value: boolean) => setAttributes({ allowSearch: value })}
+					/>
 				</PanelBody>
 			</InspectorControls>
 			<InspectorControls group="styles">
