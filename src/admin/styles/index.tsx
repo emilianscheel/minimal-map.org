@@ -3,6 +3,8 @@ import { __ } from '@wordpress/i18n';
 import { useEffect, useMemo, useRef } from '@wordpress/element';
 import type { StylesController } from './types';
 import { ColorControl } from './ColorControl';
+import { CreateThemeModal } from './CreateThemeModal';
+import { DeleteThemeModal } from './DeleteThemeModal';
 import { createMinimalMap } from '../../map/bootstrap';
 import type { MinimalMapInstance, RawMapConfig, StyleThemeSlot, MapRuntimeConfig } from '../../types';
 
@@ -64,7 +66,18 @@ const COLOR_GROUPS: { label: string; slots: StyleThemeSlot[] }[] = [
 ];
 
 export default function StylesView({ controller, runtimeConfig }: StylesViewProps) {
-	const { isLoading, draftColors, setDraftColor, activeTheme } = controller;
+	const {
+		isLoading,
+		draftColors,
+		setDraftColor,
+		activeTheme,
+		isCreateModalOpen,
+		isDeleteModalOpen,
+		closeCreateModal,
+		closeDeleteModal,
+		createTheme,
+		deleteTheme,
+	} = controller;
 	const mapHostRef = useRef<HTMLDivElement | null>(null);
 	const mapInstanceRef = useRef<MinimalMapInstance | null>(null);
 
@@ -153,6 +166,19 @@ export default function StylesView({ controller, runtimeConfig }: StylesViewProp
 					</div>
 				</div>
 			</div>
+
+			<CreateThemeModal
+				isOpen={isCreateModalOpen}
+				onRequestClose={closeCreateModal}
+				onCreate={createTheme}
+			/>
+
+			<DeleteThemeModal
+				isOpen={isDeleteModalOpen}
+				onRequestClose={closeDeleteModal}
+				onDelete={deleteTheme}
+				theme={activeTheme}
+			/>
 		</div>
 	);
 }

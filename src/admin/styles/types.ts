@@ -15,4 +15,12 @@ export interface StylesController {
 	importTheme: (config: StyleThemeRecord) => Promise<void>;
 	exportTheme: () => void;
 	headerAction: ReactNode;
+
+	// Modal states
+	isCreateModalOpen: boolean;
+	isDeleteModalOpen: boolean;
+	openCreateModal: () => void;
+	closeCreateModal: () => void;
+	openDeleteModal: () => void;
+	closeDeleteModal: () => void;
 }

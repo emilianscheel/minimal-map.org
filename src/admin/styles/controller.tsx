@@ -20,6 +20,10 @@ export function useStylesController(
 	const [ isSaving, setIsSaving ] = useState(false);
 	const [ draftColors, setDraftColors ] = useState<StyleThemeColors | null>(null);
 
+	// Modal states
+	const [ isCreateModalOpen, setIsCreateModalOpen ] = useState(false);
+	const [ isDeleteModalOpen, setIsDeleteModalOpen ] = useState(false);
+
 	const activeTheme = useMemo(() => {
 		return themes.find((t) => t.slug === activeThemeSlug) || themes[0] || null;
 	}, [ themes, activeThemeSlug ]);
@@ -97,6 +101,7 @@ export function useStylesController(
 			setThemes((prev) => [ ...prev, newTheme ]);
 			setActiveThemeSlug(newTheme.slug);
 			setDraftColors(newTheme.colors);
+			setIsCreateModalOpen(false);
 		} catch (error) {
 			console.error('Failed to create theme', error);
 		} finally {
@@ -119,6 +124,7 @@ export function useStylesController(
 			if (defaultTheme) {
 				setDraftColors(defaultTheme.colors);
 			}
+			setIsDeleteModalOpen(false);
 		} catch (error) {
 			console.error('Failed to delete theme', error);
 		} finally {
@@ -149,7 +155,7 @@ export function useStylesController(
 			const newTheme = await apiFetch<StyleThemeRecord>({
 				path: config.restPath,
 				method: 'POST',
-				data: { label: configData.label + ' (Imported)' },
+				data: { label: (configData.label || 'Imported') + ' (Imported)' },
 			});
 
 			const updatedTheme = await apiFetch<StyleThemeRecord>({
@@ -168,6 +174,11 @@ export function useStylesController(
 		}
 	}, [ config.restPath ]);
 
+	const openCreateModal = () => setIsCreateModalOpen(true);
+	const closeCreateModal = () => setIsCreateModalOpen(false);
+	const openDeleteModal = () => setIsDeleteModalOpen(true);
+	const closeDeleteModal = () => setIsDeleteModalOpen(false);
+
 	const headerAction = useMemo(() => {
 		if (!active) return null;
 
@@ -176,14 +187,14 @@ export function useStylesController(
 		return (
 			<div className="minimal-map-styles__header-actions">
 				<div className="minimal-map-styles__theme-controls">
-					<CreateThemeButton onCreate={createTheme} />
-					<DeleteThemeButton slug={activeThemeSlug} onDelete={deleteTheme} />
+					<CreateThemeButton onClick={openCreateModal} />
+					<DeleteThemeButton slug={activeThemeSlug} onClick={openDeleteModal} />
 					<ExportThemeButton onExport={exportTheme} />
 					<ImportThemeButton onImport={importTheme} />
 				</div>
 
 				<ThemeSelector
-					activeSlug={activeThemeSlug}
+					activeTheme={activeTheme}
 					themes={themes}
 					onSwitch={switchTheme}
 				/>
@@ -199,7 +210,7 @@ export function useStylesController(
 				</Button>
 			</div>
 		);
-	}, [ active, activeTheme, activeThemeSlug, themes, draftColors, isSaving, saveTheme, createTheme, deleteTheme, exportTheme, importTheme, switchTheme ]);
+	}, [ active, activeTheme, activeThemeSlug, themes, draftColors, isSaving, saveTheme, exportTheme, importTheme, switchTheme ]);
 
 	return {
 		themes,
@@ -215,5 +226,11 @@ export function useStylesController(
 		importTheme,
 		exportTheme,
 		headerAction,
+		isCreateModalOpen,
+		isDeleteModalOpen,
+		openCreateModal,
+		closeCreateModal,
+		openDeleteModal,
+		closeDeleteModal,
 	};
 }

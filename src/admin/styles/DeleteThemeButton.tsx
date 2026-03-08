@@ -4,19 +4,15 @@ import { Trash2 } from 'lucide-react';
 
 interface DeleteThemeButtonProps {
 	slug: string;
-	onDelete: (slug: string) => void;
+	onClick: () => void;
 }
 
-export function DeleteThemeButton({ slug, onDelete }: DeleteThemeButtonProps) {
+export function DeleteThemeButton({ slug, onClick }: DeleteThemeButtonProps) {
 	return (
 		<Button
 			icon={<Trash2 size={18} />}
 			label={__('Delete Current Theme', 'minimal-map')}
-			onClick={() => {
-				if (window.confirm(__('Are you sure you want to delete this theme?', 'minimal-map'))) {
-					onDelete(slug);
-				}
-			}}
+			onClick={onClick}
 			disabled={slug === 'default'}
 			variant="tertiary"
 			__next40pxDefaultSize

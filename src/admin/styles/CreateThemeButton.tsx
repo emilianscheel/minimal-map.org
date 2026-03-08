@@ -3,18 +3,15 @@ import { __ } from '@wordpress/i18n';
 import { Plus } from 'lucide-react';
 
 interface CreateThemeButtonProps {
-	onCreate: (name: string) => void;
+	onClick: () => void;
 }
 
-export function CreateThemeButton({ onCreate }: CreateThemeButtonProps) {
+export function CreateThemeButton({ onClick }: CreateThemeButtonProps) {
 	return (
 		<Button
 			icon={<Plus size={18} />}
 			label={__('Create New Theme', 'minimal-map')}
-			onClick={() => {
-				const name = window.prompt(__('Enter theme name:', 'minimal-map'));
-				if (name) onCreate(name);
-			}}
+			onClick={onClick}
 			variant="tertiary"
 			__next40pxDefaultSize
 		/>
