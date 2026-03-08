@@ -48,8 +48,19 @@ export interface MapMessages {
 }
 
 export interface MapLocationPoint {
+	id?: number;
+	title?: string;
 	lat: number;
 	lng: number;
+	telephone?: string;
+	email?: string;
+	website?: string;
+	street?: string;
+	house_number?: string;
+	postal_code?: string;
+	city?: string;
+	state?: string;
+	country?: string;
 }
 
 export interface MapCollectionOption {
@@ -234,6 +245,10 @@ export interface MapBlockAttributes {
 }
 
 export interface WordPressZoomControls {
+	destroy: () => void;
+}
+
+export interface WordPressSearchControl {
 	destroy: () => void;
 }
 

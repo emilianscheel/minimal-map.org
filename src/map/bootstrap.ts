@@ -4,6 +4,7 @@ import { createAttributionPill } from './attribution-pill';
 import { normalizeMapConfig } from './defaults';
 import { applyStyleTheme } from '../lib/styles/themeEngine';
 import { createWordPressZoomControls } from './wp-controls';
+import { createWordPressSearchControl } from './SearchControl';
 import type {
 	MapRuntimeConfig,
 	MapLocationPoint,
@@ -12,12 +13,14 @@ import type {
 	RawMapConfig,
 	WordPressAttributionControl,
 	WordPressZoomControls,
+	WordPressSearchControl,
 } from '../types';
 
 interface MinimalMapState {
 	attribution: WordPressAttributionControl | null;
 	config: NormalizedMapConfig | null;
 	controls: WordPressZoomControls | null;
+	searchControl: WordPressSearchControl | null;
 	map: MapLibreMap | null;
 	markers: maplibregl.Marker[];
 	observer: ResizeObserver | null;
@@ -224,6 +227,7 @@ export function createMinimalMap(
 		attribution: null,
 		config: null,
 		controls: null,
+		searchControl: null,
 		map: null,
 		markers: [],
 		observer: null,
@@ -254,6 +258,15 @@ export function createMinimalMap(
 
 		if (config.showZoomControls && state.map) {
 			state.controls = createWordPressZoomControls(host, state.map, config);
+		}
+	}
+
+	function syncSearch(config: NormalizedMapConfig): void {
+		state.searchControl?.destroy();
+		state.searchControl = null;
+
+		if (config.locations.length > 0 && state.map) {
+			state.searchControl = createWordPressSearchControl(host, state.map, config);
 		}
 	}
 
@@ -358,6 +371,7 @@ export function createMinimalMap(
 
 		syncMarkers(config, true);
 		syncControls(config);
+		syncSearch(config);
 		syncAttribution(config);
 	}
 
@@ -367,6 +381,9 @@ export function createMinimalMap(
 
 		state.controls?.destroy();
 		state.controls = null;
+
+		state.searchControl?.destroy();
+		state.searchControl = null;
 
 		state.observer?.disconnect();
 		state.observer = null;
@@ -419,6 +436,10 @@ export function createMinimalMap(
 			didZoomControlsStyleChange(previousConfig, nextConfig)
 		) {
 			syncControls(nextConfig);
+		}
+
+		if (didRenderedPointsChange(previousConfig, nextConfig)) {
+			syncSearch(nextConfig);
 		}
 
 		if (!previousConfig || previousConfig.showAttribution !== nextConfig.showAttribution) {

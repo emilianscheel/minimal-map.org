@@ -202,3 +202,112 @@
 		max-width: min(calc(100vw - 24px), 320px);
 	}
 }
+
+.minimal-map-search-host {
+	width: 320px;
+	max-width: calc(100% - 32px);
+}
+
+.minimal-map-search {
+	display: flex;
+	flex-direction: column;
+	background: #ffffff !important;
+	border: var(--minimal-map-search-border-width, 1px) solid var(--minimal-map-search-border-color, #dcdcde);
+	border-radius: var(--minimal-map-search-border-radius, 2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	overflow: hidden;
+}
+
+.minimal-map-search .components-search-control {
+	margin-bottom: 0;
+}
+
+.minimal-map-search .components-search-control__input {
+	height: 44px !important;
+	border: none !important;
+	background: #ffffff !important;
+	color: #1e1e1e !important;
+	padding-left: 40px !important;
+	box-shadow: none !important;
+	font-size: 14px !important;
+}
+
+.minimal-map-search .components-search-control__icon {
+	left: 12px !important;
+	color: #1e1e1e !important;
+}
+
+.minimal-map-search__results {
+	max-height: 400px;
+	overflow-y: auto;
+	border-top: 1px solid #e0e0e1;
+	background: #ffffff;
+}
+
+.minimal-map-search__result-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	width: 100%;
+	padding: 12px;
+	text-align: left;
+	background: #ffffff;
+	border: none;
+	border-bottom: 1px solid #f0f0f1;
+	cursor: pointer;
+	color: #1e1e1e;
+	transition: background 0.1s ease-in-out;
+}
+
+.minimal-map-search__result-item:last-child {
+	border-bottom: none;
+}
+
+.minimal-map-search__result-item:hover,
+.minimal-map-search__result-item:focus {
+	background: #f8f8f8;
+	outline: none;
+}
+
+.minimal-map-search__result-title {
+	font-weight: 600;
+	font-size: 15px;
+	margin: 0;
+}
+
+.minimal-map-search__result-address {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	opacity: 0.8;
+	margin: 0;
+}
+
+.minimal-map-search__result-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 2px;
+}
+
+.minimal-map-search__meta-item {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 11px;
+	opacity: 0.6;
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+
+.minimal-map-search__no-results {
+	padding: 12px;
+	font-size: 13px;
+	color: #1e1e1e;
+	opacity: 0.7;
+	border-top: 1px solid #e0e0e1;
+	background: #ffffff;
+}
+

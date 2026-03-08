@@ -354,7 +354,11 @@ function normalizeLocationPoint(value: MapLocationPoint | null | undefined): Map
 		return null;
 	}
 
-	return { lat, lng };
+	return { 
+		...value,
+		lat, 
+		lng 
+	};
 }
 
 function normalizeLocations(
@@ -364,13 +368,5 @@ function normalizeLocations(
 		return [];
 	}
 
-	return locations.reduce<MapLocationPoint[]>((normalized, location) => {
-		const point = normalizeLocationPoint(location);
-
-		if (point) {
-			normalized.push(point);
-		}
-
-		return normalized;
-	}, []);
+	return locations.map(location => normalizeLocationPoint(location)).filter((point): point is MapLocationPoint => point !== null);
 }

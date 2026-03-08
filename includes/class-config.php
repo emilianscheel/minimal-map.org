@@ -185,7 +185,7 @@ class Config {
 	/**
 	 * Get all published map locations with valid coordinates.
 	 *
-	 * @return array<int, array<string, float>>
+	 * @return array<int, array<string, mixed>>
 	 */
 	public function get_map_locations( $location_ids = null ) {
 		$locations = $this->get_map_locations_indexed();
@@ -242,7 +242,7 @@ class Config {
 	/**
 	 * Get all published map locations with valid coordinates keyed by post id.
 	 *
-	 * @return array<int, array<string, float>>
+	 * @return array<int, array<string, mixed>>
 	 */
 	private function get_map_locations_indexed() {
 		$posts = get_posts(
@@ -265,16 +265,30 @@ class Config {
 				continue;
 			}
 
-			$location = $this->normalize_map_location(
-				get_post_meta( $post->ID, 'latitude', true ),
-				get_post_meta( $post->ID, 'longitude', true )
-			);
+			$lat = get_post_meta( $post->ID, 'latitude', true );
+			$lng = get_post_meta( $post->ID, 'longitude', true );
 
-			if ( null === $location ) {
+			$normalized = $this->normalize_map_location( $lat, $lng );
+
+			if ( null === $normalized ) {
 				continue;
 			}
 
-			$locations[ $post->ID ] = $location;
+			$locations[ $post->ID ] = array(
+				'id'           => $post->ID,
+				'title'        => get_the_title( $post ),
+				'lat'          => $normalized['lat'],
+				'lng'          => $normalized['lng'],
+				'telephone'    => (string) get_post_meta( $post->ID, 'telephone', true ),
+				'email'        => (string) get_post_meta( $post->ID, 'email', true ),
+				'website'      => (string) get_post_meta( $post->ID, 'website', true ),
+				'street'       => (string) get_post_meta( $post->ID, 'street', true ),
+				'house_number' => (string) get_post_meta( $post->ID, 'house_number', true ),
+				'postal_code'  => (string) get_post_meta( $post->ID, 'postal_code', true ),
+				'city'         => (string) get_post_meta( $post->ID, 'city', true ),
+				'state'        => (string) get_post_meta( $post->ID, 'state', true ),
+				'country'      => (string) get_post_meta( $post->ID, 'country', true ),
+			);
 		}
 
 		return $locations;
@@ -305,9 +319,9 @@ class Config {
 	/**
 	 * Filter a location map by ordered location ids.
 	 *
-	 * @param array<int, array<string, float>> $locations Indexed locations.
+	 * @param array<int, array<string, mixed>> $locations Indexed locations.
 	 * @param int[]                            $location_ids Ordered location ids.
-	 * @return array<int, array<string, float>>
+	 * @return array<int, array<string, mixed>>
 	 */
 	private function filter_locations_by_ids( $locations, $location_ids ) {
 		$normalized_ids = $this->normalize_location_ids( $location_ids );
