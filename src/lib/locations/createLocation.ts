@@ -1,12 +1,12 @@
 import apiFetch from '@wordpress/api-fetch';
-import type { LocationFormState, LocationsAdminConfig } from '../../types';
+import type { LocationFormState, LocationsAdminConfig, LocationRestResponse } from '../../types';
 import { buildLocationMeta } from './buildLocationMeta';
 
 export async function createLocation(
 	config: LocationsAdminConfig,
 	form: LocationFormState
-): Promise<void> {
-	await apiFetch({
+): Promise<LocationRestResponse> {
+	return await apiFetch<LocationRestResponse>({
 		path: config.restPath,
 		method: 'POST',
 		data: {

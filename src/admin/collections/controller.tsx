@@ -185,8 +185,9 @@ export function useCollectionsController(
 					editingCollection.location_ids
 				);
 			} else {
-				await createCollection(collectionsConfig, form);
+				await createCollection(collectionsConfig, form.title);
 			}
+
 
 			await loadCollections();
 			setDialogOpen(false);

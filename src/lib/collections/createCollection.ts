@@ -3,16 +3,17 @@ import type { CollectionFormState, CollectionsAdminConfig } from '../../types';
 
 export async function createCollection(
 	config: CollectionsAdminConfig,
-	form: CollectionFormState
+	title: string,
+	locationIds: number[] = []
 ): Promise<void> {
 	await apiFetch({
 		path: config.restPath,
 		method: 'POST',
 		data: {
-			title: form.title.trim(),
+			title: title.trim(),
 			status: 'publish',
 			meta: {
-				location_ids: [],
+				location_ids: locationIds,
 			},
 		},
 	});

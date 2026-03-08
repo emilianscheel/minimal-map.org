@@ -34,6 +34,8 @@ export interface LocationsController {
 	isRemovingCollectionAssignment: boolean;
 	isRowActionPending: boolean;
 	isSubmitting: boolean;
+	isImporting: boolean;
+	isExporting: boolean;
 	loadError: string | null;
 	locations: LocationRecord[];
 	mapCenter: MapCoordinates | null;
@@ -68,6 +70,9 @@ export interface LocationsController {
 	onRemoveCollectionAssignment: () => Promise<void>;
 	onRetrieveLocation: (location: LocationRecord) => Promise<void>;
 	onSelectAssignmentCollection: (collectionId: string) => void;
+	onImportLocations: (file: File) => Promise<void>;
+	onExportLocations: () => void;
+	onExportExample: () => void;
 	paginatedLocations: LocationRecord[];
 	totalPages: number;
 }

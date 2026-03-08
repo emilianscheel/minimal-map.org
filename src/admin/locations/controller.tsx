@@ -3,6 +3,9 @@ import type { ViewTable } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Plus } from 'lucide-react';
+import { createCollection } from '../../lib/collections/createCollection';
+import { ExportLocationsDropdown } from './ExportLocationsDropdown';
+import { ImportLocationsButton } from './ImportLocationsButton';
 import type {
 	CollectionRecord,
 	CollectionsAdminConfig,
@@ -76,6 +79,8 @@ export function useLocationsController(
 	const [selectedRemovalCollection, setSelectedRemovalCollection] =
 		useState<CollectionRecord | null>(null);
 	const [isRemovingCollectionAssignment, setRemovingCollectionAssignment] = useState(false);
+	const [isImporting, setIsImporting] = useState(false);
+	const [isExporting, setIsExporting] = useState(false);
 
 	const loadLocations = useCallback(async () => {
 		if (!enabled) {
@@ -645,6 +650,137 @@ export function useLocationsController(
 		}
 	};
 
+	const onImportLocations = useCallback(async (file: File) => {
+		setIsImporting(true);
+		setActionNotice(null);
+
+		try {
+			const text = await file.text();
+			const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+			if (lines.length < 2) throw new Error(__('CSV file is empty or missing headers.', 'minimal-map'));
+
+			// Robust CSV line parser that handles quotes and commas
+			const parseCsvLine = (line: string) => {
+				const result = [];
+				let current = '';
+				let inQuotes = false;
+				for (let i = 0; i < line.length; i++) {
+					const char = line[i];
+					if (char === '"') {
+						if (inQuotes && line[i + 1] === '"') {
+							// Handle escaped quotes ""
+							current += '"';
+							i++;
+						} else {
+							inQuotes = !inQuotes;
+						}
+					} else if (char === ',' && !inQuotes) {
+						result.push(current.trim());
+						current = '';
+					} else {
+						current += char;
+					}
+				}
+				result.push(current.trim());
+				return result;
+			};
+
+			const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase());
+			const data = lines.slice(1).map(line => {
+				const values = parseCsvLine(line);
+				const obj: any = {};
+				headers.forEach((header, index) => {
+					obj[header] = values[index];
+				});
+				return obj;
+			});
+
+			const importedLocationIds: number[] = [];
+			for (const row of data) {
+				const form: LocationFormState = {
+					title: row.title || __('Imported Location', 'minimal-map'),
+					street: row.street || '',
+					house_number: row.house_number || '',
+					postal_code: row.postal_code || '',
+					city: row.city || '',
+					state: row.state || '',
+					country: row.country || '',
+					telephone: row.telephone || '',
+					email: row.email || '',
+					website: row.website || '',
+					latitude: row.latitude || '',
+					longitude: row.longitude || '',
+				};
+				const newLocation = await createLocation(config, form);
+				importedLocationIds.push(newLocation.id);
+			}
+
+			if (importedLocationIds.length > 0) {
+				const date = new Date();
+				const timestamp = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+				const collectionTitle = `${__('Import on', 'minimal-map')} ${timestamp}`;
+				await createCollection(collectionsConfig, collectionTitle, importedLocationIds);
+			}
+
+			await loadLocations();
+			setActionNotice({
+				status: 'success',
+				message: `${importedLocationIds.length} ${__('locations imported and assigned to a new collection.', 'minimal-map')}`,
+			});
+		} catch (error) {
+			setActionNotice({
+				status: 'error',
+				message: error instanceof Error ? error.message : __('Failed to import locations.', 'minimal-map'),
+			});
+		} finally {
+			setIsImporting(false);
+		}
+	}, [config, collectionsConfig, loadLocations]);
+
+	const onExportLocations = useCallback(() => {
+		if (locations.length === 0) return;
+
+		const headers = ['title', 'street', 'house_number', 'postal_code', 'city', 'state', 'country', 'telephone', 'email', 'website', 'latitude', 'longitude'];
+		const csvRows = [headers.join(',')];
+
+		for (const loc of locations) {
+			const values = headers.map(header => {
+				const val = (loc as any)[header] || '';
+				return `"${val.toString().replace(/"/g, '""')}"`;
+			});
+			csvRows.push(values.join(','));
+		}
+
+		const csvContent = csvRows.join('\n');
+		const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.setAttribute('href', url);
+		link.setAttribute('download', 'minimal-map-locations.csv');
+		link.style.visibility = 'hidden';
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}, [locations]);
+
+	const onExportExample = useCallback(() => {
+		const headers = ['title', 'street', 'house_number', 'postal_code', 'city', 'state', 'country', 'telephone', 'email', 'website', 'latitude', 'longitude'];
+		const exampleData = [
+			'Brandenburg Gate,Pariser Platz,,10117,Berlin,Berlin,Germany,,,52.5162,13.3777',
+			'Eiffel Tower,Champ de Mars,5 Avenue Anatole France,75007,Paris,,France,,,48.8584,2.2945'
+		];
+		const csvContent = [headers.join(','), ...exampleData].join('\n');
+		const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.setAttribute('href', url);
+		link.setAttribute('download', 'minimal-map-example.csv');
+		link.style.visibility = 'hidden';
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}, []);
+
 	return {
 		actionNotice,
 		assignmentCollectionId,
@@ -657,14 +793,20 @@ export function useLocationsController(
 		geocodeError,
 		geocodeNotice,
 		headerAction: enabled ? (
-			<Button
-				variant="primary"
-				onClick={openDialog}
-				icon={<Plus size={18} strokeWidth={2} />}
-				iconPosition="left"
-			>
-				{__('Add location', 'minimal-map')}
-			</Button>
+			<div className="minimal-map-styles__header-actions">
+				<div className="minimal-map-styles__theme-controls">
+					<ImportLocationsButton onImport={onImportLocations} isImporting={isImporting} />
+					<ExportLocationsDropdown onExport={onExportLocations} onExportExample={onExportExample} />
+				</div>
+				<Button
+					variant="primary"
+					onClick={openDialog}
+					icon={<Plus size={18} strokeWidth={2} />}
+					iconPosition="left"
+				>
+					{__('Add location', 'minimal-map')}
+				</Button>
+			</div>
 		) : null,
 		isAssignToCollectionModalOpen,
 		isAssignmentSaving,
@@ -675,6 +817,8 @@ export function useLocationsController(
 		isRemovingCollectionAssignment,
 		isRowActionPending,
 		isSubmitting,
+		isImporting,
+		isExporting,
 		loadError,
 		locations,
 		mapCenter,
@@ -695,6 +839,9 @@ export function useLocationsController(
 		onDeleteLocation,
 		onDuplicateLocation,
 		onEditLocation,
+		onImportLocations,
+		onExportLocations,
+		onExportExample,
 		onMapLocationSelect,
 		onRemoveCollectionAssignment,
 		onRetrieveLocation,
