@@ -38,6 +38,7 @@ function CollectionMiniMap({
 		stylePreset: theme?.basePreset || 'positron',
 		styleTheme: theme?.colors,
 		showZoomControls: false,
+		allowSearch: false,
 		markerClassName: 'minimal-map-admin__collection-mini-map-marker',
 		markerOffsetY: 0,
 		centerOffsetY: 0,

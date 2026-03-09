@@ -17,6 +17,7 @@ export default function LocationMiniMap({ location, theme }: { location: Locatio
 		stylePreset: theme?.basePreset || 'positron',
 		styleTheme: theme?.colors,
 		showZoomControls: false,
+		allowSearch: false,
 		markerLat: hasCoordinates ? latitude : null,
 		markerLng: hasCoordinates ? longitude : null,
 		markerClassName: 'minimal-map-admin__location-mini-map-marker',
