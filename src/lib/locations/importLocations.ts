@@ -70,6 +70,7 @@ export async function importLocations(
 			website: row.website || '',
 			latitude: row.latitude || '',
 			longitude: row.longitude || '',
+			tag_ids: [],
 		};
 		const newLocation = await createLocation(locationsConfig, form);
 		importedLocationIds.push(newLocation.id);

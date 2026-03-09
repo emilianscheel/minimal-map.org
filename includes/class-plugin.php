@@ -129,9 +129,9 @@ final class Plugin {
 	 */
 	private function register_hooks() {
 		add_action( 'init', array( $this->collection_post_type, 'register' ), 5 );
-		add_action( 'init', array( $this->location_post_type, 'register' ), 5 );
-		add_action( 'init', array( $this->marker_post_type, 'register' ), 5 );
 		add_action( 'init', array( $this->tag_taxonomy, 'register' ), 5 );
+		add_action( 'init', array( $this->location_post_type, 'register' ), 6 );
+		add_action( 'init', array( $this->marker_post_type, 'register' ), 6 );
 		add_action( 'init', array( $this->assets, 'register' ) );
 		add_action( 'init', array( $this->map_block, 'register' ) );
 		add_action( 'admin_menu', array( $this->admin_menu, 'register' ) );

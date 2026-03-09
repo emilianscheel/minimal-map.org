@@ -3,7 +3,7 @@ import type { LocationRecord, LocationRestResponse } from '../../types';
 export function normalizeLocationRecord(record: LocationRestResponse): LocationRecord {
 	const meta = record.meta ?? {};
 
-	return {
+	const result: LocationRecord = {
 		id: record.id,
 		title: record.title?.raw || record.title?.rendered || '',
 		telephone: meta.telephone ?? '',
@@ -17,5 +17,12 @@ export function normalizeLocationRecord(record: LocationRestResponse): LocationR
 		country: meta.country ?? '',
 		latitude: meta.latitude ?? '',
 		longitude: meta.longitude ?? '',
+		tag_ids: record.minimal_map_tag ?? [],
 	};
+
+	if (result.tag_ids.length > 0) {
+		console.log(`Normalized location ${result.id} with tag_ids:`, result.tag_ids);
+	}
+
+	return result;
 }

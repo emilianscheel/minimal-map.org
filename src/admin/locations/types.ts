@@ -9,6 +9,7 @@ import type {
 	LocationRecord,
 	MapCoordinates,
 	StyleThemeRecord,
+	TagRecord,
 } from '../../types';
 
 export interface LocationsNotice {
@@ -20,7 +21,9 @@ export interface LocationsController {
 	actionNotice: LocationsNotice | null;
 	activeTheme: StyleThemeRecord | null;
 	assignmentCollectionId: string;
+	assignmentTagIds: number[];
 	collections: CollectionRecord[];
+	tags: TagRecord[];
 	fieldErrors: FieldErrors;
 	form: LocationFormState;
 	formMode: LocationFormMode;
@@ -28,6 +31,7 @@ export interface LocationsController {
 	geocodeNotice: string | null;
 	headerAction: ReactNode;
 	isAssignToCollectionModalOpen: boolean;
+	isAssignTagsModalOpen: boolean;
 	isAssignmentSaving: boolean;
 	isDialogOpen: boolean;
 	isGeocoding: boolean;
@@ -43,7 +47,9 @@ export interface LocationsController {
 	mapCenter: MapCoordinates | null;
 	modalTitle: string;
 	getCollectionsForLocation: (locationId: number) => CollectionRecord[];
+	getTagsForLocation: (locationId: number) => TagRecord[];
 	selectedAssignmentLocation: LocationRecord | null;
+	selectedTagsLocation: LocationRecord | null;
 	selectedRemovalCollection: CollectionRecord | null;
 	selectedRemovalLocation: LocationRecord | null;
 	selectedCoordinates: MapCoordinates | null;
@@ -53,13 +59,15 @@ export interface LocationsController {
 	step: LocationDialogStep;
 	view: ViewTable;
 	onAssignLocationToCollection: () => Promise<void>;
+	onAssignTagsToLocation: () => Promise<void>;
 	dismissActionNotice: () => void;
 	onBack: () => void;
 	onCancel: () => void;
-	onChangeFormValue: (key: keyof LocationFormState, value: string) => void;
+	onChangeFormValue: (key: keyof LocationFormState, value: any) => void;
 	onMapLocationSelect: (coordinates: MapCoordinates) => void;
 	onCloseRemoveCollectionAssignmentModal: () => void;
 	onCloseAssignToCollectionModal: () => void;
+	onCloseAssignTagsModal: () => void;
 	onChangeView: (nextView: ViewTable) => void;
 	onChangeSelection: (selection: string[]) => void;
 	onConfirm: () => Promise<void>;
@@ -68,6 +76,7 @@ export interface LocationsController {
 	onDuplicateLocation: (location: LocationRecord) => Promise<void>;
 	onEditLocation: (location: LocationRecord) => void;
 	onOpenAssignToCollectionModal: (location: LocationRecord) => void;
+	onOpenAssignTagsModal: (location: LocationRecord) => void;
 	onOpenRemoveCollectionAssignmentModal: (
 		location: LocationRecord,
 		collection: CollectionRecord
@@ -75,6 +84,7 @@ export interface LocationsController {
 	onRemoveCollectionAssignment: () => Promise<void>;
 	onRetrieveLocation: (location: LocationRecord) => Promise<void>;
 	onSelectAssignmentCollection: (collectionId: string) => void;
+	onSelectAssignmentTags: (tagIds: number[]) => void;
 	onImportLocations: (file: File) => Promise<void>;
 	onExportLocations: () => void;
 	onExportExample: () => void;

@@ -13,6 +13,7 @@ export async function createLocation(
 			title: form.title.trim(),
 			status: 'publish',
 			meta: buildLocationMeta(form),
+			minimal_map_tag: form.tag_ids,
 		},
 	});
 }

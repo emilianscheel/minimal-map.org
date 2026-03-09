@@ -3,8 +3,9 @@ import { DataViews } from '@wordpress/dataviews/wp';
 import type { Action, Field, View, ViewTable } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from '@wordpress/element';
-import { Copy, Layers3, LocateFixed, Pencil, Trash2 } from 'lucide-react';
+import { Copy, Layers3, LocateFixed, Pencil, Tags, Trash2 } from 'lucide-react';
 import LocationMiniMap from '../../components/LocationMiniMap';
+import TagBadge from '../../components/TagBadge';
 import type { LocationRecord } from '../../types';
 import { formatLocationAddressLines } from '../../lib/locations/formatLocationAddressLines';
 import DeleteLocationActionModal from './DeleteLocationActionModal';
@@ -130,6 +131,35 @@ function useLocationFields(controller: LocationsController): Field<LocationRecor
 					);
 				},
 			},
+			{
+				id: 'tags',
+				label: __('Tags', 'minimal-map'),
+				enableHiding: false,
+				enableSorting: false,
+				filterBy: false,
+				render: ({ item }) => {
+					const tags = controller.getTagsForLocation(item.id);
+
+					if (tags.length === 0) {
+						return null;
+					}
+
+					return (
+						<div className="minimal-map-admin__location-collections">
+							{tags.map((tag) => (
+								<button
+									key={tag.id}
+									type="button"
+									className="minimal-map-admin__location-collection-trigger"
+									onClick={() => controller.onOpenAssignTagsModal(item)}
+								>
+									<TagBadge tag={tag} />
+								</button>
+							))}
+						</div>
+					);
+				},
+			},
 		],
 		[controller]
 	);
@@ -196,6 +226,21 @@ function useLocationActions(controller: LocationsController): Action<LocationRec
 					}
 
 					controller.onOpenAssignToCollectionModal(items[0]);
+				},
+			},
+			{
+				id: 'assign-tags',
+				label: __('Assign Tags', 'minimal-map'),
+				icon: <Tags size={16} strokeWidth={2} />,
+				context: 'single',
+				disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+				supportsBulk: false,
+				callback: (items) => {
+					if (!items[0]) {
+						return;
+					}
+
+					controller.onOpenAssignTagsModal(items[0]);
 				},
 			},
 			{

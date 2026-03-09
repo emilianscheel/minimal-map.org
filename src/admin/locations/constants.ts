@@ -14,6 +14,7 @@ export const DEFAULT_FORM_STATE: LocationFormState = {
 	country: '',
 	latitude: '',
 	longitude: '',
+	tag_ids: [],
 };
 
 export const DEFAULT_VIEW: ViewTable = {
@@ -26,6 +27,7 @@ export const DEFAULT_VIEW: ViewTable = {
 		'contact',
 		'address',
 		'collections',
+		'tags',
 	],
 	layout: {
 		enableMoving: false,

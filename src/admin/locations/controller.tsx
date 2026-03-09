@@ -16,8 +16,11 @@ import type {
 	LocationsAdminConfig,
 	MapCoordinates,
 	StyleThemeRecord,
+	TagRecord,
+	TagsAdminConfig,
 } from '../../types';
 import { fetchAllCollections } from '../../lib/collections/fetchAllCollections';
+import { fetchAllTags } from '../../lib/tags/fetchAllTags';
 import { updateCollection } from '../../lib/collections/updateCollection';
 import { configureApiFetch } from '../../lib/locations/configureApiFetch';
 import { createEmptyFieldErrors } from '../../lib/locations/createEmptyFieldErrors';
@@ -47,6 +50,7 @@ const DEFAULT_MAP_CENTER: MapCoordinates = {
 export function useLocationsController(
 	config: LocationsAdminConfig,
 	collectionsConfig: CollectionsAdminConfig,
+	tagsConfig: TagsAdminConfig,
 	enabled: boolean,
 	themeData: {
 		activeTheme: StyleThemeRecord | null;
@@ -71,6 +75,7 @@ export function useLocationsController(
 	const [geocodeNotice, setGeocodeNotice] = useState<string | null>(null);
 	const [locations, setLocations] = useState<LocationRecord[]>([]);
 	const [collections, setCollections] = useState<CollectionRecord[]>([]);
+	const [tags, setTags] = useState<TagRecord[]>([]);
 	const [step, setStep] = useState<LocationDialogStep>('details');
 	const [view, setView] = useState<ViewTable>(DEFAULT_VIEW);
 	const [mapCenter, setMapCenter] = useState<MapCoordinates | null>(null);
@@ -78,6 +83,9 @@ export function useLocationsController(
 	const [isAssignToCollectionModalOpen, setAssignToCollectionModalOpen] = useState(false);
 	const [selectedAssignmentLocation, setSelectedAssignmentLocation] = useState<LocationRecord | null>(null);
 	const [assignmentCollectionId, setAssignmentCollectionId] = useState('');
+	const [isAssignTagsModalOpen, setAssignTagsModalOpen] = useState(false);
+	const [selectedTagsLocation, setSelectedTagsLocation] = useState<LocationRecord | null>(null);
+	const [assignmentTagIds, setAssignmentTagIds] = useState<number[]>([]);
 	const [isAssignmentSaving, setAssignmentSaving] = useState(false);
 	const [isRemoveCollectionAssignmentModalOpen, setRemoveCollectionAssignmentModalOpen] =
 		useState(false);
@@ -100,12 +108,14 @@ export function useLocationsController(
 		setLoadError(null);
 
 		try {
-			const [locationRecords, collectionRecords] = await Promise.all([
+			const [locationRecords, collectionRecords, tagRecords] = await Promise.all([
 				fetchAllLocations(config),
 				fetchAllCollections(collectionsConfig),
+				fetchAllTags(tagsConfig),
 			]);
 			setLocations(locationRecords);
 			setCollections(collectionRecords);
+			setTags(tagRecords);
 		} catch (error) {
 			setLoadError(
 				error instanceof Error
@@ -115,7 +125,7 @@ export function useLocationsController(
 		} finally {
 			setLoading(false);
 		}
-	}, [collectionsConfig, config, enabled]);
+	}, [collectionsConfig, config, enabled, tagsConfig]);
 
 	useEffect(() => {
 		configureApiFetch(collectionsConfig.nonce || config.nonce);
@@ -160,6 +170,22 @@ export function useLocationsController(
 		return lookup;
 	}, [collections]);
 
+	const tagsById = useMemo(() => new Map(tags.map((tag) => [tag.id, tag])), [tags]);
+
+	const getTagsForLocation = useCallback(
+		(locationId: number): TagRecord[] => {
+			const location = locations.find((loc) => loc.id === locationId);
+			if (!location) {
+				return [];
+			}
+			console.log(`Getting tags for location ${locationId}:`, location.tag_ids);
+			return location.tag_ids
+				.map((tagId) => tagsById.get(tagId))
+				.filter((tag): tag is TagRecord => !!tag);
+		},
+		[locations, tagsById]
+	);
+
 	const resetDialogState = (): void => {
 		setFormMode('create');
 		setEditingLocation(null);
@@ -180,6 +206,12 @@ export function useLocationsController(
 		setAssignmentCollectionId('');
 	}, []);
 
+	const resetAssignTagsState = useCallback((): void => {
+		setAssignTagsModalOpen(false);
+		setSelectedTagsLocation(null);
+		setAssignmentTagIds([]);
+	}, []);
+
 	const closeAssignToCollectionModal = useCallback((): void => {
 		if (isAssignmentSaving) {
 			return;
@@ -187,6 +219,14 @@ export function useLocationsController(
 
 		resetAssignToCollectionState();
 	}, [isAssignmentSaving, resetAssignToCollectionState]);
+
+	const closeAssignTagsModal = useCallback((): void => {
+		if (isAssignmentSaving) {
+			return;
+		}
+
+		resetAssignTagsState();
+	}, [isAssignmentSaving, resetAssignTagsState]);
 
 	const resetRemoveCollectionAssignmentState = useCallback((): void => {
 		setRemoveCollectionAssignmentModalOpen(false);
@@ -278,6 +318,54 @@ export function useLocationsController(
 		setAssignmentCollectionId('');
 		setAssignToCollectionModalOpen(true);
 	}, []);
+
+	const onOpenAssignTagsModal = useCallback((location: LocationRecord): void => {
+		setSelectedTagsLocation(location);
+		setAssignmentTagIds(location.tag_ids);
+		setAssignTagsModalOpen(true);
+	}, []);
+
+	const onAssignTagsToLocation = useCallback(async (): Promise<void> => {
+		if (!selectedTagsLocation) {
+			return;
+		}
+
+		console.log(`Assigning tags ${assignmentTagIds} to location ${selectedTagsLocation.id}`);
+		setAssignmentSaving(true);
+		setActionNotice(null);
+
+		try {
+			await updateLocation(config, selectedTagsLocation.id, {
+				...createLocationFormStateFromRecord(selectedTagsLocation),
+				tag_ids: assignmentTagIds,
+			});
+			console.log('Update request finished. Loading locations...');
+			await loadLocations();
+			console.log('Locations reloaded.');
+			setActionNotice({
+				status: 'success',
+				message: __('Location tags updated.', 'minimal-map'),
+			});
+			resetAssignTagsState();
+		} catch (error) {
+			console.error('Failed to update tags:', error);
+			setActionNotice({
+				status: 'error',
+				message:
+					error instanceof Error
+						? error.message
+						: __('Location tags could not be updated.', 'minimal-map'),
+			});
+		} finally {
+			setAssignmentSaving(false);
+		}
+	}, [
+		assignmentTagIds,
+		config,
+		loadLocations,
+		resetAssignTagsState,
+		selectedTagsLocation,
+	]);
 
 	const onOpenRemoveCollectionAssignmentModal = useCallback(
 		(location: LocationRecord, collection: CollectionRecord): void => {
@@ -771,12 +859,15 @@ export function useLocationsController(
 		actionNotice,
 		activeTheme: themeData.activeTheme,
 		assignmentCollectionId,
+		assignmentTagIds,
 		collections,
+		tags,
 		dismissActionNotice,
 		fieldErrors,
 		form,
 		formMode,
 		getCollectionsForLocation,
+		getTagsForLocation,
 		geocodeError,
 		geocodeNotice,
 		headerAction: enabled ? (
@@ -801,6 +892,7 @@ export function useLocationsController(
 			</div>
 		) : null,
 		isAssignToCollectionModalOpen,
+		isAssignTagsModalOpen,
 		isAssignmentSaving,
 		isDialogOpen,
 		isGeocoding,
@@ -820,11 +912,14 @@ export function useLocationsController(
 				: __('Add location', 'minimal-map'),
 		onBack,
 		onAssignLocationToCollection,
+		onAssignTagsToLocation,
 		onCancel,
 		onChangeFormValue,
 		onCloseAssignToCollectionModal: closeAssignToCollectionModal,
+		onCloseAssignTagsModal: closeAssignTagsModal,
 		onCloseRemoveCollectionAssignmentModal: closeRemoveCollectionAssignmentModal,
 		onOpenAssignToCollectionModal,
+		onOpenAssignTagsModal,
 		onOpenRemoveCollectionAssignmentModal,
 		onChangeView: (nextView) => {
 			setView(nextView);
@@ -843,10 +938,12 @@ export function useLocationsController(
 		onRemoveCollectionAssignment,
 		onRetrieveLocation,
 		onSelectAssignmentCollection: setAssignmentCollectionId,
+		onSelectAssignmentTags: setAssignmentTagIds,
 		onAddLocation: openDialog,
 		paginatedLocations,
 		selection,
 		selectedAssignmentLocation,
+		selectedTagsLocation,
 		selectedCoordinates,
 		selectedRemovalCollection,
 		selectedRemovalLocation,

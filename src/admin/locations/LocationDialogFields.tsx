@@ -1,12 +1,13 @@
-import { TextControl } from '@wordpress/components';
+import { FormTokenField, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import type { FieldErrors, LocationDialogStep, LocationFormState } from '../../types';
+import type { FieldErrors, LocationDialogStep, LocationFormState, TagRecord } from '../../types';
 
 interface LocationDialogFieldsProps {
 	fieldErrors: FieldErrors;
 	form: LocationFormState;
-	onChange: (key: keyof LocationFormState, value: string) => void;
+	onChange: (key: keyof LocationFormState, value: any) => void;
 	step: LocationDialogStep;
+	tags: TagRecord[];
 }
 
 function OptionalLabel({ label }: { label: string }) {
@@ -25,6 +26,7 @@ export default function LocationDialogFields({
 	form,
 	onChange,
 	step,
+	tags,
 }: LocationDialogFieldsProps) {
 	if (step === 'details') {
 		return (
@@ -55,6 +57,21 @@ export default function LocationDialogFields({
 					value={form.website}
 					onChange={(value) => onChange('website', value)}
 					help={fieldErrors.website}
+				/>
+				<FormTokenField
+					label={__('Tags (optional)', 'minimal-map')}
+					value={form.tag_ids
+						.map((id) => tags.find((t) => t.id === id)?.name)
+						.filter((name): name is string => !!name)}
+					suggestions={tags.map((t) => t.name)}
+					onChange={(tokenNames) => {
+						const nextTagIds = tokenNames
+							.map((name) => tags.find((t) => t.name === name)?.id)
+							.filter((id): id is number => id !== undefined);
+						onChange('tag_ids', nextTagIds);
+					}}
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
 				/>
 			</div>
 		);

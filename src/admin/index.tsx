@@ -274,6 +274,7 @@ function App({ currentView }: { currentView: AdminSectionView }) {
 	const locationsController = useLocationsController(
 		adminConfig.locationsConfig,
 		adminConfig.collectionsConfig,
+		adminConfig.tagsConfig,
 		activeSection.view === 'locations',
 		{
 			activeTheme: stylesController.activeTheme,

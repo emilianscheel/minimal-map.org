@@ -77,6 +77,7 @@ export default function LocationDialog({ controller }: { controller: LocationsCo
 						form={controller.form}
 						onChange={controller.onChangeFormValue}
 						step={controller.step}
+						tags={controller.tags}
 					/>
 				)}
 				<div className="minimal-map-admin__location-dialog-footer">

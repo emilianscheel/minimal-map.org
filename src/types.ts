@@ -200,6 +200,7 @@ export interface LocationRestResponse {
 		rendered?: string;
 	};
 	meta?: Partial<LocationMeta>;
+	minimal_map_tag?: number[];
 }
 
 export interface CollectionMeta {
@@ -292,6 +293,7 @@ export interface LocationMeta {
 export interface LocationRecord extends LocationMeta {
 	id: number;
 	title: string;
+	tag_ids: number[];
 }
 
 export interface CollectionRecord extends CollectionMeta {
@@ -330,6 +332,7 @@ export type TagFormMode = 'create' | 'edit';
 
 export interface LocationFormState extends LocationMeta {
 	title: string;
+	tag_ids: number[];
 }
 
 export type LocationFormMode = 'create' | 'edit';

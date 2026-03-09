@@ -1,6 +1,7 @@
 import { DropZone, Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import AssignToCollectionModal from './AssignToCollectionModal';
+import AssignTagsModal from './AssignTagsModal';
 import LocationDialog from './LocationDialog';
 import LocationsEmptyState from './LocationsEmptyState';
 import LocationsTable from './LocationsTable';
@@ -49,6 +50,7 @@ export default function LocationsView({ controller }: { controller: LocationsCon
 			</div>
 			<LocationDialog controller={controller} />
 			<AssignToCollectionModal controller={controller} />
+			<AssignTagsModal controller={controller} />
 			<RemoveCollectionAssignmentModal controller={controller} />
 		</>
 	);

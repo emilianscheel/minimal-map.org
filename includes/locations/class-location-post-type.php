@@ -64,6 +64,7 @@ class Location_Post_Type {
 				'show_in_rest'        => true,
 				'rest_base'           => self::REST_BASE,
 				'supports'            => array( 'title', 'custom-fields' ),
+				'taxonomies'          => array( 'minimal_map_tag' ),
 				'map_meta_cap'        => true,
 				'capability_type'     => array( 'minimal_map_location', 'minimal_map_locations' ),
 				'capabilities'        => $this->get_capabilities(),

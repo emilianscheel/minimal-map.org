@@ -7,12 +7,15 @@ export async function updateLocation(
 	locationId: number,
 	form: LocationFormState
 ): Promise<void> {
+	const data = {
+		title: form.title.trim(),
+		meta: buildLocationMeta(form),
+		minimal_map_tag: form.tag_ids,
+	};
+	console.log('Updating location via REST API:', data);
 	await apiFetch({
 		path: `${config.restPath}/${locationId}`,
 		method: 'POST',
-		data: {
-			title: form.title.trim(),
-			meta: buildLocationMeta(form),
-		},
+		data,
 	});
 }
