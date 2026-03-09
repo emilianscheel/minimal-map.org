@@ -1,6 +1,6 @@
 import { Button } from "@wordpress/components";
 import { __ } from "@wordpress/i18n";
-import { useCallback, useEffect, useMemo, useState } from "@wordpress/element";
+import { useCallback, useEffect, useMemo, useState, useRef } from "@wordpress/element";
 import { Merge, Plus } from "lucide-react";
 import type { ViewGrid, ViewPickerTable } from "@wordpress/dataviews";
 import type {
@@ -82,8 +82,12 @@ export function useCollectionsController(
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [view, setView] = useState<ViewGrid>(DEFAULT_GRID_VIEW);
   const [isImporting, setIsImporting] = useState(false);
+  
+  // The lock prevents DataViewsPicker from clearing selection during unmount transition
+  const isMergeSelectionLocked = useRef(false);
 
-  const loadCollections = useCallback(async (): Promise<void> => {    const records = await fetchAllCollections(collectionsConfig);
+  const loadCollections = useCallback(async (): Promise<void> => {
+    const records = await fetchAllCollections(collectionsConfig);
     setCollections(records);
   }, [collectionsConfig]);
 
@@ -187,15 +191,15 @@ export function useCollectionsController(
     [resetDialogState],
   );
 
-  const onCancel = (): void => {
+  const onCancel = useCallback((): void => {
     if (isSubmitting) {
       return;
     }
 
     setDialogOpen(false);
-  };
+  }, [isSubmitting]);
 
-  const onChangeFormValue = (
+  const onChangeFormValue = useCallback((
     key: keyof CollectionFormState,
     value: string,
   ): void => {
@@ -204,9 +208,9 @@ export function useCollectionsController(
       [key]: value,
     }));
     setSubmitError(null);
-  };
+  }, []);
 
-  const onConfirm = async (): Promise<void> => {
+  const onConfirm = useCallback(async (): Promise<void> => {
     if (!form.title.trim()) {
       setSubmitError(__("Collection title is required.", "minimal-map"));
       return;
@@ -249,7 +253,7 @@ export function useCollectionsController(
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [form, formMode, editingCollection, collectionsConfig, loadCollections, resetDialogState]);
 
   const onDeleteCollection = useCallback(
     async (collection: CollectionRecord): Promise<void> => {
@@ -290,7 +294,7 @@ export function useCollectionsController(
     [],
   );
 
-  const onCloseAssignmentModal = (): void => {
+  const onCloseAssignmentModal = useCallback((): void => {
     if (isAssignmentSaving) {
       return;
     }
@@ -299,7 +303,7 @@ export function useCollectionsController(
     setSelectedAssignmentCollection(null);
     setSelectedLocationIds([]);
     setAssignmentSearch("");
-  };
+  }, [isAssignmentSaving]);
 
   const onChangeAssignmentLocationsSelection = useCallback(
     (nextSelection: string[]): void => {
@@ -315,7 +319,7 @@ export function useCollectionsController(
     [locationsById],
   );
 
-  const onSaveAssignments = async (): Promise<void> => {
+  const onSaveAssignments = useCallback(async (): Promise<void> => {
     if (!selectedAssignmentCollection) {
       return;
     }
@@ -349,9 +353,10 @@ export function useCollectionsController(
     } finally {
       setAssignmentSaving(false);
     }
-  };
+  }, [selectedAssignmentCollection, selectedLocationIds, collectionsConfig, loadCollections]);
 
   const onOpenMergeModal = useCallback((): void => {
+    isMergeSelectionLocked.current = false;
     setMergeStep("selection");
     setSelectedMergeCollectionIds([]);
     setMergeTitle("");
@@ -368,7 +373,7 @@ export function useCollectionsController(
     setMergeModalOpen(false);
   }, [isMerging]);
 
-  const onMergeConfirm = async (): Promise<void> => {
+  const onMergeConfirm = useCallback(async (): Promise<void> => {
     if (mergeStep === "selection") {
       if (selectedMergeCollectionIds.length < 2) {
         setSubmitError(
@@ -377,6 +382,8 @@ export function useCollectionsController(
         return;
       }
       setSubmitError(null);
+      // Lock selection immediately to prevent unmount-triggered changes
+      isMergeSelectionLocked.current = true;
       setMergeStep("details");
       return;
     }
@@ -393,13 +400,17 @@ export function useCollectionsController(
     try {
       // 1. Gather all unique location IDs
       const allLocationIds = new Set<number>();
+      console.log('Final merge started. IDs:', selectedMergeCollectionIds);
+      
       collections.forEach((collection) => {
         if (selectedMergeCollectionIds.includes(collection.id)) {
+          console.log(`Adding locations from collection ${collection.id}:`, collection.location_ids);
           collection.location_ids.forEach((id) => allLocationIds.add(id));
         }
       });
 
       // 2. Create new collection
+      console.log('Creating new merged collection with locations:', Array.from(allLocationIds));
       await createCollection(
         collectionsConfig,
         mergeTitle,
@@ -408,13 +419,16 @@ export function useCollectionsController(
 
       // 3. Delete old collections if requested
       if (shouldDeleteAfterMerge) {
-        await Promise.all(
-          selectedMergeCollectionIds.map((id) =>
-            deleteCollection(collectionsConfig, id),
-          ),
-        );
+        const idsToDelete = [...selectedMergeCollectionIds];
+        console.log('Deleting original collections:', idsToDelete);
+        for (const id of idsToDelete) {
+          console.log(`Deleting collection ${id}...`);
+          await deleteCollection(collectionsConfig, id);
+          console.log(`Deleted collection ${id}.`);
+        }
       }
 
+      console.log('Merge complete. Reloading...');
       await loadCollections();
       setMergeModalOpen(false);
       setActionNotice({
@@ -430,24 +444,40 @@ export function useCollectionsController(
     } finally {
       setMerging(false);
     }
-  };
+  }, [
+    mergeStep,
+    selectedMergeCollectionIds,
+    mergeTitle,
+    collections,
+    collectionsConfig,
+    shouldDeleteAfterMerge,
+    loadCollections,
+  ]);
 
   const onMergeBack = useCallback((): void => {
     if (isMerging) {
       return;
     }
+    isMergeSelectionLocked.current = false;
     setMergeStep("selection");
   }, [isMerging]);
 
   const onChangeMergeSelection = useCallback(
     (nextSelection: string[]): void => {
+      // Ignore updates if locked (transitioning) or not in selection step
+      if (isMergeSelectionLocked.current || mergeStep !== "selection") {
+        console.log('onChangeMergeSelection ignored (locked or wrong step)');
+        return;
+      }
+
+      console.log('onChangeMergeSelection updated:', nextSelection);
       const nextIds = nextSelection
         .map((id) => Number.parseInt(id, 10))
         .filter((id) => !Number.isNaN(id));
       setSelectedMergeCollectionIds(nextIds);
       setSubmitError(null);
     },
-    [],
+    [mergeStep],
   );
 
   const onChangeMergeTitle = useCallback((value: string): void => {

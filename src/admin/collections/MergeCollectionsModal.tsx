@@ -104,6 +104,7 @@ export default function MergeCollectionsModal({ controller }: { controller: Coll
 							onChangeView={(nextView: View) => controller.onChangeMergeView(nextView as ViewPickerTable)}
 						>
 							<DataViewsPicker.Layout className="minimal-map-admin__collections-assignment-table" />
+							<DataViewsPicker.BulkActionToolbar />
 						</DataViewsPicker>
 					</div>
 				) : (
@@ -158,7 +159,7 @@ export default function MergeCollectionsModal({ controller }: { controller: Coll
 							}}
 							disabled={
 								controller.isMerging ||
-								(controller.mergeStep === 'selection' && controller.selectedMergeCollectionIds.length < 2)
+								controller.selectedMergeCollectionIds.length < 2
 							}
 							isBusy={controller.isMerging}
 						>

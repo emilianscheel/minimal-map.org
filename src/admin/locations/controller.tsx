@@ -408,6 +408,39 @@ export function useLocationsController(
 		[config, loadLocations]
 	);
 
+	const onDeleteLocations = useCallback(
+		async (items: LocationRecord[]): Promise<void> => {
+			setRowActionPending(true);
+			setActionNotice(null);
+
+			try {
+				for (const item of items) {
+					await deleteLocation(config, item.id);
+				}
+				await loadLocations();
+				setActionNotice({
+					status: 'success',
+					message:
+						items.length === 1
+							? __('Location deleted.', 'minimal-map')
+							: __(`${items.length} locations deleted.`, 'minimal-map'),
+				});
+			} catch (error) {
+				setActionNotice({
+					status: 'error',
+					message:
+						error instanceof Error
+							? error.message
+							: __('Locations could not be deleted.', 'minimal-map'),
+				});
+				throw error;
+			} finally {
+				setRowActionPending(false);
+			}
+		},
+		[config, loadLocations]
+	);
+
 	const onAssignLocationToCollection = useCallback(async (): Promise<void> => {
 		if (!selectedAssignmentLocation || !assignmentCollectionId) {
 			return;
@@ -523,7 +556,7 @@ export function useLocationsController(
 		setGeocodeError(null);
 	}, []);
 
-	const onConfirm = async (): Promise<void> => {
+	const onConfirm = useCallback(async (): Promise<void> => {
 		if (step === 'details') {
 			const errors = validateDetailsStep(form);
 			setFieldErrors(errors);
@@ -656,7 +689,16 @@ export function useLocationsController(
 		} finally {
 			setSubmitting(false);
 		}
-	};
+	}, [
+		step,
+		form,
+		formMode,
+		originalForm,
+		config,
+		loadLocations,
+		editingLocation,
+		selectedCoordinates,
+	]);
 
 	const onImportLocations = useCallback(async (file: File) => {
 		setIsImporting(true);
