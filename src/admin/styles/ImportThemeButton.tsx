@@ -1,8 +1,6 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Upload } from 'lucide-react';
-import { StyleThemeRecord } from '../../types';
-
 interface ImportThemeButtonProps {
 	onImport: (files: FileList) => void;
 }
@@ -11,7 +9,7 @@ export function ImportThemeButton({ onImport }: ImportThemeButtonProps) {
 	return (
 		<Button
 			icon={<Upload size={18} />}
-			label={__('Upload Theme Config', 'minimal-map')}
+			label={__('Upload Theme File', 'minimal-map')}
 			onClick={() => {
 				const input = document.createElement('input');
 				input.type = 'file';

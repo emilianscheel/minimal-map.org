@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import type { StylesAdminConfig, StyleThemeRecord, StyleThemeColors } from '../../types';
 import type { StylesController } from './types';
 import { ThemeSelector } from './ThemeSelector';
@@ -9,6 +9,9 @@ import { CreateThemeButton } from './CreateThemeButton';
 import { DeleteThemeButton } from './DeleteThemeButton';
 import { ExportThemeButton } from './ExportThemeButton';
 import { ImportThemeButton } from './ImportThemeButton';
+import { parseThemeImport } from '../../lib/styles/importStyleTheme';
+import { DEFAULT_POSITRON_THEME_COLORS } from '../../lib/styles/defaultThemeColors';
+import { SLOT_LABELS } from './constants';
 
 export function useStylesController(
 	config: StylesAdminConfig,
@@ -19,6 +22,7 @@ export function useStylesController(
 	const [ isLoading, setIsLoading ] = useState(true);
 	const [ isSaving, setIsSaving ] = useState(false);
 	const [ draftColors, setDraftColors ] = useState<StyleThemeColors | null>(null);
+	const [ actionNotice, setActionNotice ] = useState<StylesController['actionNotice']>(null);
 
 	// Modal states
 	const [ isCreateModalOpen, setIsCreateModalOpen ] = useState(false);
@@ -93,6 +97,7 @@ export function useStylesController(
 	const createTheme = useCallback(async (label: string) => {
 		setIsLoading(true);
 		try {
+			setActionNotice(null);
 			const newTheme = await apiFetch<StyleThemeRecord>({
 				path: config.restPath,
 				method: 'POST',
@@ -114,6 +119,7 @@ export function useStylesController(
 
 		setIsLoading(true);
 		try {
+			setActionNotice(null);
 			await apiFetch({
 				path: `${ config.restPath }/${ slug }`,
 				method: 'DELETE',
@@ -149,26 +155,41 @@ export function useStylesController(
 		downloadAnchorNode.remove();
 	}, [ activeTheme, draftColors ]);
 
-	const importTheme = useCallback(async (configData: StyleThemeRecord) => {
+	const importTheme = useCallback(async (themeImport: { label: string; colors: StyleThemeColors; warningSlots: (keyof StyleThemeColors)[] }) => {
 		setIsLoading(true);
 		try {
+			setActionNotice(null);
 			const newTheme = await apiFetch<StyleThemeRecord>({
 				path: config.restPath,
 				method: 'POST',
-				data: { label: (configData.label || 'Imported') + ' (Imported)' },
+				data: { label: themeImport.label },
 			});
 
 			const updatedTheme = await apiFetch<StyleThemeRecord>({
 				path: `${ config.restPath }/${ newTheme.slug }`,
 				method: 'PUT',
-				data: { colors: configData.colors },
+				data: { colors: themeImport.colors },
 			});
 
 			setThemes((prev) => [ ...prev, updatedTheme ]);
 			setActiveThemeSlug(updatedTheme.slug);
 			setDraftColors(updatedTheme.colors);
+			if (themeImport.warningSlots.length > 0) {
+				const warningLabels = themeImport.warningSlots.map((slot) => SLOT_LABELS[ slot ] || slot).join(', ');
+				setActionNotice({
+					status: 'warning',
+					message: sprintf(
+						__('Imported theme with fallback default colors for: %s', 'minimal-map'),
+						warningLabels
+					),
+				});
+			}
 		} catch (error) {
 			console.error('Failed to import theme', error);
+			setActionNotice({
+				status: 'error',
+				message: __('Failed to import theme.', 'minimal-map'),
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -182,13 +203,27 @@ export function useStylesController(
 		reader.onload = async (readerEvent) => {
 			try {
 				const content = JSON.parse(readerEvent.target?.result as string);
-				await importTheme(content);
+				const defaultColors = themes.find((theme) => theme.slug === 'default')?.colors ?? DEFAULT_POSITRON_THEME_COLORS;
+				const themeImport = parseThemeImport(content, {
+					defaultColors,
+					fileName: file.name,
+				});
+				await importTheme(themeImport);
 			} catch (err) {
-				alert(__('Invalid JSON file.', 'minimal-map'));
+				setActionNotice({
+					status: 'error',
+					message: err instanceof Error ? err.message : __('Invalid JSON file.', 'minimal-map'),
+				});
 			}
 		};
+		reader.onerror = () => {
+			setActionNotice({
+				status: 'error',
+				message: __('Failed to read the selected file.', 'minimal-map'),
+			});
+		};
 		reader.readAsText(file);
-	}, [ importTheme ]);
+	}, [ importTheme, themes ]);
 
 	const openCreateModal = () => setIsCreateModalOpen(true);
 	const closeCreateModal = () => setIsCreateModalOpen(false);
@@ -234,15 +269,16 @@ export function useStylesController(
 		isLoading,
 		isSaving,
 		draftColors,
+		actionNotice,
 		setDraftColor,
 		saveTheme,
 		createTheme,
 		deleteTheme,
 		switchTheme,
-		importTheme,
 		onImportFiles,
 		exportTheme,
 		headerAction,
+		dismissActionNotice: () => setActionNotice(null),
 		isCreateModalOpen,
 		isDeleteModalOpen,
 		openCreateModal,
