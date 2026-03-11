@@ -2,7 +2,12 @@ import { createRoot } from "@wordpress/element";
 import { useState, useMemo, useEffect, useRef } from "@wordpress/element";
 import { Phone, Mail, Globe, MapPin, Search, X } from "lucide-react";
 import type { Map as MapLibreMap } from "maplibre-gl";
-import type { MapLocationPoint, NormalizedMapConfig } from "../types";
+import TagBadge from "../components/TagBadge";
+import type {
+  MapLocationLogo,
+  MapLocationPoint,
+  NormalizedMapConfig,
+} from "../types";
 
 interface SearchControlProps {
   locations: MapLocationPoint[];
@@ -17,6 +22,30 @@ const formatDisplayUrl = (url: string): string => {
     .replace(/^(https?:\/\/)/, "")
     .replace(/^www\./, "")
     .replace(/\/$/, "");
+};
+
+const SearchResultLogo = ({ logo }: { logo: MapLocationLogo }) => {
+  const isSvgMarkup = logo.content.trim().startsWith("<svg");
+
+  return (
+    <div
+      className="minimal-map-search__result-logo"
+      aria-hidden="true"
+    >
+      {isSvgMarkup ? (
+        <div
+          className="minimal-map-search__result-logo-svg"
+          dangerouslySetInnerHTML={{ __html: logo.content }}
+        />
+      ) : (
+        <img
+          className="minimal-map-search__result-logo-image"
+          src={logo.content}
+          alt=""
+        />
+      )}
+    </div>
+  );
 };
 
 const MapSearchControl = ({
@@ -43,12 +72,25 @@ const MapSearchControl = ({
     const term = searchTerm.toLowerCase().trim();
     if (!term) return locations;
 
-    return locations.filter(
-      (loc) =>
-        loc.title?.toLowerCase().includes(term) ||
-        loc.city?.toLowerCase().includes(term) ||
-        loc.street?.toLowerCase().includes(term),
-    );
+    return locations.filter((loc) => {
+      const searchableValues = [
+        loc.title,
+        loc.city,
+        loc.street,
+        loc.house_number,
+        loc.postal_code,
+        loc.state,
+        loc.country,
+        loc.telephone,
+        loc.email,
+        loc.website,
+        ...(Array.isArray(loc.tags) ? loc.tags.map((tag) => tag.name) : []),
+      ];
+
+      return searchableValues.some((value) =>
+        value?.toLowerCase().includes(term),
+      );
+    });
   }, [locations, searchTerm, isOpen]);
 
   useEffect(() => {
@@ -150,40 +192,56 @@ const MapSearchControl = ({
                     }`}
                     onClick={() => handleSelect(loc)}
                   >
-                    <div className="minimal-map-search__result-title">
-                      {loc.title}
-                    </div>
-                    <div className="minimal-map-search__result-address">
-                      <MapPin size={12} />
-                      <span>
-                        {[loc.street, loc.house_number]
-                          .filter(Boolean)
-                          .join(" ")}
-                        {loc.city ? `, ${loc.city}` : ""}
-                      </span>
-                    </div>
-                    {(loc.telephone || loc.email || loc.website) && (
-                      <div className="minimal-map-search__result-meta">
-                        {loc.telephone && (
-                          <div className="minimal-map-search__meta-item">
-                            <Phone size={10} />
-                            <span>{loc.telephone}</span>
+                    <div className="minimal-map-search__result-layout">
+                      <div className="minimal-map-search__result-content">
+                        <div className="minimal-map-search__result-title">
+                          {loc.title}
+                        </div>
+                        <div className="minimal-map-search__result-address">
+                          <MapPin size={12} />
+                          <span>
+                            {[loc.street, loc.house_number]
+                              .filter(Boolean)
+                              .join(" ")}
+                            {loc.city ? `, ${loc.city}` : ""}
+                          </span>
+                        </div>
+                        {(loc.telephone || loc.email || loc.website) && (
+                          <div className="minimal-map-search__result-meta">
+                            {loc.telephone && (
+                              <div className="minimal-map-search__meta-item">
+                                <Phone size={10} />
+                                <span>{loc.telephone}</span>
+                              </div>
+                            )}
+                            {loc.email && (
+                              <div className="minimal-map-search__meta-item">
+                                <Mail size={10} />
+                                <span>{loc.email}</span>
+                              </div>
+                            )}
+                            {loc.website && (
+                              <div className="minimal-map-search__meta-item">
+                                <Globe size={10} />
+                                <span>{formatDisplayUrl(loc.website)}</span>
+                              </div>
+                            )}
                           </div>
                         )}
-                        {loc.email && (
-                          <div className="minimal-map-search__meta-item">
-                            <Mail size={10} />
-                            <span>{loc.email}</span>
-                          </div>
-                        )}
-                        {loc.website && (
-                          <div className="minimal-map-search__meta-item">
-                            <Globe size={10} />
-                            <span>{formatDisplayUrl(loc.website)}</span>
+                        {Array.isArray(loc.tags) && loc.tags.length > 0 && (
+                          <div className="minimal-map-search__result-tags">
+                            {loc.tags.map((tag) => (
+                              <TagBadge key={tag.id} tag={tag} />
+                            ))}
                           </div>
                         )}
                       </div>
-                    )}
+                      {loc.logo ? (
+                        <div className="minimal-map-search__result-logo-column">
+                          <SearchResultLogo logo={loc.logo} />
+                        </div>
+                      ) : null}
+                    </div>
                   </button>
                 ))}
               </div>

@@ -318,6 +318,18 @@ class Config {
 				'country'      => (string) get_post_meta( $post->ID, 'country', true ),
 			);
 
+			$location_tags = $this->get_location_tags( $post->ID );
+
+			if ( ! empty( $location_tags ) ) {
+				$location['tags'] = $location_tags;
+			}
+
+			$location_logo = $this->get_location_logo( $post->ID );
+
+			if ( ! empty( $location_logo ) ) {
+				$location['logo'] = $location_logo;
+			}
+
 			$marker_content = $this->get_location_marker_content( $post->ID );
 
 			if ( '' !== $marker_content ) {
@@ -529,6 +541,80 @@ class Config {
 		$content = trim( (string) $marker_post->post_content );
 
 		return '' !== $content ? $content : '';
+	}
+
+	/**
+	 * Resolve assigned tags for one location.
+	 *
+	 * @param int $location_id Location post id.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function get_location_tags( $location_id ) {
+		$terms = get_the_terms( $location_id, Tag_Taxonomy::TAXONOMY );
+
+		if ( empty( $terms ) || is_wp_error( $terms ) ) {
+			return array();
+		}
+
+		usort(
+			$terms,
+			static function ( $left, $right ) {
+				return strcmp( $left->name, $right->name );
+			}
+		);
+
+		return array_values(
+			array_map(
+				static function ( $term ) {
+					$background_color = (string) get_term_meta( $term->term_id, 'background_color', true );
+					$foreground_color = (string) get_term_meta( $term->term_id, 'foreground_color', true );
+
+					return array(
+						'id'               => (int) $term->term_id,
+						'name'             => (string) $term->name,
+						'background_color' => '' !== $background_color ? $background_color : '#000000',
+						'foreground_color' => '' !== $foreground_color ? $foreground_color : '#ffffff',
+					);
+				},
+				$terms
+			)
+		);
+	}
+
+	/**
+	 * Resolve the assigned logo for one location.
+	 *
+	 * @param int $location_id Location post id.
+	 * @return array<string, mixed>
+	 */
+	private function get_location_logo( $location_id ) {
+		$logo_id = absint( get_post_meta( $location_id, 'logo_id', true ) );
+
+		if ( $logo_id <= 0 ) {
+			return array();
+		}
+
+		$logo_post = get_post( $logo_id );
+
+		if ( ! $logo_post instanceof WP_Post ) {
+			return array();
+		}
+
+		if ( Logo_Post_Type::POST_TYPE !== $logo_post->post_type || 'publish' !== $logo_post->post_status ) {
+			return array();
+		}
+
+		$content = trim( (string) $logo_post->post_content );
+
+		if ( '' === $content ) {
+			return array();
+		}
+
+		return array(
+			'id'      => $logo_post->ID,
+			'title'   => (string) get_the_title( $logo_post ),
+			'content' => $content,
+		);
 	}
 
 	/**

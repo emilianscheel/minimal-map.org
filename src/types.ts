@@ -55,12 +55,27 @@ export interface MapMessages {
 	fallback?: string;
 }
 
+export interface MapLocationTag {
+	id: number;
+	name: string;
+	background_color: string;
+	foreground_color: string;
+}
+
+export interface MapLocationLogo {
+	id: number;
+	title: string;
+	content: string;
+}
+
 export interface MapLocationPoint {
 	id?: number;
 	title?: string;
 	lat: number;
 	lng: number;
 	markerContent?: string;
+	tags?: MapLocationTag[];
+	logo?: MapLocationLogo | null;
 	telephone?: string;
 	email?: string;
 	website?: string;

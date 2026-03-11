@@ -347,9 +347,6 @@
 }
 
 .minimal-map-search__result-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   width: 100%;
   padding: 12px;
   text-align: left;
@@ -359,6 +356,12 @@
   cursor: pointer;
   color: #1e1e1e;
   transition: background 0.1s ease-in-out;
+}
+
+.minimal-map-search__result-item {
+  --minimal-map-search-pill-padding-y: 5px;
+  --minimal-map-search-pill-padding-x: 8px;
+  --minimal-map-search-pill-border-radius: 18px;
 }
 
 .minimal-map-search__result-item:last-child {
@@ -385,6 +388,22 @@
   margin: 0;
 }
 
+.minimal-map-search__result-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.minimal-map-search__result-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
 .minimal-map-search__result-address {
   display: flex;
   align-items: center;
@@ -408,8 +427,63 @@
   font-size: 11px;
   opacity: 0.6;
   background: #f0f0f1;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: var(--minimal-map-search-pill-padding-y)
+    var(--minimal-map-search-pill-padding-x);
+  border-radius: var(--minimal-map-search-pill-border-radius);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.minimal-map-search__result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.minimal-map-search__result-logo-column {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: center;
+  min-height: 40px;
+  padding: 8px 14px 8px 0;
+  margin: -8px -2px -8px 0;
+}
+
+.minimal-map-search__result-logo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 96px;
+  height: 40px;
+  margin-left: auto;
+}
+
+.minimal-map-search__result-logo-svg,
+.minimal-map-search__result-logo-image {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  height: 100%;
+}
+
+.minimal-map-search__result-logo-svg > svg,
+.minimal-map-search__result-logo-svg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 40px;
+}
+
+.minimal-map-search__result-logo-image {
+  object-fit: contain;
+  object-position: right center;
+  max-width: 100%;
+  max-height: 40px;
 }
 
 .minimal-map-search__no-results {
@@ -438,5 +512,18 @@
 
   .minimal-map-search-backdrop {
     width: 100% !important;
+  }
+
+  .minimal-map-search__result-layout {
+    gap: 10px;
+  }
+
+  .minimal-map-search__result-logo {
+    width: min(72px, 22vw);
+    max-width: 72px;
+  }
+
+  .minimal-map-search__result-logo-column {
+    padding-right: 10px;
   }
 }
