@@ -38,6 +38,7 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 	styleThemeSlug: 'default',
 	showZoomControls: true,
 	allowSearch: true,
+	scrollZoom: false,
 	zoomControlsPosition: DEFAULT_ZOOM_CONTROLS_POSITION,
 	zoomControlsPadding: DEFAULT_ZOOM_CONTROLS_PADDING,
 	zoomControlsOuterMargin: DEFAULT_ZOOM_CONTROLS_OUTER_MARGIN,
@@ -140,6 +141,7 @@ function getDefaults(runtimeConfig: MapRuntimeConfig): MapDefaults {
 		stylePreset: `${runtimeConfig.defaults?.stylePreset ?? DEFAULT_MAP_DEFAULTS.stylePreset}`,
 		showZoomControls: runtimeConfig.defaults?.showZoomControls ?? DEFAULT_MAP_DEFAULTS.showZoomControls,
 		allowSearch: runtimeConfig.defaults?.allowSearch ?? DEFAULT_MAP_DEFAULTS.allowSearch,
+		scrollZoom: runtimeConfig.defaults?.scrollZoom ?? DEFAULT_MAP_DEFAULTS.scrollZoom,
 		zoomControlsPosition: normalizeZoomControlsPosition(
 			runtimeConfig.defaults?.zoomControlsPosition,
 			DEFAULT_MAP_DEFAULTS.zoomControlsPosition
@@ -288,6 +290,7 @@ export function normalizeMapConfig(
 		styleThemeSlug,
 		showZoomControls: Boolean(rawConfig.showZoomControls ?? defaults.showZoomControls),
 		allowSearch: Boolean(rawConfig.allowSearch ?? defaults.allowSearch),
+		scrollZoom: Boolean(rawConfig.scrollZoom ?? defaults.scrollZoom),
 		zoomControlsPosition,
 		zoomControlsPadding,
 		zoomControlsOuterMargin,

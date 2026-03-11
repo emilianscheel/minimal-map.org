@@ -220,6 +220,7 @@ function Dashboard({ sectionMap }: { sectionMap: Partial<Record<AdminSectionView
 		heightUnit: '%',
 		stylePreset: 'positron',
 		showZoomControls: true,
+		scrollZoom: true,
 	}), []);
 	const mapRuntimeConfig: MapRuntimeConfig = adminConfig.mapConfig ?? {};
 

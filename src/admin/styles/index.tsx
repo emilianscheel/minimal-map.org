@@ -40,6 +40,7 @@ export default function StylesView({ controller, runtimeConfig }: StylesViewProp
 		stylePreset: activeTheme?.basePreset || 'positron',
 		styleTheme: draftColors || {},
 		interactive: true,
+		scrollZoom: true,
 		showAttribution: true,
 	}), [ activeTheme?.basePreset, draftColors ]);
 

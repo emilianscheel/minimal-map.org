@@ -360,7 +360,7 @@ export function createMinimalMap(
 				dragPan: config.interactive,
 				dragRotate: config.interactive,
 				keyboard: config.interactive,
-				scrollZoom: false,
+				scrollZoom: config.scrollZoom,
 				style: config.styleUrl,
 				touchZoomRotate: config.interactive,
 				zoom: config.zoom,
@@ -372,7 +372,6 @@ export function createMinimalMap(
 
 		const map = state.map;
 
-		map.scrollZoom.disable();
 		if (!config.interactive) {
 			map.boxZoom.disable();
 			map.doubleClickZoom.disable();
@@ -509,6 +508,14 @@ export function createMinimalMap(
 
 		if (!previousConfig || previousConfig.showAttribution !== nextConfig.showAttribution) {
 			syncAttribution(nextConfig);
+		}
+
+		if (previousConfig?.scrollZoom !== nextConfig.scrollZoom) {
+			if (nextConfig.scrollZoom) {
+				state.map.scrollZoom.enable();
+			} else {
+				state.map.scrollZoom.disable();
+			}
 		}
 
 		if (
