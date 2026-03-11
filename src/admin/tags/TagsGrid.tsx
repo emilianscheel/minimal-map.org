@@ -21,12 +21,15 @@ export default function TagsGrid({ controller }: { controller: TagsController })
 			{
 				id: 'map_preview',
 				label: __('Preview', 'minimal-map'),
+				type: 'media',
 				enableHiding: false,
 				enableSorting: false,
 				filterBy: false,
 				render: ({ item }) => (
-					<div className="minimal-map-admin__tag-grid-preview">
-						<TagBadge tag={item} />
+					<div className="minimal-map-admin__tag-grid-preview-surface">
+						<div className="minimal-map-admin__tag-grid-preview">
+							<TagBadge tag={item} />
+						</div>
 					</div>
 				),
 			},
@@ -76,9 +79,7 @@ export default function TagsGrid({ controller }: { controller: TagsController })
 					totalPages: controller.totalPages,
 				}}
 				defaultLayouts={{
-					grid: {
-						mediaField: 'map_preview',
-					},
+					grid: {},
 				}}
 				view={controller.view}
 				onChangeView={(nextView: View) => controller.onChangeView(nextView as ViewGrid)}

@@ -11,5 +11,14 @@ export const DEFAULT_GRID_VIEW: ViewGrid = {
 	type: 'grid',
 	page: 1,
 	perPage: 20,
-	fields: ['name', 'map_preview'],
+	titleField: 'name',
+	mediaField: 'map_preview',
+	fields: [],
+	showMedia: true,
+	showTitle: true,
+	showDescription: false,
+	layout: {
+		previewSize: 280,
+		badgeFields: [],
+	},
 };

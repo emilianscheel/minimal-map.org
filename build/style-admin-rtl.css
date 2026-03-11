@@ -102,11 +102,10 @@
 .minimal-map-tag-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 13px;
+  padding: 5px 8px;
+  border-radius: 18px;
+  font-size: 11px;
   font-weight: 600;
-  line-height: 1;
   white-space: nowrap;
 }
 /*!*********************************************************************************************************************************************************************************************************************************************!*\
@@ -2689,17 +2688,31 @@ svg.lucide {
 }
 .minimal-map-admin__tags-grid-wrap .dataviews-view-grid__media {
   background: transparent;
-}
-.minimal-map-admin__tags-grid-wrap .dataviews-view-grid__title-field {
-  font-weight: 600;
-  font-size: 0.9375rem;
+  min-height: 180px;
 }
 .minimal-map-admin__tag-grid-preview {
-  width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.minimal-map-admin__tag-grid-preview-surface {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f1;
+  border: 1px solid #dcdcde;
+  border-radius: 10px;
+}
+.minimal-map-admin__tags-grid-wrap .dataviews-view-grid__fields {
+  display: none;
 }
 .minimal-map-admin__marker-mini-map-wrap {
   width: 100%;
