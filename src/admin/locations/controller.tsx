@@ -1187,6 +1187,7 @@ export function useLocationsController(
 		assignmentMarkerId,
 		assignmentTagIds,
 		csvImportHeaders: pendingCsvImport?.headers ?? [],
+		csvImportRows: pendingCsvImport?.rows ?? [],
 		csvImportMapping,
 		csvImportProgressCompleted,
 		csvImportProgressTotal,

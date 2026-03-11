@@ -28,6 +28,7 @@ export interface LocationsController {
 	assignmentMarkerId: string;
 	assignmentTagIds: number[];
 	csvImportHeaders: string[];
+	csvImportRows: string[][];
 	csvImportMapping: CsvImportMapping;
 	csvImportProgressCompleted: number;
 	csvImportProgressTotal: number;

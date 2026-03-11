@@ -17,7 +17,14 @@ export default function CustomCsvImportModal({ controller }: { controller: Locat
 	const columnOptions = [
 		{ label: __('None', 'minimal-map'), value: '' },
 		...controller.csvImportHeaders.map((header, index) => ({
-			label: header || `${__('Column', 'minimal-map')} ${index + 1}`,
+			label: (() => {
+				const baseLabel = header || `${__('Column', 'minimal-map')} ${index + 1}`;
+				const exampleValue = controller.csvImportRows
+					.map((row) => row[index]?.trim() ?? '')
+					.find((value) => value.length > 0);
+
+				return exampleValue ? `${baseLabel} (${exampleValue})` : baseLabel;
+			})(),
 			value: `${index}`,
 		})),
 	];
