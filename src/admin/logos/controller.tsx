@@ -11,6 +11,34 @@ import type { LocationRecord, LogoRecord, LocationsAdminConfig, LogosAdminConfig
 import { UploadLogoButton } from './UploadLogoButton';
 import type { LogosController } from './types';
 
+async function readLogoFile(file: File): Promise<string> {
+	if (file.type === 'image/png' || file.name.toLowerCase().endsWith('.png')) {
+		return await new Promise<string>((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => {
+				if (typeof reader.result === 'string') {
+					resolve(reader.result);
+					return;
+				}
+
+				reject(new Error(__('Invalid PNG file.', 'minimal-map')));
+			};
+			reader.onerror = () => {
+				reject(new Error(__('PNG file could not be read.', 'minimal-map')));
+			};
+			reader.readAsDataURL(file);
+		});
+	}
+
+	const content = await file.text();
+
+	if (!content.includes('<svg')) {
+		throw new Error(__('Invalid SVG file.', 'minimal-map'));
+	}
+
+	return content;
+}
+
 const DEFAULT_GRID_VIEW: ViewGrid = {
 	type: 'grid',
 	page: 1,
@@ -137,7 +165,11 @@ export function useLogosController(
 	const onUploadLogos = useCallback(
 		async (files: FileList | File[]): Promise<void> => {
 			const fileList = Array.from(files).filter(
-				(file) => file.type === 'image/svg+xml' || file.name.endsWith('.svg')
+				(file) =>
+					file.type === 'image/svg+xml' ||
+					file.type === 'image/png' ||
+					file.name.toLowerCase().endsWith('.svg') ||
+					file.name.toLowerCase().endsWith('.png')
 			);
 
 			if (fileList.length === 0) {
@@ -150,10 +182,7 @@ export function useLogosController(
 			try {
 				await Promise.all(
 					fileList.map(async (file) => {
-						const content = await file.text();
-						if (!content.includes('<svg')) {
-							throw new Error(__('Invalid SVG file.', 'minimal-map'));
-						}
+						const content = await readLogoFile(file);
 
 						return apiFetch({
 							path: config.restPath,

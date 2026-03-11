@@ -15,7 +15,7 @@ export function UploadLogoButton({ onUpload, isUploading }: UploadLogoButtonProp
 			onClick={() => {
 				const input = document.createElement('input');
 				input.type = 'file';
-				input.accept = 'image/svg+xml,.svg';
+				input.accept = 'image/svg+xml,image/png,.svg,.png';
 				input.multiple = true;
 				input.onchange = (event) => {
 					const files = (event.target as HTMLInputElement).files;

@@ -9,7 +9,7 @@ export default function LogosEmptyState({ controller }: { controller: LogosContr
 			icon={<Image />}
 			title={__('No logos found', 'minimal-map')}
 			description={__(
-				'Upload SVG logos to reuse the same brand asset across multiple locations. Drag and drop files here or use the upload button.',
+				'Upload SVG or PNG logos to reuse the same brand asset across multiple locations. Drag and drop files here or use the upload button.',
 				'minimal-map'
 			)}
 			action={{
@@ -17,7 +17,7 @@ export default function LogosEmptyState({ controller }: { controller: LogosContr
 				onClick: () => {
 					const input = document.createElement('input');
 					input.type = 'file';
-					input.accept = '.svg';
+					input.accept = '.svg,.png,image/svg+xml,image/png';
 					input.multiple = true;
 					input.onchange = (event) => {
 						const files = (event.target as HTMLInputElement).files;
