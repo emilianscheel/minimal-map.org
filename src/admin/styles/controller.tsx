@@ -174,6 +174,22 @@ export function useStylesController(
 		}
 	}, [ config.restPath ]);
 
+	const onImportFiles = useCallback(async (files: FileList) => {
+		const file = files[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = async (readerEvent) => {
+			try {
+				const content = JSON.parse(readerEvent.target?.result as string);
+				await importTheme(content);
+			} catch (err) {
+				alert(__('Invalid JSON file.', 'minimal-map'));
+			}
+		};
+		reader.readAsText(file);
+	}, [ importTheme ]);
+
 	const openCreateModal = () => setIsCreateModalOpen(true);
 	const closeCreateModal = () => setIsCreateModalOpen(false);
 	const openDeleteModal = () => setIsDeleteModalOpen(true);
@@ -190,7 +206,7 @@ export function useStylesController(
 					<CreateThemeButton onClick={openCreateModal} />
 					<DeleteThemeButton slug={activeThemeSlug} onClick={openDeleteModal} />
 					<ExportThemeButton onExport={exportTheme} />
-					<ImportThemeButton onImport={importTheme} />
+					<ImportThemeButton onImport={onImportFiles} />
 				</div>
 
 				<ThemeSelector
@@ -210,7 +226,7 @@ export function useStylesController(
 				</Button>
 			</div>
 		);
-	}, [ active, activeTheme, activeThemeSlug, themes, draftColors, isSaving, saveTheme, exportTheme, importTheme, switchTheme ]);
+	}, [ active, activeTheme, activeThemeSlug, themes, draftColors, isSaving, saveTheme, exportTheme, onImportFiles, switchTheme ]);
 
 	return {
 		themes,
@@ -224,6 +240,7 @@ export function useStylesController(
 		deleteTheme,
 		switchTheme,
 		importTheme,
+		onImportFiles,
 		exportTheme,
 		headerAction,
 		isCreateModalOpen,

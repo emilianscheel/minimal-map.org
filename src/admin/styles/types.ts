@@ -13,6 +13,7 @@ export interface StylesController {
 	deleteTheme: (slug: string) => Promise<void>;
 	switchTheme: (slug: string) => void;
 	importTheme: (config: StyleThemeRecord) => Promise<void>;
+	onImportFiles: (files: FileList) => Promise<void>;
 	exportTheme: () => void;
 	headerAction: ReactNode;
 

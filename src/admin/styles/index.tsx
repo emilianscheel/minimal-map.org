@@ -1,4 +1,4 @@
-import { Card, CardBody, Spinner } from '@wordpress/components';
+import { Card, CardBody, DropZone, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useMemo, useRef } from '@wordpress/element';
 import type { StylesController } from './types';
@@ -132,7 +132,13 @@ export default function StylesView({ controller, runtimeConfig }: StylesViewProp
 	}
 
 	return (
-		<div className="minimal-map-styles">
+		<div className="minimal-map-styles" style={{ position: 'relative' }}>
+			<DropZone
+				onFilesDrop={(files) => {
+					void controller.onImportFiles(files as unknown as FileList);
+				}}
+				label={__('Drop JSON theme files here to upload', 'minimal-map')}
+			/>
 			<div className="minimal-map-styles__layout">
 				<div className="minimal-map-styles__controls">
 					{COLOR_GROUPS.map((group) => (

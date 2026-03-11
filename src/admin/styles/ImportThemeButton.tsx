@@ -4,7 +4,7 @@ import { Upload } from 'lucide-react';
 import { StyleThemeRecord } from '../../types';
 
 interface ImportThemeButtonProps {
-	onImport: (config: StyleThemeRecord) => void;
+	onImport: (files: FileList) => void;
 }
 
 export function ImportThemeButton({ onImport }: ImportThemeButtonProps) {
@@ -17,18 +17,9 @@ export function ImportThemeButton({ onImport }: ImportThemeButtonProps) {
 				input.type = 'file';
 				input.accept = '.json';
 				input.onchange = (e) => {
-					const file = (e.target as HTMLInputElement).files?.[0];
-					if (file) {
-						const reader = new FileReader();
-						reader.onload = (readerEvent) => {
-							try {
-								const content = JSON.parse(readerEvent.target?.result as string);
-								onImport(content);
-							} catch (err) {
-								alert(__('Invalid JSON file.', 'minimal-map'));
-							}
-						};
-						reader.readAsText(file);
+					const files = (e.target as HTMLInputElement).files;
+					if (files) {
+						onImport(files);
 					}
 				};
 				input.click();
