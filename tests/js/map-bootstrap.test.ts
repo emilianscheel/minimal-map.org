@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { normalizeMapConfig } from '../../src/map/defaults';
 import { syncTouchZoomInteraction } from '../../src/map/bootstrap';
+import { getSearchPanelDesktopPadding } from '../../src/map/search-panel-layout';
 
 function createTouchZoomRotateSpy() {
 	const calls: string[] = [];
@@ -75,5 +76,32 @@ describe('map touch zoom interaction', () => {
 		);
 
 		expect(spy.calls).toEqual([ 'enable', 'disableRotation', 'disable' ]);
+	});
+
+	test('derives desktop selection padding from the search panel width and outer margins', () => {
+		const config = normalizeMapConfig({
+			searchPanelOuterMargin: {
+				top: '10px',
+				right: '30px',
+				bottom: '18px',
+				left: '18px',
+			},
+		});
+
+		expect(getSearchPanelDesktopPadding(config)).toBe(368);
+	});
+
+	test('returns zero desktop selection padding when search is disabled', () => {
+		const config = normalizeMapConfig({
+			allowSearch: false,
+			searchPanelOuterMargin: {
+				top: '10px',
+				right: '30px',
+				bottom: '18px',
+				left: '18px',
+			},
+		});
+
+		expect(getSearchPanelDesktopPadding(config)).toBe(0);
 	});
 });

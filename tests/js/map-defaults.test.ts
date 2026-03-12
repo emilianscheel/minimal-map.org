@@ -107,4 +107,78 @@ describe('map defaults normalization', () => {
 			left: '0px',
 		});
 	});
+
+	test('preserves valid search panel styling values', () => {
+		const config = normalizeMapConfig({
+			searchPanelBackgroundPrimary: '#112233',
+			searchPanelBackgroundSecondary: '#223344',
+			searchPanelBackgroundHover: '#334455',
+			searchPanelForegroundPrimary: '#fefefe',
+			searchPanelForegroundSecondary: '#ededed',
+			searchPanelOuterMargin: {
+				top: '10px',
+				right: '14px',
+				bottom: '18px',
+				left: '22px',
+			},
+			searchPanelBorderRadiusInput: '12px 16px',
+			searchPanelBorderRadiusCard: '8px',
+			searchPanelCardGap: '20px',
+		});
+
+		expect(config.searchPanelBackgroundPrimary).toBe('#112233');
+		expect(config.searchPanelBackgroundSecondary).toBe('#223344');
+		expect(config.searchPanelBackgroundHover).toBe('#334455');
+		expect(config.searchPanelForegroundPrimary).toBe('#fefefe');
+		expect(config.searchPanelForegroundSecondary).toBe('#ededed');
+		expect(config.searchPanelOuterMargin).toEqual({
+			top: '10px',
+			right: '14px',
+			bottom: '18px',
+			left: '22px',
+		});
+		expect(config.searchPanelBorderRadiusInput).toBe('12px 16px');
+		expect(config.searchPanelBorderRadiusCard).toBe('8px');
+		expect(config.searchPanelCardGap).toBe('20px');
+	});
+
+	test('uses the updated default search input border radius', () => {
+		const config = normalizeMapConfig();
+
+		expect(config.searchPanelBorderRadiusInput).toBe('10px');
+	});
+
+	test('falls back when search panel styling values are invalid', () => {
+		const config = normalizeMapConfig({
+			searchPanelBackgroundPrimary: 'red',
+			searchPanelBackgroundSecondary: 'rgba(0,0,0,1)',
+			searchPanelBackgroundHover: 'rgb(1,2,3)',
+			searchPanelForegroundPrimary: 'blue',
+			searchPanelForegroundSecondary: 'hsl(1, 1%, 1%)',
+			searchPanelOuterMargin: {
+				top: 'wide',
+				right: '',
+				bottom: '4pt',
+				left: '0',
+			},
+			searchPanelBorderRadiusInput: 'oops nope',
+			searchPanelBorderRadiusCard: 'no thanks',
+			searchPanelCardGap: 'auto',
+		});
+
+		expect(config.searchPanelBackgroundPrimary).toBe('#ffffff');
+		expect(config.searchPanelBackgroundSecondary).toBe('#f0f0f1');
+		expect(config.searchPanelBackgroundHover).toBe('#f8f8f8');
+		expect(config.searchPanelForegroundPrimary).toBe('#1e1e1e');
+		expect(config.searchPanelForegroundSecondary).toBe('#1e1e1e');
+		expect(config.searchPanelOuterMargin).toEqual({
+			top: '24px',
+			right: '24px',
+			bottom: '24px',
+			left: '0px',
+		});
+		expect(config.searchPanelBorderRadiusInput).toBe('10px');
+		expect(config.searchPanelBorderRadiusCard).toBe('2px');
+		expect(config.searchPanelCardGap).toBe('12px');
+	});
 });

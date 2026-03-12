@@ -50,6 +50,20 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 	zoomControlsBorderWidth: DEFAULT_ZOOM_CONTROLS_BORDER_WIDTH,
 	zoomControlsPlusIcon: DEFAULT_ZOOM_CONTROLS_PLUS_ICON,
 	zoomControlsMinusIcon: DEFAULT_ZOOM_CONTROLS_MINUS_ICON,
+	searchPanelBackgroundPrimary: '#ffffff',
+	searchPanelBackgroundSecondary: '#f0f0f1',
+	searchPanelBackgroundHover: '#f8f8f8',
+	searchPanelForegroundPrimary: '#1e1e1e',
+	searchPanelForegroundSecondary: '#1e1e1e',
+	searchPanelOuterMargin: {
+		top: '24px',
+		right: '24px',
+		bottom: '24px',
+		left: '24px',
+	},
+	searchPanelBorderRadiusInput: '10px',
+	searchPanelBorderRadiusCard: '2px',
+	searchPanelCardGap: '12px',
 	creditsPadding: {
 		top: '4px',
 		right: '8px',
@@ -201,6 +215,42 @@ function getDefaults(runtimeConfig: MapRuntimeConfig): MapDefaults {
 			runtimeConfig.defaults?.zoomControlsMinusIcon,
 			DEFAULT_MAP_DEFAULTS.zoomControlsMinusIcon
 		),
+		searchPanelBackgroundPrimary: normalizeColor(
+			runtimeConfig.defaults?.searchPanelBackgroundPrimary,
+			DEFAULT_MAP_DEFAULTS.searchPanelBackgroundPrimary
+		),
+		searchPanelBackgroundSecondary: normalizeColor(
+			runtimeConfig.defaults?.searchPanelBackgroundSecondary,
+			DEFAULT_MAP_DEFAULTS.searchPanelBackgroundSecondary
+		),
+		searchPanelBackgroundHover: normalizeColor(
+			runtimeConfig.defaults?.searchPanelBackgroundHover,
+			DEFAULT_MAP_DEFAULTS.searchPanelBackgroundHover
+		),
+		searchPanelForegroundPrimary: normalizeColor(
+			runtimeConfig.defaults?.searchPanelForegroundPrimary,
+			DEFAULT_MAP_DEFAULTS.searchPanelForegroundPrimary
+		),
+		searchPanelForegroundSecondary: normalizeColor(
+			runtimeConfig.defaults?.searchPanelForegroundSecondary,
+			DEFAULT_MAP_DEFAULTS.searchPanelForegroundSecondary
+		),
+		searchPanelOuterMargin: normalizeBoxValue(
+			runtimeConfig.defaults?.searchPanelOuterMargin,
+			DEFAULT_MAP_DEFAULTS.searchPanelOuterMargin as Required<BoxValue>
+		),
+		searchPanelBorderRadiusInput: normalizeBorderRadiusValue(
+			runtimeConfig.defaults?.searchPanelBorderRadiusInput,
+			DEFAULT_MAP_DEFAULTS.searchPanelBorderRadiusInput
+		),
+		searchPanelBorderRadiusCard: normalizeBorderRadiusValue(
+			runtimeConfig.defaults?.searchPanelBorderRadiusCard,
+			DEFAULT_MAP_DEFAULTS.searchPanelBorderRadiusCard
+		),
+		searchPanelCardGap: normalizeCssLength(
+			runtimeConfig.defaults?.searchPanelCardGap,
+			DEFAULT_MAP_DEFAULTS.searchPanelCardGap
+		),
 		creditsPadding: normalizeBoxValue(
 			runtimeConfig.defaults?.creditsPadding,
 			DEFAULT_MAP_DEFAULTS.creditsPadding as Required<BoxValue>
@@ -295,6 +345,42 @@ export function normalizeMapConfig(
 		rawConfig.zoomControlsMinusIcon ?? defaults.zoomControlsMinusIcon,
 		defaults.zoomControlsMinusIcon
 	);
+	const searchPanelBackgroundPrimary = normalizeColor(
+		rawConfig.searchPanelBackgroundPrimary ?? defaults.searchPanelBackgroundPrimary,
+		defaults.searchPanelBackgroundPrimary
+	);
+	const searchPanelBackgroundSecondary = normalizeColor(
+		rawConfig.searchPanelBackgroundSecondary ?? defaults.searchPanelBackgroundSecondary,
+		defaults.searchPanelBackgroundSecondary
+	);
+	const searchPanelBackgroundHover = normalizeColor(
+		rawConfig.searchPanelBackgroundHover ?? defaults.searchPanelBackgroundHover,
+		defaults.searchPanelBackgroundHover
+	);
+	const searchPanelForegroundPrimary = normalizeColor(
+		rawConfig.searchPanelForegroundPrimary ?? defaults.searchPanelForegroundPrimary,
+		defaults.searchPanelForegroundPrimary
+	);
+	const searchPanelForegroundSecondary = normalizeColor(
+		rawConfig.searchPanelForegroundSecondary ?? defaults.searchPanelForegroundSecondary,
+		defaults.searchPanelForegroundSecondary
+	);
+	const searchPanelOuterMargin = normalizeBoxValue(
+		rawConfig.searchPanelOuterMargin ?? defaults.searchPanelOuterMargin,
+		defaults.searchPanelOuterMargin as Required<BoxValue>
+	);
+	const searchPanelBorderRadiusInput = normalizeBorderRadiusValue(
+		rawConfig.searchPanelBorderRadiusInput ?? defaults.searchPanelBorderRadiusInput,
+		defaults.searchPanelBorderRadiusInput
+	);
+	const searchPanelBorderRadiusCard = normalizeBorderRadiusValue(
+		rawConfig.searchPanelBorderRadiusCard ?? defaults.searchPanelBorderRadiusCard,
+		defaults.searchPanelBorderRadiusCard
+	);
+	const searchPanelCardGap = normalizeCssLength(
+		rawConfig.searchPanelCardGap ?? defaults.searchPanelCardGap,
+		defaults.searchPanelCardGap
+	);
 	const creditsPadding = normalizeBoxValue(
 		rawConfig.creditsPadding ?? defaults.creditsPadding,
 		defaults.creditsPadding as Required<BoxValue>
@@ -363,6 +449,15 @@ export function normalizeMapConfig(
 		zoomControlsBorderWidth,
 		zoomControlsPlusIcon,
 		zoomControlsMinusIcon,
+		searchPanelBackgroundPrimary,
+		searchPanelBackgroundSecondary,
+		searchPanelBackgroundHover,
+		searchPanelForegroundPrimary,
+		searchPanelForegroundSecondary,
+		searchPanelOuterMargin,
+		searchPanelBorderRadiusInput,
+		searchPanelBorderRadiusCard,
+		searchPanelCardGap,
 		creditsPadding,
 		creditsOuterMargin,
 		creditsBackgroundColor,

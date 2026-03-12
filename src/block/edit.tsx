@@ -333,6 +333,73 @@ function CreditsColorSettings({
   );
 }
 
+function SearchPanelColorSettings({
+  backgroundPrimary,
+  backgroundSecondary,
+  backgroundHover,
+  foregroundPrimary,
+  foregroundSecondary,
+  defaults,
+  onChange,
+}: {
+  backgroundPrimary: string;
+  backgroundSecondary: string;
+  backgroundHover: string;
+  foregroundPrimary: string;
+  foregroundSecondary: string;
+  defaults: {
+    backgroundPrimary: string;
+    backgroundSecondary: string;
+    backgroundHover: string;
+    foregroundPrimary: string;
+    foregroundSecondary: string;
+  };
+  onChange: (
+    key:
+      | "searchPanelBackgroundPrimary"
+      | "searchPanelBackgroundSecondary"
+      | "searchPanelBackgroundHover"
+      | "searchPanelForegroundPrimary"
+      | "searchPanelForegroundSecondary",
+    value: string,
+  ) => void;
+}) {
+  return (
+    <div style={{ display: "grid", gap: "8px", marginBottom: "16px" }}>
+      <CompactColorDropdown
+        label={__("Background Primary", "minimal-map")}
+        value={backgroundPrimary}
+        defaultValue={defaults.backgroundPrimary}
+        onChange={(value) => onChange("searchPanelBackgroundPrimary", value)}
+      />
+      <CompactColorDropdown
+        label={__("Background Secondary", "minimal-map")}
+        value={backgroundSecondary}
+        defaultValue={defaults.backgroundSecondary}
+        onChange={(value) => onChange("searchPanelBackgroundSecondary", value)}
+      />
+      <CompactColorDropdown
+        label={__("Background Hover", "minimal-map")}
+        value={backgroundHover}
+        defaultValue={defaults.backgroundHover}
+        onChange={(value) => onChange("searchPanelBackgroundHover", value)}
+      />
+      <CompactColorDropdown
+        label={__("Foreground Primary", "minimal-map")}
+        value={foregroundPrimary}
+        defaultValue={defaults.foregroundPrimary}
+        onChange={(value) => onChange("searchPanelForegroundPrimary", value)}
+      />
+      <CompactColorDropdown
+        label={__("Foreground Secondary", "minimal-map")}
+        value={foregroundSecondary}
+        defaultValue={defaults.foregroundSecondary}
+        onChange={(value) => onChange("searchPanelForegroundSecondary", value)}
+      />
+    </div>
+  );
+}
+
 function CompactColorDropdown({
   label,
   value,
@@ -578,6 +645,8 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<MinimalMapInstance | null>(null);
   const zoomControlsRadiusRef = useRef<HTMLDivElement | null>(null);
+  const searchPanelInputRadiusRef = useRef<HTMLDivElement | null>(null);
+  const searchPanelCardRadiusRef = useRef<HTMLDivElement | null>(null);
   const creditsRadiusRef = useRef<HTMLDivElement | null>(null);
   const styleOptions = useMemo(
     () => getStyleOptions(runtimeConfig.stylePresets),
@@ -632,7 +701,12 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   }, [config]);
 
   useEffect(() => {
-    const targets = [zoomControlsRadiusRef.current, creditsRadiusRef.current];
+    const targets = [
+      zoomControlsRadiusRef.current,
+      searchPanelInputRadiusRef.current,
+      searchPanelCardRadiusRef.current,
+      creditsRadiusRef.current,
+    ];
     const observers = targets
       .filter((target): target is HTMLDivElement => target !== null)
       .map((target) => {
@@ -701,6 +775,14 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
 
     if (parsed) {
       setAttributes({ zoomControlsBorderWidth: parsed });
+    }
+  };
+
+  const updateSearchPanelCardGap = (value?: string | number): void => {
+    const parsed = parseLengthValue(value, attributes.searchPanelCardGap || "12px");
+
+    if (parsed) {
+      setAttributes({ searchPanelCardGap: parsed });
     }
   };
 
@@ -908,6 +990,78 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             value={attributes.zoomControlsBorderWidth}
             onChange={updateBorderWidth}
             units={BORDER_UNITS}
+            size="__unstable-large"
+          />
+        </PanelBody>
+        <PanelBody title={__("Search Panel", "minimal-map")} initialOpen={false}>
+          <SearchPanelColorSettings
+            backgroundPrimary={attributes.searchPanelBackgroundPrimary}
+            backgroundSecondary={attributes.searchPanelBackgroundSecondary}
+            backgroundHover={attributes.searchPanelBackgroundHover}
+            foregroundPrimary={attributes.searchPanelForegroundPrimary}
+            foregroundSecondary={attributes.searchPanelForegroundSecondary}
+            defaults={{
+              backgroundPrimary:
+                runtimeConfig.defaults?.searchPanelBackgroundPrimary ?? "#ffffff",
+              backgroundSecondary:
+                runtimeConfig.defaults?.searchPanelBackgroundSecondary ?? "#f0f0f1",
+              backgroundHover:
+                runtimeConfig.defaults?.searchPanelBackgroundHover ?? "#f8f8f8",
+              foregroundPrimary:
+                runtimeConfig.defaults?.searchPanelForegroundPrimary ?? "#1e1e1e",
+              foregroundSecondary:
+                runtimeConfig.defaults?.searchPanelForegroundSecondary ?? "#1e1e1e",
+            }}
+            onChange={(key, value) => setAttributes({ [key]: value })}
+          />
+          <div className="minimal-map-editor__box-control">
+            <BoxControl
+              __next40pxDefaultSize
+              label={__("Outer Margin", "minimal-map")}
+              values={attributes.searchPanelOuterMargin}
+              units={HEIGHT_UNITS}
+              inputProps={BOX_CONTROL_INPUT_PROPS}
+              onChange={(value?: BoxValue) => {
+                setAttributes({
+                  searchPanelOuterMargin:
+                    value ?? attributes.searchPanelOuterMargin,
+                });
+              }}
+            />
+          </div>
+          <div ref={searchPanelInputRadiusRef} style={{ marginBottom: "8px" }}>
+            <BorderRadiusControl
+              label={__("Border Radius Input", "minimal-map")}
+              onChange={(value: string | BorderRadiusValues) => {
+                setAttributes({
+                  searchPanelBorderRadiusInput:
+                    stringifyBorderRadiusValue(value),
+                });
+              }}
+              values={parseBorderRadiusValue(
+                attributes.searchPanelBorderRadiusInput || "10px",
+              )}
+            />
+          </div>
+          <div ref={searchPanelCardRadiusRef} style={{ marginBottom: "8px" }}>
+            <BorderRadiusControl
+              label={__("Border Radius Card", "minimal-map")}
+              onChange={(value: string | BorderRadiusValues) => {
+                setAttributes({
+                  searchPanelBorderRadiusCard:
+                    stringifyBorderRadiusValue(value),
+                });
+              }}
+              values={parseBorderRadiusValue(
+                attributes.searchPanelBorderRadiusCard,
+              )}
+            />
+          </div>
+          <UnitControl
+            label={__("Card Gap", "minimal-map")}
+            value={attributes.searchPanelCardGap}
+            onChange={updateSearchPanelCardGap}
+            units={HEIGHT_UNITS}
             size="__unstable-large"
           />
         </PanelBody>

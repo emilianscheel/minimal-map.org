@@ -8,11 +8,14 @@ import type {
   MapLocationPoint,
   NormalizedMapConfig,
 } from "../types";
+import {
+  applySearchPanelCssVariables,
+  getSearchPanelDesktopPadding,
+} from "./search-panel-layout";
 
 interface SearchControlProps {
   locations: MapLocationPoint[];
   onSelect: (location: MapLocationPoint) => void;
-  config: NormalizedMapConfig;
   selectedId?: number;
 }
 
@@ -51,7 +54,6 @@ const SearchResultLogo = ({ logo }: { logo: MapLocationLogo }) => {
 const MapSearchControl = ({
   locations,
   onSelect,
-  config,
   selectedId: selectedIdProp,
 }: SearchControlProps) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -141,17 +143,6 @@ const MapSearchControl = ({
       <div
         ref={containerRef}
         className={`minimal-map-search ${isOpen ? "is-focused" : ""}`}
-        style={
-          {
-            "--minimal-map-search-background":
-              config.zoomControlsBackgroundColor,
-            "--minimal-map-search-color": config.zoomControlsIconColor,
-            "--minimal-map-search-border-color": config.zoomControlsBorderColor,
-            "--minimal-map-search-border-radius":
-              config.zoomControlsBorderRadius,
-            "--minimal-map-search-border-width": config.zoomControlsBorderWidth,
-          } as React.CSSProperties
-        }
       >
         <div className="minimal-map-search__input-wrapper">
           <div className="minimal-map-search__icon-container">
@@ -285,6 +276,7 @@ export function createWordPressSearchControl(
   host.appendChild(container);
 
   const root = createRoot(container);
+  let currentConfig = initialConfig;
 
   const onSelect = (location: MapLocationPoint) => {
   	onLocationSelect?.(location);
@@ -293,8 +285,10 @@ export function createWordPressSearchControl(
   		{
   			center: [location.lng, location.lat],
   			zoom: Math.max(map.getZoom(), 15),
-  			padding: { 
-          left: !isMobile && initialConfig.allowSearch ? 368 : 0, 
+  			padding: {
+          left: !isMobile
+            ? getSearchPanelDesktopPadding(currentConfig, container)
+            : 0,
           top: isMobile ? 80 : 0, 
           right: 0, 
           bottom: 0 
@@ -305,11 +299,12 @@ export function createWordPressSearchControl(
   	);
   };
   const render = (cfg: NormalizedMapConfig, selId?: number) => {
+    currentConfig = cfg;
+    applySearchPanelCssVariables(container, cfg);
     root.render(
       <MapSearchControl
         locations={cfg.locations}
         onSelect={onSelect}
-        config={cfg}
         selectedId={selId}
       />,
     );

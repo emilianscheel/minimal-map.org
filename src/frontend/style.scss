@@ -211,7 +211,19 @@
   height: 100%;
   pointer-events: none;
   --minimal-map-search-width: 320px;
-  --minimal-map-search-padding: 24px;
+  --minimal-map-search-background-primary: #ffffff;
+  --minimal-map-search-background-secondary: #f0f0f1;
+  --minimal-map-search-background-hover: #f8f8f8;
+  --minimal-map-search-foreground-primary: #1e1e1e;
+  --minimal-map-search-foreground-secondary: #1e1e1e;
+  --minimal-map-search-margin-top: 24px;
+  --minimal-map-search-margin-right: 24px;
+  --minimal-map-search-margin-bottom: 24px;
+  --minimal-map-search-margin-left: 24px;
+  --minimal-map-search-gap: 24px;
+  --minimal-map-search-input-radius: 10px;
+  --minimal-map-search-card-radius: 2px;
+  --minimal-map-search-card-gap: 12px;
 }
 
 .minimal-map-search-backdrop {
@@ -220,9 +232,10 @@
   left: 0;
   bottom: 0;
   width: calc(
-    var(--minimal-map-search-width) + (var(--minimal-map-search-padding) * 2)
+    var(--minimal-map-search-width) + var(--minimal-map-search-margin-left) +
+      var(--minimal-map-search-margin-right)
   );
-  background: #ffffff;
+  background: var(--minimal-map-search-background-primary);
   z-index: 9;
   animation: minimal-map-fade-in 0.3s ease-out forwards;
   pointer-events: auto;
@@ -241,16 +254,27 @@
   display: flex;
   flex-direction: column;
   border: none;
-  gap: var(--minimal-map-search-padding);
+  gap: var(--minimal-map-search-gap);
   background: transparent !important;
+  color: var(--minimal-map-search-foreground-primary);
   position: absolute;
-  top: var(--minimal-map-search-padding);
-  left: var(--minimal-map-search-padding);
+  top: var(--minimal-map-search-margin-top);
+  left: var(--minimal-map-search-margin-left);
   width: var(--minimal-map-search-width);
-  max-width: calc(100% - 32px);
-  height: calc(100% - (var(--minimal-map-search-padding) * 2));
+  max-width: calc(
+    100% - var(--minimal-map-search-margin-left) -
+      var(--minimal-map-search-margin-right)
+  );
+  height: calc(
+    100% - var(--minimal-map-search-margin-top) -
+      var(--minimal-map-search-margin-bottom)
+  );
   z-index: 10;
   pointer-events: none;
+}
+
+.minimal-map-search.is-focused {
+  background: var(--minimal-map-search-background-primary) !important;
 }
 
 .minimal-map-search > * {
@@ -258,10 +282,9 @@
 }
 
 .minimal-map-search__input-wrapper {
-  background: var(--minimal-map-search-background, #ffffff) !important;
-  border: var(--minimal-map-search-border-width, 1px) solid
-    var(--minimal-map-search-border-color, #dcdcde);
-  border-radius: var(--minimal-map-search-border-radius, 2px);
+  background: var(--minimal-map-search-background-secondary) !important;
+  border: none;
+  border-radius: var(--minimal-map-search-input-radius);
   overflow: hidden;
   flex-shrink: 0;
   display: flex;
@@ -275,7 +298,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--minimal-map-search-color, #1e1e1e);
+  color: var(--minimal-map-search-foreground-secondary);
   pointer-events: none;
   opacity: 0.6;
 }
@@ -285,7 +308,7 @@
   height: 44px !important;
   border: none !important;
   background: transparent !important;
-  color: var(--minimal-map-search-color, #1e1e1e) !important;
+  color: var(--minimal-map-search-foreground-secondary) !important;
   padding: 0 40px !important;
   margin: 0 !important;
   box-shadow: none !important;
@@ -300,7 +323,7 @@
 }
 
 .minimal-map-search__input::placeholder {
-  color: var(--minimal-map-search-color, #1e1e1e) !important;
+  color: var(--minimal-map-search-foreground-secondary) !important;
   opacity: 0.5;
 }
 
@@ -317,7 +340,7 @@
   background: transparent;
   border: none;
   border-radius: 4px;
-  color: var(--minimal-map-search-color, #1e1e1e);
+  color: var(--minimal-map-search-foreground-secondary);
   cursor: pointer;
   opacity: 0.5;
   transition: opacity 0.1s ease-in-out;
@@ -325,17 +348,15 @@
 
 .minimal-map-search__clear:hover {
   opacity: 0.8;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--minimal-map-search-background-hover);
 }
 
 .minimal-map-search__results-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #ffffff !important;
-  border: var(--minimal-map-search-border-width, 1px) solid
-    var(--minimal-map-search-border-color, #dcdcde);
-  border-radius: var(--minimal-map-search-border-radius, 2px);
+  background: var(--minimal-map-search-background-primary) !important;
+  border: none;
   overflow: hidden;
   min-height: 0;
   animation: minimal-map-fade-in 0.3s ease-out forwards;
@@ -343,18 +364,21 @@
 
 .minimal-map-search__results {
   overflow-y: auto;
-  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: var(--minimal-map-search-card-gap);
+  background: var(--minimal-map-search-background-primary);
 }
 
 .minimal-map-search__result-item {
   width: 100%;
   padding: 12px;
   text-align: left;
-  background: #ffffff;
+  background: var(--minimal-map-search-background-primary);
   border: none;
-  border-bottom: 1px solid #f0f0f1;
+  border-radius: var(--minimal-map-search-card-radius);
   cursor: pointer;
-  color: #1e1e1e;
+  color: var(--minimal-map-search-foreground-primary);
   transition: background 0.1s ease-in-out;
 }
 
@@ -364,28 +388,21 @@
   --minimal-map-search-pill-border-radius: 18px;
 }
 
-.minimal-map-search__result-item:last-child {
-  border-bottom: none;
-}
-
 .minimal-map-search__result-item:hover,
 .minimal-map-search__result-item:focus {
-  background: #f8f8f8;
+  background: var(--minimal-map-search-background-hover);
   outline: none;
 }
 
 .minimal-map-search__result-item.is-selected {
-  background: #f0f0f1;
-}
-
-.minimal-map-search__result-item.is-selected:hover {
-  background: #e8e8e9;
+  background: var(--minimal-map-search-background-hover);
 }
 
 .minimal-map-search__result-title {
   font-weight: 600;
   font-size: 15px;
   margin: 0;
+  color: var(--minimal-map-search-foreground-primary);
 }
 
 .minimal-map-search__result-layout {
@@ -411,6 +428,7 @@
   font-size: 13px;
   opacity: 0.8;
   margin: 0;
+  color: var(--minimal-map-search-foreground-primary);
 }
 
 .minimal-map-search__result-meta {
@@ -425,8 +443,8 @@
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  opacity: 0.6;
-  background: #f0f0f1;
+  color: var(--minimal-map-search-foreground-secondary);
+  background: var(--minimal-map-search-background-secondary);
   padding: var(--minimal-map-search-pill-padding-y)
     var(--minimal-map-search-pill-padding-x);
   border-radius: var(--minimal-map-search-pill-border-radius);
@@ -489,9 +507,9 @@
 .minimal-map-search__no-results {
   padding: 12px;
   font-size: 13px;
-  color: #1e1e1e;
+  color: var(--minimal-map-search-foreground-primary);
   opacity: 0.7;
-  background: #ffffff;
+  background: var(--minimal-map-search-background-primary);
 }
 
 @media (max-width: 600px) {
@@ -504,8 +522,8 @@
   }
 
   .minimal-map-search {
-    left: var(--minimal-map-search-padding);
-    right: var(--minimal-map-search-padding);
+    left: var(--minimal-map-search-margin-left);
+    right: var(--minimal-map-search-margin-right);
     width: auto;
     max-width: none;
   }

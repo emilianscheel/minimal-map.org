@@ -5,6 +5,7 @@ import { normalizeMapConfig } from './defaults';
 import { applyStyleTheme } from '../lib/styles/themeEngine';
 import { createWordPressZoomControls } from './wp-controls';
 import { createWordPressSearchControl } from './SearchControl';
+import { getSearchPanelDesktopPadding } from './search-panel-layout';
 import type {
 	MapRuntimeConfig,
 	MapLocationPoint,
@@ -338,15 +339,26 @@ export function createMinimalMap(
 		const onMarkerClick = (id: number) => {
 			const point = points.find(p => p.id === id);
 			if (point && state.map) {
+				const activeConfig = state.config ?? config;
 				state.selectedLocationId = id;
 				state.map.easeTo({
 					center: [point.lng, point.lat],
 					zoom: Math.max(state.map.getZoom(), 15),
-					padding: { left: config.allowSearch ? 368 : 0, top: 0, right: 0, bottom: 0 },
+					padding: {
+						left: getSearchPanelDesktopPadding(
+							activeConfig,
+							state.searchControl
+								? host.querySelector<HTMLElement>('.minimal-map-search-host')
+								: null
+						),
+						top: 0,
+						right: 0,
+						bottom: 0,
+					},
 					essential: true
 				}, { isMinimalMapInternal: true });
 				if (state.searchControl) {
-					state.searchControl.update(config, id);
+					state.searchControl.update(activeConfig, id);
 				}
 			}
 		};
@@ -577,12 +589,7 @@ export function createMinimalMap(
 			syncControls(nextConfig);
 		}
 
-		if (
-			didRenderedPointsChange(previousConfig, nextConfig) ||
-			previousConfig?.allowSearch !== nextConfig.allowSearch
-		) {
-			syncSearch(nextConfig);
-		}
+		syncSearch(nextConfig);
 
 		if (
 			!previousConfig ||

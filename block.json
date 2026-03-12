@@ -107,6 +107,47 @@
       "type": "string",
       "default": "line-solid"
     },
+    "searchPanelBackgroundPrimary": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "searchPanelBackgroundSecondary": {
+      "type": "string",
+      "default": "#f0f0f1"
+    },
+    "searchPanelBackgroundHover": {
+      "type": "string",
+      "default": "#f8f8f8"
+    },
+    "searchPanelForegroundPrimary": {
+      "type": "string",
+      "default": "#1e1e1e"
+    },
+    "searchPanelForegroundSecondary": {
+      "type": "string",
+      "default": "#1e1e1e"
+    },
+    "searchPanelOuterMargin": {
+      "type": "object",
+      "default": {
+        "top": "24px",
+        "right": "24px",
+        "bottom": "24px",
+        "left": "24px"
+      }
+    },
+    "searchPanelBorderRadiusInput": {
+      "type": "string",
+      "default": "10px"
+    },
+    "searchPanelBorderRadiusCard": {
+      "type": "string",
+      "default": "2px"
+    },
+    "searchPanelCardGap": {
+      "type": "string",
+      "default": "12px"
+    },
     "creditsPadding": {
       "type": "object",
       "default": {
