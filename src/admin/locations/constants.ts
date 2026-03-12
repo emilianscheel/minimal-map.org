@@ -25,10 +25,10 @@ export const DEFAULT_VIEW: ViewTable = {
   type: "table",
   page: 1,
   perPage: LOCATIONS_TABLE_PER_PAGE,
+  titleField: "title",
+  mediaField: "map_preview",
   fields: [
-    "map_preview",
     "logo",
-    "title",
     "contact",
     "address",
     "collections",
