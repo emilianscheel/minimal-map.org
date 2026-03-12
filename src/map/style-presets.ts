@@ -1,16 +1,17 @@
+import { __ } from '@wordpress/i18n';
 import type { StyleOption, StylePresets } from '../types';
 
 export const DEFAULT_STYLE_PRESETS: StylePresets = {
 	liberty: {
-		label: 'Liberty',
+		label: __( 'Liberty', 'minimal-map' ),
 		style_url: 'https://tiles.openfreemap.org/styles/liberty',
 	},
 	bright: {
-		label: 'Bright',
+		label: __( 'Bright', 'minimal-map' ),
 		style_url: 'https://tiles.openfreemap.org/styles/bright',
 	},
 	positron: {
-		label: 'Positron',
+		label: __( 'Positron', 'minimal-map' ),
 		style_url: 'https://tiles.openfreemap.org/styles/positron',
 	},
 };

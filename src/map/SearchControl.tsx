@@ -1,5 +1,6 @@
 import { createRoot } from "@wordpress/element";
 import { useState, useMemo, useEffect, useRef } from "@wordpress/element";
+import { __ } from "@wordpress/i18n";
 import { Phone, Mail, Globe, MapPin, Search, X } from "lucide-react";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import TagBadge from "../components/TagBadge";
@@ -154,15 +155,15 @@ const MapSearchControl = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => setIsFocused(true)}
-            placeholder="Search locations..."
-            aria-label="Search locations"
+            placeholder={__("Search locations...", "minimal-map")}
+            aria-label={__("Search locations", "minimal-map")}
           />
           {searchTerm && (
             <button
               type="button"
               className="minimal-map-search__clear"
               onClick={handleClear}
-              aria-label="Clear search"
+              aria-label={__("Clear search", "minimal-map")}
             >
               <X size={16} />
             </button>
@@ -239,7 +240,7 @@ const MapSearchControl = ({
             ) : (
               searchTerm.trim() !== "" && (
                 <div className="minimal-map-search__no-results">
-                  No locations found
+                  {__("No locations found", "minimal-map")}
                 </div>
               )
             )}

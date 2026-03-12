@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews/wp';
 import type { Action, Field, View, ViewTable } from '@wordpress/dataviews';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from '@wordpress/element';
 import { Copy, Image, Layers3, LocateFixed, MapPin, Pencil, Tags, Trash2 } from 'lucide-react';
 import LocationMiniMap from '../../components/LocationMiniMap';
@@ -317,7 +317,10 @@ function useLocationActions(controller: LocationsController): Action<LocationRec
 				modalHeader: (items) =>
 					items.length === 1
 						? __('Delete location', 'minimal-map')
-						: __(`Delete ${items.length} locations`, 'minimal-map'),
+						: sprintf(
+							_n( 'Delete %d location', 'Delete %d locations', items.length, 'minimal-map' ),
+							items.length
+						),
 				RenderModal: ({ items, closeModal, onActionPerformed }) => {
 					return (
 						<DeleteLocationActionModal

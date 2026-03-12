@@ -1,4 +1,5 @@
 import type { Map as MapLibreMap } from 'maplibre-gl';
+import { __ } from '@wordpress/i18n';
 import { getZoomControlRuntimeIconSvg } from './zoom-control-options';
 import type { NormalizedMapConfig, WordPressZoomControls } from '../types';
 
@@ -46,12 +47,12 @@ export function createWordPressZoomControls(
 	applyControlStyles(controls, config);
 
 	const zoomInButton = createControlButton(
-		'Zoom in',
+		__( 'Zoom in', 'minimal-map' ),
 		getZoomControlRuntimeIconSvg(config.zoomControlsPlusIcon),
 		() => map.zoomIn()
 	);
 	const zoomOutButton = createControlButton(
-		'Zoom out',
+		__( 'Zoom out', 'minimal-map' ),
 		getZoomControlRuntimeIconSvg(config.zoomControlsMinusIcon),
 		() => map.zoomOut()
 	);

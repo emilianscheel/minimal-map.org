@@ -1,3 +1,4 @@
+import { __ } from "@wordpress/i18n";
 import type { NormalizedMapConfig, WordPressAttributionControl } from "../types";
 
 function createAttributionLink(href: string, label: string): HTMLAnchorElement {
@@ -30,7 +31,7 @@ export function createAttributionPill(
 
   root.className = "minimal-map-attribution";
   root.setAttribute("role", "note");
-  root.setAttribute("aria-label", "Map credits");
+  root.setAttribute("aria-label", __("Map credits", "minimal-map"));
   root.style.setProperty(
     "--minimal-map-attribution-padding-top",
     config.creditsPadding.top,

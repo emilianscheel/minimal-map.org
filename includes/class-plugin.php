@@ -137,6 +137,7 @@ final class Plugin {
 	 * @return void
 	 */
 	private function register_hooks() {
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this->collection_post_type, 'register' ), 5 );
 		add_action( 'init', array( $this->tag_taxonomy, 'register' ), 5 );
 		add_action( 'init', array( $this->logo_post_type, 'register' ), 6 );
@@ -148,5 +149,18 @@ final class Plugin {
 		add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue_admin_assets' ) );
 		add_action( 'rest_api_init', array( $this->geocode_route, 'register' ) );
 		add_action( 'rest_api_init', array( $this->styles_route, 'register' ) );
+	}
+
+	/**
+	 * Load the plugin textdomain.
+	 *
+	 * @return void
+	 */
+	public function load_textdomain() {
+		load_plugin_textdomain(
+			'minimal-map',
+			false,
+			dirname( plugin_basename( MINIMAL_MAP_FILE ) ) . '/languages'
+		);
 	}
 }

@@ -1,5 +1,5 @@
 import { Button } from "@wordpress/components";
-import { __ } from "@wordpress/i18n";
+import { __, _n, sprintf } from "@wordpress/i18n";
 import { useCallback, useEffect, useMemo, useState, useRef } from "@wordpress/element";
 import { Merge, Plus } from "lucide-react";
 import type { ViewGrid, ViewPickerTable } from "@wordpress/dataviews";
@@ -504,10 +504,15 @@ export function useCollectionsController(
         await loadCollections();
         setActionNotice({
           status: "success",
-          message: `${count} ${__(
-            "locations imported and assigned to a new collection.",
-            "minimal-map",
-          )}`,
+          message: sprintf(
+            _n(
+              "%d location imported and assigned to a new collection.",
+              "%d locations imported and assigned to a new collection.",
+              count,
+              "minimal-map",
+            ),
+            count,
+          ),
         });
       } catch (error) {
         setActionNotice({

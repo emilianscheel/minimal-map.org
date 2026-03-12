@@ -1,5 +1,5 @@
 import { Button } from "@wordpress/components";
-import { __ } from "@wordpress/i18n";
+import { __, _n, sprintf } from "@wordpress/i18n";
 import { useEffect, useRef, useState } from "@wordpress/element";
 import type { KeyboardEvent } from "react";
 import type { LocationRecord } from "../../types";
@@ -81,7 +81,15 @@ export default function DeleteLocationActionModal({
     >
       <p className="minimal-map-admin__collection-delete-dialog-copy">
         {isBulk
-          ? __(`Are you sure you want to delete ${items.length} locations? This action cannot be undone.`, "minimal-map")
+          ? sprintf(
+              _n(
+                "Are you sure you want to delete %d location? This action cannot be undone.",
+                "Are you sure you want to delete %d locations? This action cannot be undone.",
+                items.length,
+                "minimal-map",
+              ),
+              items.length,
+            )
           : __("Delete this location and remove its saved collection assignments?", "minimal-map")}
       </p>
       {!isBulk && items[0] && (

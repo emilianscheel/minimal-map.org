@@ -35,11 +35,25 @@ class Map_Block {
 	 * @return void
 	 */
 	public function register() {
+		$this->get_metadata_translations();
+
 		register_block_type(
 			MINIMAL_MAP_PATH . 'block.json',
 			array(
 				'render_callback' => array( $this->map_view, 'render' ),
 			)
+		);
+	}
+
+	/**
+	 * Mirror block metadata strings for offline POT extraction.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_metadata_translations() {
+		return array(
+			'title'       => __( 'Minimal Map', 'minimal-map' ),
+			'description' => __( 'Render a minimalist MapLibre-powered map.', 'minimal-map' ),
 		);
 	}
 }

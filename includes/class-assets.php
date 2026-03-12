@@ -85,6 +85,8 @@ class Assets {
 			$asset['version'],
 			true
 		);
+
+		wp_set_script_translations( $handle, 'minimal-map', MINIMAL_MAP_PATH . 'languages' );
 	}
 
 	/**

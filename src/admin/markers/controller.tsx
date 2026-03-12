@@ -1,5 +1,5 @@
 import { Button, FormFileUpload } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { Upload } from 'lucide-react';
 import type { ViewGrid } from '@wordpress/dataviews';
@@ -163,7 +163,10 @@ export function useMarkersController(
 					message:
 						fileList.length === 1
 							? __('Marker uploaded.', 'minimal-map')
-							: __(`${fileList.length} markers uploaded.`, 'minimal-map'),
+							: sprintf(
+								_n( '%d marker uploaded.', '%d markers uploaded.', fileList.length, 'minimal-map' ),
+								fileList.length
+							),
 				});
 			} catch (error) {
 				setActionNotice({

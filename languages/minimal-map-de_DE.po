@@ -1,0 +1,1406 @@
+# Copyright (C) 2026 Codex
+# This file is distributed under the same license as the Minimal Map plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Minimal Map 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/minimal-map\n"
+"Last-Translator: Codex\n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2026-03-12 16:00+0100\n"
+"X-Generator: Codex\n"
+"X-Domain: minimal-map\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Plugin Name of the plugin
+#: minimal-map.php includes/admin/class-admin-menu.php:106
+#: includes/admin/class-admin-menu.php:107
+#: includes/blocks/class-map-block.php:55
+msgid "Minimal Map"
+msgstr "Minimal Map"
+
+#. Description of the plugin
+#: minimal-map.php
+msgid "Gutenberg-first native map block and admin shell for WordPress."
+msgstr "Gutenberg-orientierter nativer Kartenblock und Admin-Oberflaeche fuer WordPress."
+
+#. Author of the plugin
+#: minimal-map.php
+msgid "Codex"
+msgstr "Codex"
+
+#: includes/admin/class-admin-menu.php:37
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: includes/admin/class-admin-menu.php:38
+msgid "An overview of Minimal Map sections and upcoming data tools."
+msgstr "Ein Ueberblick ueber die Minimal Map-Bereiche und kommende Datenwerkzeuge."
+
+#: includes/admin/class-admin-menu.php:41
+#: includes/locations/class-location-post-type.php:60
+msgid "Locations"
+msgstr "Standorte"
+
+#: includes/admin/class-admin-menu.php:42
+msgid "Create and organize the places you want to render on your maps."
+msgstr "Erstelle und organisiere die Orte, die du auf deinen Karten anzeigen moechtest."
+
+#: includes/admin/class-admin-menu.php:45
+#: includes/collections/class-collection-post-type.php:44
+msgid "Collections"
+msgstr "Sammlungen"
+
+#: includes/admin/class-admin-menu.php:46
+msgid "Assemble reusable groups of locations and manage their map-ready assignments."
+msgstr "Stelle wiederverwendbare Gruppen von Standorten zusammen und verwalte ihre kartentauglichen Zuweisungen."
+
+#: includes/admin/class-admin-menu.php:49
+#: includes/tags/class-tag-taxonomy.php:50
+msgid "Tags"
+msgstr "Schlagwoerter"
+
+#: includes/admin/class-admin-menu.php:50
+msgid "Apply lightweight labels to keep map content easy to organize."
+msgstr "Verwende leichte Beschriftungen, damit Karteninhalte leicht zu organisieren bleiben."
+
+#: includes/admin/class-admin-menu.php:53
+#: includes/logos/class-logo-post-type.php:39
+msgid "Logos"
+msgstr "Logos"
+
+#: includes/admin/class-admin-menu.php:54
+msgid "Upload SVG logos and assign them across multiple locations."
+msgstr "Lade SVG-Logos hoch und weise sie mehreren Standorten zu."
+
+#: includes/admin/class-admin-menu.php:57
+#: includes/markers/class-marker-post-type.php:39
+msgid "Markers"
+msgstr "Marker"
+
+#: includes/admin/class-admin-menu.php:58
+msgid "Define the marker styles and visual pin variants used across maps."
+msgstr "Definiere die Marker-Stile und visuellen Pin-Varianten, die auf deinen Karten verwendet werden."
+
+#: includes/admin/class-admin-menu.php:61
+msgid "Styles"
+msgstr "Stile"
+
+#: includes/admin/class-admin-menu.php:62
+msgid "Manage the map styles and presets available inside the block editor."
+msgstr "Verwalte die im Block-Editor verfuegbaren Kartenstile und Vorgaben."
+
+#: includes/blocks/class-map-block.php:56
+msgid "Render a minimalist MapLibre-powered map."
+msgstr "Zeige eine minimalistische, von MapLibre unterstuetzte Karte an."
+
+#: includes/class-config.php:45
+msgid "Liberty"
+msgstr "Liberty"
+
+#: includes/class-config.php:49
+msgid "Bright"
+msgstr "Bright"
+
+#: includes/class-config.php:53
+msgid "Positron"
+msgstr "Positron"
+
+#: includes/class-config.php:214 includes/class-config.php:234
+msgid "Map preview unavailable because this browser does not support WebGL."
+msgstr "Kartenvorschau nicht verfuegbar, da dieser Browser WebGL nicht unterstuetzt."
+
+#: includes/collections/class-collection-post-type.php:45
+msgid "Collection"
+msgstr "Sammlung"
+
+#: includes/locations/class-location-post-type.php:61
+msgid "Location"
+msgstr "Standort"
+
+#: includes/logos/class-logo-post-type.php:40
+msgid "Logo"
+msgstr "Logo"
+
+#: includes/markers/class-marker-post-type.php:40
+msgid "Marker"
+msgstr "Marker"
+
+#: includes/rest/class-geocode-route.php:88
+msgid "The address could not be geocoded right now. Select the location manually on the map."
+msgstr "Die Adresse konnte derzeit nicht geokodiert werden. Waehle den Standort manuell auf der Karte aus."
+
+#: includes/rest/class-geocode-route.php:100
+msgid "No matching coordinates were found. Select the location manually on the map."
+msgstr "Es wurden keine passenden Koordinaten gefunden. Waehle den Standort manuell auf der Karte aus."
+
+#: includes/rest/class-styles-route.php:153
+#: includes/rest/class-styles-route.php:182
+msgid "Style theme not found."
+msgstr "Stil-Theme nicht gefunden."
+
+#: includes/rest/class-styles-route.php:186
+msgid "The default theme cannot be deleted."
+msgstr "Das Standard-Theme kann nicht geloescht werden."
+
+#: includes/rest/class-styles-route.php:207
+msgid "Default Theme"
+msgstr "Standard-Theme"
+
+#: includes/tags/class-tag-taxonomy.php:51
+msgid "Tag"
+msgstr "Schlagwort"
+
+#: src/admin/locations/controller.tsx:755
+msgid "%d location deleted."
+msgid_plural "%d locations deleted."
+msgstr[0] "%d Standort geloescht."
+msgstr[1] "%d Standorte geloescht."
+
+#: src/admin/collections/controller.tsx:508
+#: src/admin/locations/controller.tsx:1060
+#: src/admin/locations/controller.tsx:1119
+msgid "%d location imported and assigned to a new collection."
+msgid_plural "%d locations imported and assigned to a new collection."
+msgstr[0] "%d Standort importiert und einer neuen Sammlung zugewiesen."
+msgstr[1] "%d Standorte importiert und einer neuen Sammlung zugewiesen."
+
+#: src/admin/logos/controller.tsx:205
+msgid "%d logo uploaded."
+msgid_plural "%d logos uploaded."
+msgstr[0] "%d Logo hochgeladen."
+msgstr[1] "%d Logos hochgeladen."
+
+#: src/admin/markers/controller.tsx:167
+msgid "%d marker uploaded."
+msgid_plural "%d markers uploaded."
+msgstr[0] "%d Marker hochgeladen."
+msgstr[1] "%d Marker hochgeladen."
+
+#: src/lib/locations/validateDetailsStep.ts:11
+msgid "A title is required."
+msgstr "Ein Titel ist erforderlich."
+
+#: src/admin/collections/CollectionsEmptyState.tsx:13
+#: src/admin/collections/controller.tsx:570
+#: src/admin/collections/controller.tsx:593
+#: src/admin/collections/controller.tsx:600
+msgid "Add collection"
+msgstr "Sammlung hinzufuegen"
+
+#: src/admin/index.tsx:102
+msgid "Add lightweight labels that make large map datasets easier to sort, search, and evolve."
+msgstr "Fuege leichte Schlagwoerter hinzu, damit grosse Kartendatensaetze leichter sortiert, durchsucht und erweitert werden koennen."
+
+#: src/admin/locations/LocationsEmptyState.tsx:13
+#: src/admin/locations/controller.tsx:1233
+#: src/admin/locations/controller.tsx:1259
+msgid "Add location"
+msgstr "Standort hinzufuegen"
+
+#: src/admin/collections/CollectionsGrid.tsx:55
+msgid "Add locations"
+msgstr "Standorte hinzufuegen"
+
+#: src/admin/tags/TagsEmptyState.tsx:13 src/admin/tags/controller.tsx:211
+#: src/admin/tags/controller.tsx:223 src/admin/tags/controller.tsx:224
+msgid "Add tag"
+msgstr "Schlagwort hinzufuegen"
+
+#: src/admin/collections/CollectionAssignmentModal.tsx:25
+#: src/admin/locations/LocationsTable.tsx:115
+msgid "Address"
+msgstr "Adresse"
+
+#: src/admin/styles/constants.ts:22
+msgid "Administrative Boundaries"
+msgstr "Verwaltungsgrenzen"
+
+#: src/admin/styles/constants.ts:24
+msgid "Airport Grounds"
+msgstr "Flughafengelaende"
+
+#: src/block/edit.tsx:552 src/block/edit.tsx:589
+msgid "All locations"
+msgstr "Alle Standorte"
+
+#: src/block/edit.tsx:889
+msgid "Allow Search"
+msgstr "Suche erlauben"
+
+#: src/block/edit.tsx:882
+msgid "Allow Two-Finger Zoom on Mobile"
+msgstr "Zwei-Finger-Zoom auf Mobilgeraeten erlauben"
+
+#: src/block/edit.tsx:877
+msgid "Allow Zoom via Scroll"
+msgstr "Zoom per Scrollen erlauben"
+
+#: src/block/edit.tsx:896
+msgid "Appearance"
+msgstr "Darstellung"
+
+#: src/admin/locations/DeleteLocationActionModal.tsx:85
+msgid "Are you sure you want to delete %d location? This action cannot be undone."
+msgid_plural "Are you sure you want to delete %d locations? This action cannot be undone."
+msgstr[0] "Bist du sicher, dass du %d Standort loeschen moechtest? Diese Aktion kann nicht rueckgaengig gemacht werden."
+msgstr[1] "Bist du sicher, dass du %d Standorte loeschen moechtest? Diese Aktion kann nicht rueckgaengig gemacht werden."
+
+#: src/admin/styles/DeleteThemeModal.tsx:46
+msgid "Are you sure you want to delete the theme:"
+msgstr "Moechtest du das Theme wirklich loeschen:"
+
+#: src/admin/locations/AssignToCollectionModal.tsx:123
+msgid "Assign"
+msgstr "Zuweisen"
+
+#: src/admin/collections/CollectionAssignmentModal.tsx:46
+msgid "Assign locations"
+msgstr "Standorte zuweisen"
+
+#: src/admin/locations/AssignLogoModal.tsx:46
+#: src/admin/locations/LocationsTable.tsx:267
+msgid "Assign Logo"
+msgstr "Logo zuweisen"
+
+#: src/admin/locations/AssignMarkerModal.tsx:51
+#: src/admin/locations/LocationsTable.tsx:282
+msgid "Assign Marker"
+msgstr "Marker zuweisen"
+
+#: src/admin/locations/AssignTagsModal.tsx:44
+#: src/admin/locations/LocationsTable.tsx:297
+msgid "Assign Tags"
+msgstr "Schlagwoerter zuweisen"
+
+#: src/admin/locations/AssignToCollectionModal.tsx:63
+msgid "Assign to collection"
+msgstr "Sammlung zuweisen"
+
+#: src/admin/locations/AssignToCollectionModal.tsx:69
+#: src/admin/locations/LocationsTable.tsx:252
+msgid "Assign to Collection"
+msgstr "Sammlung zuweisen"
+
+#: src/admin/collections/MergeCollectionsModal.tsx:140
+#: src/admin/locations/LocationDialog.tsx:95
+msgid "Back"
+msgstr "Zurueck"
+
+#: src/admin/styles/constants.ts:5 src/block/edit.tsx:281
+#: src/block/edit.tsx:321
+msgid "Background"
+msgstr "Hintergrund"
+
+#: src/admin/tags/TagDialog.tsx:50
+msgid "Background Color"
+msgstr "Hintergrundfarbe"
+
+#: src/block/edit.tsx:382
+msgid "Background Hover"
+msgstr "Hover-Hintergrund"
+
+#: src/block/edit.tsx:370
+msgid "Background Primary"
+msgstr "Primaerer Hintergrund"
+
+#: src/block/edit.tsx:376
+msgid "Background Secondary"
+msgstr "Sekundaerer Hintergrund"
+
+#: src/admin/styles/constants.ts:35
+msgid "Base Surfaces"
+msgstr "Grundflaechen"
+
+#: src/block/edit.tsx:293
+msgid "Border"
+msgstr "Rand"
+
+#: src/block/edit.tsx:1097
+msgid "Border Radius"
+msgstr "Eckenradius"
+
+#: src/block/edit.tsx:1056
+msgid "Border Radius Card"
+msgstr "Eckenradius Karte"
+
+#: src/block/edit.tsx:1042
+msgid "Border Radius Input"
+msgstr "Eckenradius Eingabefeld"
+
+#: src/block/edit.tsx:997
+msgid "Border Width"
+msgstr "Randbreite"
+
+#: src/map/zoom-control-options.ts:56
+msgid "Bottom left"
+msgstr "Unten links"
+
+#: src/map/zoom-control-options.ts:57
+msgid "Bottom right"
+msgstr "Unten rechts"
+
+#: src/admin/index.tsx:99
+msgid "Build reusable groups of locations and curate map-ready sets without changing the location editor flow."
+msgstr "Baue wiederverwendbare Standortgruppen auf und stelle kartentaugliche Sets zusammen, ohne den Bearbeitungsablauf fuer Standorte zu veraendern."
+
+#: src/admin/styles/constants.ts:13
+msgid "Building Outlines"
+msgstr "Gebaeudeumrisse"
+
+#: src/admin/styles/constants.ts:12
+msgid "Buildings"
+msgstr "Gebaeude"
+
+#: src/admin/collections/CollectionAssignmentModal.tsx:111
+#: src/admin/collections/CollectionDialog.tsx:59
+#: src/admin/collections/DeleteCollectionActionModal.tsx:93
+#: src/admin/collections/MergeCollectionsModal.tsx:152
+#: src/admin/locations/AssignLogoModal.tsx:89
+#: src/admin/locations/AssignMarkerModal.tsx:92
+#: src/admin/locations/AssignTagsModal.tsx:87
+#: src/admin/locations/AssignToCollectionModal.tsx:110
+#: src/admin/locations/CustomCsvImportModal.tsx:109
+#: src/admin/locations/DeleteLocationActionModal.tsx:112
+#: src/admin/locations/DeleteLogoConfirmationModal.tsx:64
+#: src/admin/locations/LocationDialog.tsx:107
+#: src/admin/locations/RemoveCollectionAssignmentModal.tsx:61
+#: src/admin/logos/DeleteLogoModal.tsx:51
+#: src/admin/styles/CreateThemeModal.tsx:53
+#: src/admin/styles/DeleteThemeModal.tsx:50 src/admin/tags/TagDialog.tsx:69
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: src/block/edit.tsx:1069
+msgid "Card Gap"
+msgstr "Kartenabstand"
+
+#: src/block/edit.tsx:848
+msgid "Center Latitude"
+msgstr "Breitengrad des Zentrums"
+
+#: src/block/edit.tsx:855
+msgid "Center Longitude"
+msgstr "Laengengrad des Zentrums"
+
+#: src/admin/locations/AssignMarkerModal.tsx:80
+msgid "Choose a custom SVG marker or switch back to the default marker."
+msgstr "Waehle einen benutzerdefinierten SVG-Marker oder wechsle zurueck zum Standardmarker."
+
+#: src/admin/locations/LocationDialogFields.tsx:105
+#: src/lib/locations/importLocations.ts:33
+msgid "City"
+msgstr "Ort"
+
+#: src/lib/locations/validateAddressStep.ts:21
+msgid "City is required to geocode the address."
+msgstr "Der Ort ist erforderlich, um die Adresse zu geokodieren."
+
+#: src/map/SearchControl.tsx:166
+msgid "Clear search"
+msgstr "Suche loeschen"
+
+#: src/admin/locations/MapStep.tsx:79
+msgid "Click on the map to place the location marker."
+msgstr "Klicke auf die Karte, um den Standortmarker zu setzen."
+
+#: src/map/zoom-control-options.ts:95
+msgid "Close small"
+msgstr "Kleines Minus"
+
+#: src/admin/collections/controller.tsx:251
+msgid "Collection could not be created."
+msgstr "Sammlung konnte nicht erstellt werden."
+
+#: src/admin/collections/DeleteCollectionActionModal.tsx:42
+#: src/admin/collections/controller.tsx:276
+msgid "Collection could not be deleted."
+msgstr "Sammlung konnte nicht geloescht werden."
+
+#: src/admin/locations/controller.tsx:865
+msgid "Collection could not be removed from the location."
+msgstr "Sammlung konnte vom Standort nicht entfernt werden."
+
+#: src/admin/collections/controller.tsx:250
+msgid "Collection could not be updated."
+msgstr "Sammlung konnte nicht aktualisiert werden."
+
+#: src/admin/collections/controller.tsx:243
+msgid "Collection created."
+msgstr "Sammlung erstellt."
+
+#: src/admin/collections/controller.tsx:268
+msgid "Collection deleted."
+msgstr "Sammlung geloescht."
+
+#: src/admin/collections/controller.tsx:351
+msgid "Collection locations could not be saved."
+msgstr "Standorte der Sammlung konnten nicht gespeichert werden."
+
+#: src/admin/collections/controller.tsx:343
+msgid "Collection locations saved."
+msgstr "Standorte der Sammlung gespeichert."
+
+#: src/admin/locations/controller.tsx:856
+msgid "Collection removed from location."
+msgstr "Sammlung vom Standort entfernt."
+
+#: src/admin/collections/controller.tsx:215
+#: src/admin/collections/controller.tsx:392
+msgid "Collection title is required."
+msgstr "Ein Titel fuer die Sammlung ist erforderlich."
+
+#: src/block/edit.tsx:551
+msgid "Collection unavailable"
+msgstr "Sammlung nicht verfuegbar"
+
+#: src/admin/collections/controller.tsx:242
+msgid "Collection updated."
+msgstr "Sammlung aktualisiert."
+
+#: src/admin/collections/controller.tsx:113
+msgid "Collections could not be loaded."
+msgstr "Sammlungen konnten nicht geladen werden."
+
+#: src/admin/collections/controller.tsx:442
+msgid "Collections could not be merged."
+msgstr "Sammlungen konnten nicht zusammengefuehrt werden."
+
+#: src/admin/collections/controller.tsx:436
+msgid "Collections merged successfully."
+msgstr "Sammlungen erfolgreich zusammengefuehrt."
+
+#: src/admin/locations/CustomCsvImportModal.tsx:21
+msgid "Column"
+msgstr "Spalte"
+
+#: src/admin/locations/RemoveCollectionAssignmentModal.tsx:72
+msgid "Confirm"
+msgstr "Bestaetigen"
+
+#: src/admin/locations/LocationsTable.tsx:85
+msgid "Contact"
+msgstr "Kontakt"
+
+#: src/admin/locations/LocationDialogFields.tsx:118
+#: src/lib/locations/importLocations.ts:35
+msgid "Country"
+msgstr "Land"
+
+#: src/lib/locations/validateAddressStep.ts:25
+msgid "Country is required to geocode the address."
+msgstr "Das Land ist erforderlich, um die Adresse zu geokodieren."
+
+#: src/admin/locations/AssignToCollectionModal.tsx:95
+msgid "Create a collection first to assign this location."
+msgstr "Erstelle zuerst eine Sammlung, um diesen Standort zuzuweisen."
+
+#: src/admin/collections/CollectionsEmptyState.tsx:11
+msgid "Create collections to organize your locations into groups. This makes it easier to manage and display sets of locations on your maps."
+msgstr "Erstelle Sammlungen, um deine Standorte in Gruppen zu organisieren. So lassen sich Standortgruppen auf deinen Karten leichter verwalten und anzeigen."
+
+#: src/admin/index.tsx:101
+msgid "Create marker variants and keep your map pin system consistent across locations and styles."
+msgstr "Erstelle Marker-Varianten und halte dein Karten-Pin-System ueber Standorte und Stile hinweg konsistent."
+
+#: src/admin/styles/CreateThemeButton.tsx:13
+#: src/admin/styles/CreateThemeModal.tsx:39
+msgid "Create New Theme"
+msgstr "Neues Theme erstellen"
+
+#: src/admin/tags/TagsEmptyState.tsx:11
+msgid "Create tags to apply lightweight labels to your locations. This helps you keep your map content organized and easy to search."
+msgstr "Erstelle Schlagwoerter, um deinen Standorten leichte Beschriftungen zuzuweisen. Das hilft dir, Karteninhalte organisiert und leicht durchsuchbar zu halten."
+
+#: src/admin/styles/CreateThemeModal.tsx:62
+msgid "Create Theme"
+msgstr "Theme erstellen"
+
+#: src/block/edit.tsx:1083
+msgid "Credits"
+msgstr "Quellenangaben"
+
+#: src/lib/locations/importLocations.ts:346
+msgid "CSV file does not match the supported import format."
+msgstr "Die CSV-Datei entspricht nicht dem unterstuetzten Importformat."
+
+#: src/lib/locations/importLocations.ts:178
+msgid "CSV file is empty or missing headers."
+msgstr "Die CSV-Datei ist leer oder es fehlen Kopfzeilen."
+
+#: src/block/edit.tsx:477
+msgid "Default"
+msgstr "Standard"
+
+#: src/admin/locations/AssignMarkerModal.tsx:16
+msgid "Default marker"
+msgstr "Standardmarker"
+
+#: src/admin/collections/CollectionsGrid.tsx:88
+#: src/admin/locations/DeleteLocationActionModal.tsx:122
+#: src/admin/locations/LocationsTable.tsx:312 src/admin/logos/LogosGrid.tsx:42
+#: src/admin/markers/MarkersGrid.tsx:48 src/admin/tags/TagsGrid.tsx:55
+msgid "Delete"
+msgstr "Loeschen"
+
+#: src/admin/locations/LocationsTable.tsx:321
+msgid "Delete %d location"
+msgid_plural "Delete %d locations"
+msgstr[0] "%d Standort loeschen"
+msgstr[1] "%d Standorte loeschen"
+
+#: src/admin/collections/CollectionsGrid.tsx:93
+#: src/admin/collections/DeleteCollectionActionModal.tsx:103
+msgid "Delete collection"
+msgstr "Sammlung loeschen"
+
+#: src/admin/styles/DeleteThemeButton.tsx:14
+msgid "Delete Current Theme"
+msgstr "Aktuelles Theme loeschen"
+
+#: src/admin/locations/LocationsTable.tsx:319
+msgid "Delete location"
+msgstr "Standort loeschen"
+
+#: src/admin/logos/DeleteLogoModal.tsx:28
+#: src/admin/logos/DeleteLogoModal.tsx:61
+msgid "Delete Logo"
+msgstr "Logo loeschen"
+
+#: src/admin/collections/MergeCollectionsModal.tsx:121
+msgid "Delete original collections after merge"
+msgstr "Urspruengliche Sammlungen nach dem Zusammenfuehren loeschen"
+
+#: src/admin/styles/DeleteThemeModal.tsx:39
+#: src/admin/styles/DeleteThemeModal.tsx:60
+msgid "Delete Theme"
+msgstr "Theme loeschen"
+
+#: src/admin/collections/DeleteCollectionActionModal.tsx:73
+msgid "Delete this collection and remove its saved location assignments?"
+msgstr "Diese Sammlung loeschen und ihre gespeicherten Standortzuweisungen entfernen?"
+
+#: src/admin/locations/DeleteLocationActionModal.tsx:93
+msgid "Delete this location and remove its saved collection assignments?"
+msgstr "Diesen Standort loeschen und seine gespeicherten Sammlungszuweisungen entfernen?"
+
+#: src/admin/logos/DeleteLogoModal.tsx:36
+msgid "Delete this logo and clear it from every assigned location? This action cannot be undone."
+msgstr "Dieses Logo loeschen und aus allen zugewiesenen Standorten entfernen? Diese Aktion kann nicht rueckgaengig gemacht werden."
+
+#: src/admin/markers/MarkersGrid.tsx:37
+msgid "Download"
+msgstr "Herunterladen"
+
+#: src/admin/locations/ExportLocationsDropdown.tsx:35
+msgid "Download as CSV"
+msgstr "Als CSV herunterladen"
+
+#: src/admin/locations/ExportLocationsDropdown.tsx:44
+msgid "Download example CSV"
+msgstr "Beispiel-CSV herunterladen"
+
+#: src/admin/styles/ExportThemeButton.tsx:13
+msgid "Download Theme Config"
+msgstr "Theme-Konfiguration herunterladen"
+
+#: src/admin/collections/index.tsx:38 src/admin/locations/index.tsx:43
+msgid "Drop CSV file here to import locations"
+msgstr "CSV-Datei hier ablegen, um Standorte zu importieren"
+
+#: src/admin/styles/index.tsx:99
+msgid "Drop Minimal Map or MapLibre JSON theme files here to upload"
+msgstr "Minimal-Map- oder MapLibre-JSON-Theme-Dateien hier zum Hochladen ablegen"
+
+#: src/admin/markers/index.tsx:33
+msgid "Drop SVG files here to upload"
+msgstr "SVG-Dateien hier zum Hochladen ablegen"
+
+#: src/admin/logos/index.tsx:34
+msgid "Drop SVG or PNG files here to upload"
+msgstr "SVG- oder PNG-Dateien hier zum Hochladen ablegen"
+
+#: src/admin/locations/LocationsTable.tsx:207
+msgid "Duplicate"
+msgstr "Duplizieren"
+
+#: src/admin/collections/CollectionsGrid.tsx:73
+#: src/admin/locations/LocationsTable.tsx:222 src/admin/tags/TagsGrid.tsx:44
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: src/admin/collections/controller.tsx:592
+msgid "Edit collection"
+msgstr "Sammlung bearbeiten"
+
+#: src/admin/locations/controller.tsx:1258
+msgid "Edit location"
+msgstr "Standort bearbeiten"
+
+#: src/admin/tags/controller.tsx:223
+msgid "Edit tag"
+msgstr "Schlagwort bearbeiten"
+
+#: src/lib/locations/importLocations.ts:28
+msgid "Email"
+msgstr "E-Mail"
+
+#: src/admin/locations/LocationDialogFields.tsx:48
+msgid "Email address"
+msgstr "E-Mail-Adresse"
+
+#: src/admin/collections/MergeCollectionsModal.tsx:117
+msgid "Enter a name for the merged collection..."
+msgstr "Namen fuer die zusammengefuehrte Sammlung eingeben..."
+
+#: src/lib/locations/validateDetailsStep.ts:15
+msgid "Enter a valid email address."
+msgstr "Gib eine gueltige E-Mail-Adresse ein."
+
+#: src/lib/locations/validateDetailsStep.ts:19
+msgid "Enter a valid website URL."
+msgstr "Gib eine gueltige Website-URL ein."
+
+#: src/admin/locations/ExportLocationsDropdown.tsx:20
+msgid "Export locations"
+msgstr "Standorte exportieren"
+
+#: src/admin/locations/ExportLocationsDropdown.tsx:27
+msgid "Export Options"
+msgstr "Exportoptionen"
+
+#: src/admin/collections/controller.tsx:523
+#: src/admin/locations/controller.tsx:1083
+#: src/admin/locations/controller.tsx:1136
+msgid "Failed to import locations."
+msgstr "Standorte konnten nicht importiert werden."
+
+#: src/admin/styles/controller.tsx:191
+msgid "Failed to import theme."
+msgstr "Theme konnte nicht importiert werden."
+
+#: src/admin/styles/controller.tsx:222
+msgid "Failed to read the selected file."
+msgstr "Die ausgewaehlte Datei konnte nicht gelesen werden."
+
+#: src/admin/logos/LogosGrid.tsx:15
+msgid "Filename"
+msgstr "Dateiname"
+
+#: src/map/zoom-control-options.ts:74
+msgid "Filled plus circle"
+msgstr "Ausgefuellter Plus-Kreis"
+
+#: src/admin/collections/MergeCollectionsModal.tsx:170
+#: src/admin/locations/controller.tsx:1320
+msgid "Finish"
+msgstr "Abschliessen"
+
+#: src/block/edit.tsx:287 src/block/edit.tsx:327
+msgid "Foreground"
+msgstr "Vordergrund"
+
+#: src/admin/tags/TagDialog.tsx:56
+msgid "Foreground Color"
+msgstr "Vordergrundfarbe"
+
+#: src/block/edit.tsx:388
+msgid "Foreground Primary"
+msgstr "Primaerer Vordergrund"
+
+#: src/block/edit.tsx:394
+msgid "Foreground Secondary"
+msgstr "Sekundaerer Vordergrund"
+
+#: src/admin/styles/constants.ts:8
+msgid "Forests"
+msgstr "Waelder"
+
+#: src/block/edit.tsx:899
+msgid "Height"
+msgstr "Hoehe"
+
+#: src/admin/locations/LocationDialogFields.tsx:91
+#: src/lib/locations/importLocations.ts:32
+msgid "House number"
+msgstr "Hausnummer"
+
+#: src/lib/locations/validateAddressStep.ts:13
+msgid "House number is required to geocode the address."
+msgstr "Die Hausnummer ist erforderlich, um die Adresse zu geokodieren."
+
+#: src/admin/styles/constants.ts:9
+msgid "Ice & Glaciers"
+msgstr "Eis & Gletscher"
+
+#: src/admin/locations/CustomCsvImportModal.tsx:16
+msgid "Import custom CSV"
+msgstr "Benutzerdefinierte CSV importieren"
+
+#: src/admin/locations/ImportLocationsButton.tsx:14
+msgid "Import locations from CSV"
+msgstr "Standorte aus CSV importieren"
+
+#: src/lib/locations/importLocations.ts:222
+msgid "Import on"
+msgstr "Import am"
+
+#: src/lib/locations/importLocations.ts:226
+msgid "Imported Location"
+msgstr "Importierter Standort"
+
+#: src/admin/styles/controller.tsx:182
+msgid "Imported theme with fallback default colors for: %s"
+msgstr "Theme mit ersatzweisen Standardfarben importiert fuer: %s"
+
+#: src/admin/styles/controller.tsx:215
+msgid "Invalid JSON file."
+msgstr "Ungueltige JSON-Datei."
+
+#: src/admin/logos/controller.tsx:24
+msgid "Invalid PNG file."
+msgstr "Ungueltige PNG-Datei."
+
+#: src/admin/logos/controller.tsx:36 src/admin/markers/controller.tsx:146
+msgid "Invalid SVG file."
+msgstr "Ungueltige SVG-Datei."
+
+#: src/map/zoom-control-options.ts:83
+msgid "Line"
+msgstr "Linie"
+
+#: src/admin/locations/controller.tsx:813
+msgid "Location assigned to collection."
+msgstr "Standort der Sammlung zugewiesen."
+
+#: src/admin/locations/controller.tsx:691
+msgid "Location coordinates updated."
+msgstr "Standortkoordinaten aktualisiert."
+
+#: src/admin/locations/controller.tsx:822
+msgid "Location could not be assigned to the collection."
+msgstr "Standort konnte der Sammlung nicht zugewiesen werden."
+
+#: src/admin/locations/controller.tsx:1018
+msgid "Location could not be created."
+msgstr "Standort konnte nicht erstellt werden."
+
+#: src/admin/locations/DeleteLocationActionModal.tsx:50
+#: src/admin/locations/controller.tsx:729
+msgid "Location could not be deleted."
+msgstr "Standort konnte nicht geloescht werden."
+
+#: src/admin/locations/controller.tsx:645
+msgid "Location could not be duplicated."
+msgstr "Standort konnte nicht dupliziert werden."
+
+#: src/admin/locations/controller.tsx:700
+msgid "Location could not be retrieved."
+msgstr "Standort konnte nicht ermittelt werden."
+
+#: src/admin/locations/controller.tsx:1017
+msgid "Location could not be updated."
+msgstr "Standort konnte nicht aktualisiert werden."
+
+#: src/admin/locations/controller.tsx:721
+#: src/admin/locations/controller.tsx:753
+msgid "Location deleted."
+msgstr "Standort geloescht."
+
+#: src/admin/locations/controller.tsx:637
+msgid "Location duplicated."
+msgstr "Standort dupliziert."
+
+#: src/admin/locations/controller.tsx:794
+msgid "Location is already assigned to that collection."
+msgstr "Der Standort ist dieser Sammlung bereits zugewiesen."
+
+#: src/admin/locations/controller.tsx:499
+msgid "Location logo could not be updated."
+msgstr "Standortlogo konnte nicht aktualisiert werden."
+
+#: src/admin/locations/controller.tsx:490
+msgid "Location logo updated."
+msgstr "Standortlogo aktualisiert."
+
+#: src/admin/locations/controller.tsx:531
+msgid "Location marker could not be updated."
+msgstr "Standortmarker konnte nicht aktualisiert werden."
+
+#: src/admin/locations/controller.tsx:522
+msgid "Location marker updated."
+msgstr "Standortmarker aktualisiert."
+
+#: src/admin/locations/controller.tsx:564
+msgid "Location tags could not be updated."
+msgstr "Schlagwoerter des Standorts konnten nicht aktualisiert werden."
+
+#: src/admin/locations/controller.tsx:554
+msgid "Location tags updated."
+msgstr "Schlagwoerter des Standorts aktualisiert."
+
+#: src/admin/locations/controller.tsx:165
+msgid "Locations and collections could not be loaded."
+msgstr "Standorte und Sammlungen konnten nicht geladen werden."
+
+#: src/admin/locations/DeleteLocationActionModal.tsx:49
+#: src/admin/locations/controller.tsx:765
+msgid "Locations could not be deleted."
+msgstr "Standorte konnten nicht geloescht werden."
+
+#: src/admin/logos/controller.tsx:158
+msgid "Logo could not be deleted."
+msgstr "Logo konnte nicht geloescht werden."
+
+#: src/admin/locations/controller.tsx:602
+msgid "Logo could not be removed from the location."
+msgstr "Logo konnte vom Standort nicht entfernt werden."
+
+#: src/admin/logos/controller.tsx:150
+msgid "Logo deleted."
+msgstr "Logo geloescht."
+
+#: src/admin/locations/controller.tsx:593
+msgid "Logo removed from location."
+msgstr "Logo vom Standort entfernt."
+
+#: src/admin/logos/controller.tsx:203
+msgid "Logo uploaded."
+msgstr "Logo hochgeladen."
+
+#: src/admin/logos/controller.tsx:86
+msgid "Logos could not be loaded."
+msgstr "Logos konnten nicht geladen werden."
+
+#: src/admin/logos/controller.tsx:213
+msgid "Logos could not be uploaded."
+msgstr "Logos konnten nicht hochgeladen werden."
+
+#: src/admin/styles/constants.ts:16
+msgid "Major Road Casing"
+msgstr "Umrandung Hauptstrassen"
+
+#: src/admin/styles/constants.ts:17
+msgid "Major Road Fill"
+msgstr "Fuellung Hauptstrassen"
+
+#: src/admin/index.tsx:98
+msgid "Manage every place you want to render on your maps and prepare it for future block integrations."
+msgstr "Verwalte jeden Ort, den du auf deinen Karten anzeigen moechtest, und bereite ihn fuer zukuenftige Block-Integrationen vor."
+
+#: src/map/attribution-pill.ts:34
+msgid "Map credits"
+msgstr "Kartenquellen"
+
+#: src/admin/collections/CollectionsGrid.tsx:22
+#: src/admin/locations/LocationsTable.tsx:31
+msgid "Map preview"
+msgstr "Kartenvorschau"
+
+#: src/block/edit.tsx:836
+msgid "Map Settings"
+msgstr "Karteneinstellungen"
+
+#: src/admin/markers/controller.tsx:107
+msgid "Marker could not be deleted."
+msgstr "Marker konnte nicht geloescht werden."
+
+#: src/admin/markers/controller.tsx:99
+msgid "Marker deleted."
+msgstr "Marker geloescht."
+
+#: src/admin/markers/controller.tsx:165
+msgid "Marker uploaded."
+msgstr "Marker hochgeladen."
+
+#: src/admin/markers/controller.tsx:65 src/lib/markers/fetchAllMarkers.ts:18
+msgid "Markers could not be loaded."
+msgstr "Marker konnten nicht geladen werden."
+
+#: src/admin/markers/controller.tsx:177
+msgid "Markers could not be uploaded."
+msgstr "Marker konnten nicht hochgeladen werden."
+
+#: src/admin/collections/MergeCollectionsModal.tsx:48
+#: src/admin/collections/controller.tsx:561
+msgid "Merge collections"
+msgstr "Sammlungen zusammenfuehren"
+
+#: src/block/edit.tsx:825
+msgid "Minimal Map Preview"
+msgstr "Minimal Map-Vorschau"
+
+#: src/admin/index.tsx:144
+msgid "Minimal Map Sections"
+msgstr "Minimal-Map-Bereiche"
+
+#: src/admin/styles/constants.ts:15
+msgid "Minor Roads"
+msgstr "Nebenstrassen"
+
+#: src/admin/styles/constants.ts:18
+msgid "Motorway Casing"
+msgstr "Umrandung Autobahnen"
+
+#: src/admin/styles/constants.ts:19
+msgid "Motorway Fill"
+msgstr "Fuellung Autobahnen"
+
+#: src/admin/tags/TagDialog.tsx:43 src/admin/tags/TagsGrid.tsx:15
+msgid "Name"
+msgstr "Name"
+
+#: src/admin/collections/MergeCollectionsModal.tsx:114
+msgid "New collection title"
+msgstr "Titel der neuen Sammlung"
+
+#: src/admin/collections/MergeCollectionsModal.tsx:169
+#: src/admin/locations/CustomCsvImportModal.tsx:121
+#: src/admin/locations/LocationDialog.tsx:126
+msgid "Next"
+msgstr "Weiter"
+
+#: src/block/edit.tsx:634
+msgid "No collections available."
+msgstr "Keine Sammlungen verfuegbar."
+
+#: src/admin/collections/CollectionsEmptyState.tsx:10
+msgid "No collections found"
+msgstr "Keine Sammlungen gefunden"
+
+#: src/admin/locations/AssignMarkerModal.tsx:66
+msgid "No custom marker assigned yet."
+msgstr "Noch kein benutzerdefinierter Marker zugewiesen."
+
+#: src/admin/locations/LocationsEmptyState.tsx:10 src/map/SearchControl.tsx:243
+msgid "No locations found"
+msgstr "Keine Standorte gefunden"
+
+#: src/admin/locations/AssignLogoModal.tsx:63
+msgid "No logo assigned yet."
+msgstr "Noch kein Logo zugewiesen."
+
+#: src/admin/logos/LogosEmptyState.tsx:10
+msgid "No logos found"
+msgstr "Keine Logos gefunden"
+
+#: src/admin/markers/MarkersEmptyState.tsx:10
+msgid "No markers found"
+msgstr "Keine Marker gefunden"
+
+#: src/admin/locations/AssignTagsModal.tsx:60
+msgid "No tags assigned yet."
+msgstr "Noch keine Schlagwoerter zugewiesen."
+
+#: src/admin/tags/TagsEmptyState.tsx:10
+msgid "No tags found"
+msgstr "Keine Schlagwoerter gefunden"
+
+#: src/admin/locations/CustomCsvImportModal.tsx:18
+msgid "None"
+msgstr "Keine"
+
+#: src/admin/locations/AssignToCollectionModal.tsx:81
+msgid "Not assigned to any collection yet."
+msgstr "Noch keiner Sammlung zugewiesen."
+
+#: src/admin/index.tsx:107
+msgid "Open collections"
+msgstr "Sammlungen oeffnen"
+
+#: src/admin/index.tsx:106
+msgid "Open locations"
+msgstr "Standorte oeffnen"
+
+#: src/admin/index.tsx:108
+msgid "Open logos"
+msgstr "Logos oeffnen"
+
+#: src/admin/index.tsx:109
+msgid "Open markers"
+msgstr "Marker oeffnen"
+
+#: src/admin/index.tsx:110
+msgid "Open tags"
+msgstr "Schlagwoerter oeffnen"
+
+#: src/admin/locations/LocationDialogFields.tsx:18
+msgid "Optional"
+msgstr "Optional"
+
+#: src/admin/styles/constants.ts:47
+msgid "Other Features"
+msgstr "Weitere Elemente"
+
+#: src/block/edit.tsx:1028 src/block/edit.tsx:1123 src/block/edit.tsx:972
+msgid "Outer Margin"
+msgstr "Aussenabstand"
+
+#: src/block/edit.tsx:1109 src/block/edit.tsx:958
+msgid "Padding"
+msgstr "Innenabstand"
+
+#: src/block/edit.tsx:1076
+msgid "Panel Width"
+msgstr "Panelbreite"
+
+#: src/admin/styles/constants.ts:6
+msgid "Parks"
+msgstr "Parks"
+
+#: src/admin/styles/constants.ts:14
+msgid "Pedestrian Paths"
+msgstr "Fusswege"
+
+#: src/lib/locations/importLocations.ts:29
+msgid "Phone"
+msgstr "Telefon"
+
+#: src/admin/styles/constants.ts:30
+msgid "Place Label Halo"
+msgstr "Halo fuer Ortsbeschriftungen"
+
+#: src/admin/styles/constants.ts:29
+msgid "Place Labels"
+msgstr "Ortsbeschriftungen"
+
+#: src/map/zoom-control-options.ts:62
+msgid "Plus"
+msgstr "Plus"
+
+#: src/map/zoom-control-options.ts:68
+msgid "Plus circle"
+msgstr "Plus-Kreis"
+
+#: src/admin/logos/controller.tsx:27
+msgid "PNG file could not be read."
+msgstr "PNG-Datei konnte nicht gelesen werden."
+
+#: src/block/edit.tsx:935
+msgid "Position"
+msgstr "Position"
+
+#: src/admin/locations/LocationDialogFields.tsx:99
+msgid "Postal code"
+msgstr "Postleitzahl"
+
+#: src/lib/locations/validateAddressStep.ts:17
+msgid "Postal code is required to geocode the address."
+msgstr "Die Postleitzahl ist erforderlich, um die Adresse zu geokodieren."
+
+#: src/admin/logos/LogosGrid.tsx:23 src/admin/markers/MarkersGrid.tsx:23
+#: src/admin/tags/TagsGrid.tsx:23
+msgid "Preview"
+msgstr "Vorschau"
+
+#: src/admin/styles/constants.ts:20
+msgid "Railway Lines"
+msgstr "Bahnlinien"
+
+#: src/admin/styles/constants.ts:21
+msgid "Railway Patterns"
+msgstr "Bahnmuster"
+
+#: src/admin/locations/RemoveCollectionAssignmentModal.tsx:41
+#: src/admin/locations/RemoveCollectionAssignmentModal.tsx:47
+msgid "Remove collection"
+msgstr "Sammlung entfernen"
+
+#: src/admin/locations/DeleteLogoConfirmationModal.tsx:41
+#: src/admin/locations/DeleteLogoConfirmationModal.tsx:74
+msgid "Remove Logo"
+msgstr "Logo entfernen"
+
+#: src/admin/locations/DeleteLogoConfirmationModal.tsx:49
+msgid "Remove this logo from the selected location?"
+msgstr "Dieses Logo vom ausgewaehlten Standort entfernen?"
+
+#: src/admin/styles/constants.ts:7
+msgid "Residential Areas"
+msgstr "Wohngebiete"
+
+#: src/admin/locations/LocationsTable.tsx:237
+msgid "Retrieve location"
+msgstr "Standort ermitteln"
+
+#: src/admin/styles/constants.ts:11
+msgid "Rivers & Canals"
+msgstr "Fluesse & Kanaele"
+
+#: src/admin/styles/constants.ts:28
+msgid "Road Label Halo"
+msgstr "Halo fuer Strassenbeschriftungen"
+
+#: src/admin/styles/constants.ts:27
+msgid "Road Labels"
+msgstr "Strassenbeschriftungen"
+
+#: src/admin/styles/constants.ts:43
+msgid "Roads & Transport"
+msgstr "Strassen & Verkehr"
+
+#: src/admin/styles/constants.ts:23
+msgid "Runway Lines"
+msgstr "Start- und Landebahnlinien"
+
+#: src/admin/collections/controller.tsx:599
+#: src/admin/locations/controller.tsx:1319 src/admin/tags/controller.tsx:224
+msgid "Save changes"
+msgstr "Aenderungen speichern"
+
+#: src/admin/collections/CollectionAssignmentModal.tsx:121
+msgid "Save locations"
+msgstr "Standorte speichern"
+
+#: src/admin/locations/AssignLogoModal.tsx:99
+msgid "Save Logo"
+msgstr "Logo speichern"
+
+#: src/admin/locations/AssignMarkerModal.tsx:102
+msgid "Save Marker"
+msgstr "Marker speichern"
+
+#: src/admin/locations/AssignTagsModal.tsx:97
+msgid "Save Tags"
+msgstr "Schlagwoerter speichern"
+
+#: src/admin/styles/controller.tsx:260
+msgid "Save Theme"
+msgstr "Theme speichern"
+
+#: src/admin/collections/CollectionAssignmentModal.tsx:72
+#: src/map/SearchControl.tsx:159
+msgid "Search locations"
+msgstr "Standorte suchen"
+
+#: src/map/SearchControl.tsx:158
+msgid "Search locations..."
+msgstr "Standorte suchen..."
+
+#: src/block/edit.tsx:1004
+msgid "Search Panel"
+msgstr "Suchpanel"
+
+#: src/admin/locations/controller.tsx:990
+msgid "Select a location on the map before finishing."
+msgstr "Waehle vor dem Abschluss einen Standort auf der Karte aus."
+
+#: src/admin/collections/MergeCollectionsModal.tsx:88
+msgid "Select at least two collections to merge into a new one."
+msgstr "Waehle mindestens zwei Sammlungen aus, um sie zu einer neuen zusammenzufuehren."
+
+#: src/admin/collections/controller.tsx:380
+msgid "Select at least two collections to merge."
+msgstr "Waehle mindestens zwei Sammlungen zum Zusammenfuehren aus."
+
+#: src/admin/styles/ColorControl.tsx:21
+msgid "Select color"
+msgstr "Farbe auswaehlen"
+
+#: src/admin/styles/ThemeSelector.tsx:25
+msgid "Select theme"
+msgstr "Theme auswaehlen"
+
+#: src/admin/locations/controller.tsx:786
+msgid "Selected collection could not be found."
+msgstr "Die ausgewaehlte Sammlung konnte nicht gefunden werden."
+
+#: src/map/zoom-control-options.ts:89
+msgid "Separator"
+msgstr "Trenner"
+
+#: src/block/edit.tsx:870
+msgid "Show Zoom Controls"
+msgstr "Zoom-Steuerelemente anzeigen"
+
+#: src/admin/locations/LocationsEmptyState.tsx:11
+msgid "Start adding locations to your maps. You can add them manually or import them from a file."
+msgstr "Beginne damit, Standorte zu deinen Karten hinzuzufuegen. Du kannst sie manuell anlegen oder aus einer Datei importieren."
+
+#: src/admin/locations/LocationDialogFields.tsx:113
+msgid "State"
+msgstr "Bundesland"
+
+#: src/admin/locations/LocationDialogFields.tsx:85
+#: src/lib/locations/importLocations.ts:31
+msgid "Street"
+msgstr "Strasse"
+
+#: src/lib/locations/validateAddressStep.ts:9
+msgid "Street is required to geocode the address."
+msgstr "Die Strasse ist erforderlich, um die Adresse zu geokodieren."
+
+#: src/admin/styles/constants.ts:39
+msgid "Structures"
+msgstr "Strukturen"
+
+#: src/block/edit.tsx:908
+msgid "Style Preset"
+msgstr "Stilvorgabe"
+
+#: src/block/edit.tsx:481
+msgid "Style Theme"
+msgstr "Stil-Theme"
+
+#: src/block/edit.tsx:581
+msgid "Switch Collection"
+msgstr "Sammlung wechseln"
+
+#: src/admin/styles/ThemeSelector.tsx:31 src/block/edit.tsx:506
+msgid "Switch Theme"
+msgstr "Theme wechseln"
+
+#: src/admin/tags/controller.tsx:147
+msgid "Tag could not be created."
+msgstr "Schlagwort konnte nicht erstellt werden."
+
+#: src/admin/tags/controller.tsx:172
+msgid "Tag could not be deleted."
+msgstr "Schlagwort konnte nicht geloescht werden."
+
+#: src/admin/tags/controller.tsx:146
+msgid "Tag could not be updated."
+msgstr "Schlagwort konnte nicht aktualisiert werden."
+
+#: src/admin/tags/controller.tsx:139
+msgid "Tag created."
+msgstr "Schlagwort erstellt."
+
+#: src/admin/tags/controller.tsx:164
+msgid "Tag deleted."
+msgstr "Schlagwort geloescht."
+
+#: src/admin/tags/controller.tsx:116
+msgid "Tag name is required."
+msgstr "Ein Schlagwortname ist erforderlich."
+
+#: src/admin/tags/controller.tsx:138
+msgid "Tag updated."
+msgstr "Schlagwort aktualisiert."
+
+#: src/admin/locations/LocationDialogFields.tsx:62
+msgid "Tags (optional)"
+msgstr "Schlagwoerter (optional)"
+
+#: src/admin/tags/controller.tsx:57
+msgid "Tags could not be loaded."
+msgstr "Schlagwoerter konnten nicht geladen werden."
+
+#: src/admin/locations/LocationDialogFields.tsx:42
+msgid "Telephone"
+msgstr "Telefon"
+
+#: src/admin/styles/CreateThemeModal.tsx:46
+msgid "Theme Name"
+msgstr "Theme-Name"
+
+#: src/admin/collections/CollectionAssignmentModal.tsx:18
+#: src/admin/collections/CollectionDialog.tsx:47
+#: src/admin/collections/CollectionsGrid.tsx:33
+#: src/admin/collections/MergeCollectionsModal.tsx:23
+#: src/admin/locations/LocationDialogFields.tsx:36
+#: src/admin/locations/LocationsTable.tsx:77
+#: src/admin/markers/MarkersGrid.tsx:15 src/lib/locations/importLocations.ts:27
+msgid "Title"
+msgstr "Titel"
+
+#: src/map/zoom-control-options.ts:54
+msgid "Top left"
+msgstr "Oben links"
+
+#: src/map/zoom-control-options.ts:55
+msgid "Top right"
+msgstr "Oben rechts"
+
+#: src/admin/styles/constants.ts:51
+msgid "Typography"
+msgstr "Typografie"
+
+#: src/admin/locations/AssignToCollectionModal.tsx:33
+msgid "Untitled collection"
+msgstr "Unbenannte Sammlung"
+
+#: src/admin/locations/AssignLogoModal.tsx:15
+msgid "Untitled logo"
+msgstr "Unbenanntes Logo"
+
+#: src/admin/locations/AssignMarkerModal.tsx:20
+msgid "Untitled marker"
+msgstr "Unbenannter Marker"
+
+#: src/admin/logos/LogosEmptyState.tsx:16
+#: src/admin/markers/MarkersEmptyState.tsx:13
+msgid "Upload"
+msgstr "Hochladen"
+
+#: src/admin/locations/AssignLogoModal.tsx:76
+msgid "Upload a logo first to assign one to this location."
+msgstr "Lade zuerst ein Logo hoch, um diesem Standort eines zuzuweisen."
+
+#: src/admin/locations/AssignMarkerModal.tsx:79
+msgid "Upload a marker first to assign one to this location."
+msgstr "Lade zuerst einen Marker hoch, um diesem Standort einen zuzuweisen."
+
+#: src/admin/logos/UploadLogoButton.tsx:14
+msgid "Upload Logos"
+msgstr "Logos hochladen"
+
+#: src/admin/markers/UploadMarkerButton.tsx:14
+msgid "Upload Markers"
+msgstr "Marker hochladen"
+
+#: src/admin/index.tsx:100
+msgid "Upload reusable SVG logos and assign them across multiple locations without duplicating assets."
+msgstr "Lade wiederverwendbare SVG-Logos hoch und weise sie mehreren Standorten zu, ohne Assets zu duplizieren."
+
+#: src/admin/logos/LogosEmptyState.tsx:11
+msgid "Upload SVG or PNG logos to reuse the same brand asset across multiple locations. Drag and drop files here or use the upload button."
+msgstr "Lade SVG- oder PNG-Logos hoch, um dasselbe Marken-Asset an mehreren Standorten wiederzuverwenden. Ziehe Dateien hierher oder verwende die Upload-Schaltflaeche."
+
+#: src/admin/styles/ImportThemeButton.tsx:12
+msgid "Upload Theme File"
+msgstr "Theme-Datei hochladen"
+
+#: src/admin/markers/MarkersEmptyState.tsx:11
+msgid "Upload your custom SVG markers to personalize your maps. Simply drag and drop your files here or use the button below."
+msgstr "Lade deine benutzerdefinierten SVG-Marker hoch, um deine Karten zu personalisieren. Ziehe die Dateien einfach hierher oder verwende die Schaltflaeche unten."
+
+#: src/admin/styles/constants.ts:26
+msgid "Water Label Halo"
+msgstr "Halo fuer Gewaesserbeschriftungen"
+
+#: src/admin/styles/constants.ts:25
+msgid "Water Labels"
+msgstr "Gewaesserbeschriftungen"
+
+#: src/admin/styles/constants.ts:10
+msgid "Water Surfaces"
+msgstr "Wasserflaechen"
+
+#: src/admin/locations/LocationDialogFields.tsx:55
+#: src/lib/locations/importLocations.ts:30
+msgid "Website"
+msgstr "Website"
+
+#: src/lib/locations/importLocations.ts:34
+msgid "Zip code"
+msgstr "Postleitzahl"
+
+#: src/block/edit.tsx:862
+msgid "Zoom"
+msgstr "Zoom"
+
+#: src/block/edit.tsx:915
+msgid "Zoom Controls"
+msgstr "Zoom-Steuerelemente"
+
+#: src/map/wp-controls.ts:50
+msgid "Zoom in"
+msgstr "Hineinzoomen"
+
+#: src/map/wp-controls.ts:55
+msgid "Zoom out"
+msgstr "Herauszoomen"

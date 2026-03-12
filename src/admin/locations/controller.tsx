@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import type { ViewTable } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Plus } from 'lucide-react';
 import { ExportLocationsDropdown } from './ExportLocationsDropdown';
 import { ImportLocationsButton } from './ImportLocationsButton';
@@ -751,7 +751,10 @@ export function useLocationsController(
 					message:
 						items.length === 1
 							? __('Location deleted.', 'minimal-map')
-							: __(`${items.length} locations deleted.`, 'minimal-map'),
+							: sprintf(
+								_n( '%d location deleted.', '%d locations deleted.', items.length, 'minimal-map' ),
+								items.length
+							),
 				});
 			} catch (error) {
 				setActionNotice({
@@ -1053,10 +1056,15 @@ export function useLocationsController(
 					await loadLocations();
 					setActionNotice({
 						status: 'success',
-						message: `${result.importedCount} ${__(
-							'locations imported and assigned to a new collection.',
-							'minimal-map'
-						)}`,
+						message: sprintf(
+							_n(
+								'%d location imported and assigned to a new collection.',
+								'%d locations imported and assigned to a new collection.',
+								result.importedCount,
+								'minimal-map'
+							),
+							result.importedCount
+						),
 					});
 				} finally {
 					setIsImporting(false);
@@ -1107,10 +1115,15 @@ export function useLocationsController(
 			await loadLocations();
 			setActionNotice({
 				status: 'success',
-				message: `${result.importedCount} ${__(
-					'locations imported and assigned to a new collection.',
-					'minimal-map'
-				)}`,
+				message: sprintf(
+					_n(
+						'%d location imported and assigned to a new collection.',
+						'%d locations imported and assigned to a new collection.',
+						result.importedCount,
+						'minimal-map'
+					),
+					result.importedCount
+				),
 			});
 			resetCustomCsvImportState();
 		} catch (error) {

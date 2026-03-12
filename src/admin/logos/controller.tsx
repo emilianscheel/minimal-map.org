@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import type { ViewGrid } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { configureApiFetch } from '../../lib/locations/configureApiFetch';
 import { createLocationFormStateFromRecord } from '../../lib/locations/createLocationFormStateFromRecord';
 import { fetchAllLocations } from '../../lib/locations/fetchAllLocations';
@@ -201,7 +201,10 @@ export function useLogosController(
 					message:
 						fileList.length === 1
 							? __('Logo uploaded.', 'minimal-map')
-							: __(`${fileList.length} logos uploaded.`, 'minimal-map'),
+							: sprintf(
+								_n( '%d logo uploaded.', '%d logos uploaded.', fileList.length, 'minimal-map' ),
+								fileList.length
+							),
 				});
 			} catch (error) {
 				setActionNotice({

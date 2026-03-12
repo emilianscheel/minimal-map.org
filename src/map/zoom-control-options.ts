@@ -10,6 +10,7 @@ import {
 	plusCircleFilled,
 	separator,
 } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
 import type { ReactElement } from 'react';
 import type { BoxValue, ZoomControlIcon, ZoomControlsPosition } from '../types';
 
@@ -50,27 +51,27 @@ export const DEFAULT_ZOOM_CONTROLS_PLUS_ICON: ZoomControlIcon = 'plus';
 export const DEFAULT_ZOOM_CONTROLS_MINUS_ICON: ZoomControlIcon = 'line-solid';
 
 export const ZOOM_CONTROLS_POSITION_OPTIONS: ZoomControlPositionOption[] = [
-	{ label: 'Top left', value: 'top-left', icon: arrowUpLeft as ReactElement },
-	{ label: 'Top right', value: 'top-right', icon: arrowUpRight as ReactElement },
-	{ label: 'Bottom left', value: 'bottom-left', icon: arrowDownLeft as ReactElement },
-	{ label: 'Bottom right', value: 'bottom-right', icon: arrowDownRight as ReactElement },
+	{ label: __( 'Top left', 'minimal-map' ), value: 'top-left', icon: arrowUpLeft as ReactElement },
+	{ label: __( 'Top right', 'minimal-map' ), value: 'top-right', icon: arrowUpRight as ReactElement },
+	{ label: __( 'Bottom left', 'minimal-map' ), value: 'bottom-left', icon: arrowDownLeft as ReactElement },
+	{ label: __( 'Bottom right', 'minimal-map' ), value: 'bottom-right', icon: arrowDownRight as ReactElement },
 ];
 
 export const ZOOM_CONTROLS_PLUS_ICON_OPTIONS: ZoomControlIconOption[] = [
 	{
-		label: 'Plus',
+		label: __( 'Plus', 'minimal-map' ),
 		value: 'plus',
 		icon: plus as ReactElement,
 		svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
 	},
 	{
-		label: 'Plus circle',
+		label: __( 'Plus circle', 'minimal-map' ),
 		value: 'plus-circle',
 		icon: plusCircle as ReactElement,
 		svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg>',
 	},
 	{
-		label: 'Filled plus circle',
+		label: __( 'Filled plus circle', 'minimal-map' ),
 		value: 'plus-circle-filled',
 		icon: plusCircleFilled as ReactElement,
 		svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="currentColor" stroke="none"/><path d="M12 8v8M8 12h8" stroke="var(--minimal-map-controls-button-background, #fff)"/></svg>',
@@ -79,19 +80,19 @@ export const ZOOM_CONTROLS_PLUS_ICON_OPTIONS: ZoomControlIconOption[] = [
 
 export const ZOOM_CONTROLS_MINUS_ICON_OPTIONS: ZoomControlIconOption[] = [
 	{
-		label: 'Line',
+		label: __( 'Line', 'minimal-map' ),
 		value: 'line-solid',
 		icon: lineSolid as ReactElement,
 		svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>',
 	},
 	{
-		label: 'Separator',
+		label: __( 'Separator', 'minimal-map' ),
 		value: 'separator',
 		icon: separator as ReactElement,
 		svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/><path d="M12 7v10" opacity="0.2"/></svg>',
 	},
 	{
-		label: 'Close small',
+		label: __( 'Close small', 'minimal-map' ),
 		value: 'close-small',
 		icon: closeSmall as ReactElement,
 		svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12h8"/></svg>',
