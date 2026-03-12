@@ -282,7 +282,7 @@
 }
 
 .minimal-map-search__input-wrapper {
-  background: var(--minimal-map-search-background-secondary) !important;
+  background: var(--minimal-map-search-background-primary) !important;
   border: none;
   border-radius: var(--minimal-map-search-input-radius);
   overflow: hidden;
@@ -290,6 +290,10 @@
   display: flex;
   align-items: center;
   position: relative;
+}
+
+.minimal-map-search.is-focused .minimal-map-search__input-wrapper {
+  background: var(--minimal-map-search-background-secondary) !important;
 }
 
 .minimal-map-search__icon-container {
