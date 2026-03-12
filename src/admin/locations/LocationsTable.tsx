@@ -10,6 +10,7 @@ import TagBadge from '../../components/TagBadge';
 import type { LocationRecord } from '../../types';
 import { formatLocationAddressLines } from '../../lib/locations/formatLocationAddressLines';
 import DeleteLocationActionModal from './DeleteLocationActionModal';
+import { LOCATIONS_TABLE_PER_PAGE } from './constants';
 import type { LocationsController } from './types';
 
 function CollectionBadge({ label }: { label: string }) {
@@ -342,6 +343,7 @@ export default function LocationsTable({ controller }: { controller: LocationsCo
 		<div className="minimal-map-admin__locations-table-wrap">
 			<DataViews
 				actions={actions}
+				config={{ perPageSizes: [ LOCATIONS_TABLE_PER_PAGE ] }}
 				data={controller.paginatedLocations}
 				defaultLayouts={{ table: {} }}
 				fields={fields}

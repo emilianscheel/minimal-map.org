@@ -54,7 +54,7 @@ import { updateLocationCoordinates } from '../../lib/locations/updateLocationCoo
 import { updateLocation } from '../../lib/locations/updateLocation';
 import { validateAddressStep } from '../../lib/locations/validateAddressStep';
 import { validateDetailsStep } from '../../lib/locations/validateDetailsStep';
-import { DEFAULT_FORM_STATE, DEFAULT_VIEW } from './constants';
+import { DEFAULT_FORM_STATE, DEFAULT_VIEW, LOCATIONS_TABLE_PER_PAGE } from './constants';
 import { ThemeSelector } from '../styles/ThemeSelector';
 import type { LocationsController } from './types';
 
@@ -1272,7 +1272,10 @@ export function useLocationsController(
 		onOpenDeleteLogoConfirmationModal,
 		onOpenRemoveCollectionAssignmentModal,
 		onChangeView: (nextView) => {
-			setView(nextView);
+			setView({
+				...nextView,
+				perPage: LOCATIONS_TABLE_PER_PAGE,
+			});
 			setSelection([]);
 		},
 		onChangeSelection: (nextSelection) => setSelection(nextSelection),
