@@ -13,6 +13,7 @@ import {
   PanelBody,
   RangeControl,
   SelectControl,
+  TextareaControl,
   TextControl,
   ToggleControl,
   MenuGroup,
@@ -23,9 +24,10 @@ import {
   __experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
   __experimentalUnitControl as UnitControl,
 } from "@wordpress/components";
-import { useEffect, useMemo, useRef } from "@wordpress/element";
+import { useEffect, useMemo, useRef, useState } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { CheckIcon, ChevronDownIcon, MapPinnedIcon } from "../components/Icons";
+import { buildIframeSnippet } from "./embed";
 import { createMinimalMap } from "../map/bootstrap";
 import { normalizeHeightUnit, normalizeMapConfig } from "../map/defaults";
 import {
@@ -144,6 +146,28 @@ function parseLengthValue(
   const unit = match[2] || fallback.replace(/^-?\d*\.?\d+/, "") || "px";
 
   return `${Number(match[1])}${normalizeHeightUnit(unit)}`;
+}
+
+function copyTextToClipboard(value: string): Promise<boolean> {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard
+      .writeText(value)
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  const element = document.createElement("textarea");
+  element.value = value;
+  element.setAttribute("readonly", "readonly");
+  element.style.position = "absolute";
+  element.style.left = "-9999px";
+  document.body.appendChild(element);
+  element.select();
+
+  const copied = document.execCommand("copy");
+  document.body.removeChild(element);
+
+  return Promise.resolve(copied);
 }
 
 function stringifyBorderRadiusValue(
@@ -648,6 +672,9 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   const searchPanelInputRadiusRef = useRef<HTMLDivElement | null>(null);
   const searchPanelCardRadiusRef = useRef<HTMLDivElement | null>(null);
   const creditsRadiusRef = useRef<HTMLDivElement | null>(null);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
+    "idle",
+  );
   const styleOptions = useMemo(
     () => getStyleOptions(runtimeConfig.stylePresets),
     [],
@@ -674,6 +701,10 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
         runtimeConfig,
       ),
     [attributes, selectedCollection],
+  );
+  const iframeSnippet = useMemo(
+    () => buildIframeSnippet(attributes, runtimeConfig),
+    [attributes],
   );
   const blockProps = useBlockProps({ className: "minimal-map-editor" });
 
@@ -728,6 +759,20 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
       observers.forEach((observer) => observer.disconnect());
     };
   }, []);
+
+  useEffect(() => {
+    if (copyState === "idle") {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCopyState("idle");
+    }, 1800);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [copyState, iframeSnippet]);
 
   function updateNumberAttribute<
     Key extends keyof Pick<
@@ -798,6 +843,16 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
     if (parsed) {
       setAttributes({ searchPanelWidth: parsed });
     }
+  };
+
+  const copyIframeSnippet = (): void => {
+    if (!iframeSnippet) {
+      return;
+    }
+
+    void copyTextToClipboard(iframeSnippet).then((copied) => {
+      setCopyState(copied ? "copied" : "error");
+    });
   };
 
   if (attributes._isPreview) {
@@ -896,6 +951,45 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             checked={attributes.allowSearch}
             onChange={(value: boolean) => setAttributes({ allowSearch: value })}
           />
+        </PanelBody>
+        <PanelBody
+          title={__("Embed via Iframe", "minimal-map")}
+          initialOpen={false}
+        >
+          <TextareaControl
+            label={__("Iframe Snippet", "minimal-map")}
+            value={iframeSnippet}
+            readOnly
+            rows={6}
+            help={__(
+              "The snippet updates automatically when this block configuration changes.",
+              "minimal-map",
+            )}
+            onChange={() => {}}
+          />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
+            }}
+          >
+            <Button
+              __next40pxDefaultSize
+              variant="secondary"
+              onClick={copyIframeSnippet}
+              disabled={!iframeSnippet}
+            >
+              {__("Copy Snippet", "minimal-map")}
+            </Button>
+            {copyState === "copied" ? (
+              <span>{__("Copied", "minimal-map")}</span>
+            ) : null}
+            {copyState === "error" ? (
+              <span>{__("Copy failed", "minimal-map")}</span>
+            ) : null}
+          </div>
         </PanelBody>
       </InspectorControls>
       <InspectorControls group="styles">

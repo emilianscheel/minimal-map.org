@@ -112,6 +112,7 @@ export interface MapRuntimeConfig {
 	locations?: MapLocationPoint[];
 	collections?: MapCollectionOption[];
 	messages?: MapMessages;
+	embedBaseUrl?: string;
 	previewImageUrl?: string;
 	onMapClick?: (coordinates: MapCoordinates) => void;
 }

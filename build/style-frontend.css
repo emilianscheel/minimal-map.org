@@ -58,28 +58,28 @@
   outline: none;
 }
 
-.minimal-map-controls[data-position="top-left"] {
+.minimal-map-controls[data-position=top-left] {
   top: var(--minimal-map-controls-margin-top, 16px);
   right: auto;
   bottom: auto;
   left: var(--minimal-map-controls-margin-left, 16px);
 }
 
-.minimal-map-controls[data-position="top-right"] {
+.minimal-map-controls[data-position=top-right] {
   top: var(--minimal-map-controls-margin-top, 16px);
   right: var(--minimal-map-controls-margin-right, 16px);
   bottom: auto;
   left: auto;
 }
 
-.minimal-map-controls[data-position="bottom-left"] {
+.minimal-map-controls[data-position=bottom-left] {
   top: auto;
   right: auto;
   bottom: var(--minimal-map-controls-margin-bottom, 16px);
   left: var(--minimal-map-controls-margin-left, 16px);
 }
 
-.minimal-map-controls[data-position="bottom-right"] {
+.minimal-map-controls[data-position=bottom-right] {
   top: auto;
   right: var(--minimal-map-controls-margin-right, 16px);
   bottom: var(--minimal-map-controls-margin-bottom, 16px);
@@ -89,9 +89,8 @@
 .minimal-map-controls__button {
   display: inline-flex;
   align-items: center;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   -moz-appearance: none;
-  appearance: none;
+       appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
   min-width: 40px;
@@ -101,14 +100,11 @@
   line-height: 1;
   font-family: inherit;
   box-sizing: border-box;
-  padding: var(--minimal-map-controls-button-padding-top, 8px)
-    var(--minimal-map-controls-button-padding-right, 8px)
-    var(--minimal-map-controls-button-padding-bottom, 8px)
-    var(--minimal-map-controls-button-padding-left, 8px);
+  padding: var(--minimal-map-controls-button-padding-top, 8px) var(--minimal-map-controls-button-padding-right, 8px) var(--minimal-map-controls-button-padding-bottom, 8px) var(--minimal-map-controls-button-padding-left, 8px);
   background: var(--minimal-map-controls-button-background, #fff);
-  border: var(--minimal-map-controls-button-border-width, 1px) solid
-    var(--minimal-map-controls-button-border-color, #dcdcde);
+  border: var(--minimal-map-controls-button-border-width, 1px) solid var(--minimal-map-controls-button-border-color, #dcdcde);
   border-radius: var(--minimal-map-controls-button-border-radius, 2px);
+  box-shadow: none;
   color: var(--minimal-map-controls-button-color, #1e1e1e);
   outline: none;
 }
@@ -118,6 +114,7 @@
   background: var(--minimal-map-controls-button-background, #fff);
   border-color: var(--minimal-map-controls-button-border-color, #dcdcde);
   color: var(--minimal-map-controls-button-color, #1e1e1e);
+  box-shadow: none;
 }
 
 .minimal-map-controls__button:focus-visible {
@@ -158,14 +155,8 @@
   display: inline-flex;
   align-items: center;
   max-width: min(70vw, 360px);
-  margin: var(--minimal-map-attribution-margin-top, 16px)
-    var(--minimal-map-attribution-margin-right, 16px)
-    var(--minimal-map-attribution-margin-bottom, 16px)
-    var(--minimal-map-attribution-margin-left, 16px);
-  padding: var(--minimal-map-attribution-padding-top, 4px)
-    var(--minimal-map-attribution-padding-right, 8px)
-    var(--minimal-map-attribution-padding-bottom, 4px)
-    var(--minimal-map-attribution-padding-left, 8px);
+  margin: var(--minimal-map-attribution-margin-top, 16px) var(--minimal-map-attribution-margin-right, 16px) var(--minimal-map-attribution-margin-bottom, 16px) var(--minimal-map-attribution-margin-left, 16px);
+  padding: var(--minimal-map-attribution-padding-top, 4px) var(--minimal-map-attribution-padding-right, 8px) var(--minimal-map-attribution-padding-bottom, 4px) var(--minimal-map-attribution-padding-left, 8px);
   background: var(--minimal-map-attribution-background, #ffffff);
   border: 1px solid rgba(220, 220, 222, 0.95);
   border-radius: var(--minimal-map-attribution-border-radius, 999px);
@@ -182,11 +173,7 @@
   min-width: 0;
   font-size: 12px;
   line-height: 1.4;
-  font-family:
-    Helvetica Neue,
-    Arial,
-    Helvetica,
-    sans-serif;
+  font-family: Helvetica Neue, Arial, Helvetica, sans-serif;
   font-style: normal;
   font-weight: 400;
   letter-spacing: normal;
@@ -234,10 +221,7 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: calc(
-    var(--minimal-map-search-width) + var(--minimal-map-search-margin-left) +
-      var(--minimal-map-search-margin-right)
-  );
+  width: calc(var(--minimal-map-search-width) + var(--minimal-map-search-margin-left) + var(--minimal-map-search-margin-right));
   background: var(--minimal-map-search-background-primary);
   z-index: 9;
   animation: minimal-map-fade-in 0.3s ease-out forwards;
@@ -264,16 +248,14 @@
   top: var(--minimal-map-search-margin-top);
   left: var(--minimal-map-search-margin-left);
   width: var(--minimal-map-search-width);
-  max-width: calc(
-    100% - var(--minimal-map-search-margin-left) -
-      var(--minimal-map-search-margin-right)
-  );
-  height: calc(
-    100% - var(--minimal-map-search-margin-top) -
-      var(--minimal-map-search-margin-bottom)
-  );
+  max-width: calc(100% - var(--minimal-map-search-margin-left) - var(--minimal-map-search-margin-right));
+  height: calc(100% - var(--minimal-map-search-margin-top) - var(--minimal-map-search-margin-bottom));
   z-index: 10;
   pointer-events: none;
+}
+
+.minimal-map-search.is-focused {
+  background: var(--minimal-map-search-background-primary) !important;
 }
 
 .minimal-map-search > * {
@@ -453,8 +435,7 @@
   font-size: 11px;
   color: var(--minimal-map-search-foreground-secondary);
   background: var(--minimal-map-search-background-secondary);
-  padding: var(--minimal-map-search-pill-padding-y)
-    var(--minimal-map-search-pill-padding-x);
+  padding: var(--minimal-map-search-pill-padding-y) var(--minimal-map-search-pill-padding-x);
   border-radius: var(--minimal-map-search-pill-border-radius);
   font-weight: 600;
   white-space: nowrap;
@@ -507,9 +488,9 @@
 
 .minimal-map-search__result-logo-image {
   -o-object-fit: contain;
-  object-fit: contain;
+     object-fit: contain;
   -o-object-position: right center;
-  object-position: right center;
+     object-position: right center;
   max-width: 100%;
   max-height: 40px;
 }

@@ -43,6 +43,13 @@ final class Plugin {
 	private $map_block;
 
 	/**
+	 * Public iframe renderer.
+	 *
+	 * @var Iframe_Endpoint
+	 */
+	private $iframe_endpoint;
+
+	/**
 	 * Admin menu service.
 	 *
 	 * @var Admin_Menu
@@ -119,6 +126,7 @@ final class Plugin {
 		$this->assets             = new Assets( $config );
 		$map_view                 = new Map_View( $config );
 		$this->map_block          = new Map_Block( $map_view );
+		$this->iframe_endpoint    = new Iframe_Endpoint( $config, $map_view );
 		$this->admin_menu         = new Admin_Menu();
 		$this->collection_post_type = new Collection_Post_Type();
 		$this->logo_post_type     = new Logo_Post_Type();
@@ -145,6 +153,7 @@ final class Plugin {
 		add_action( 'init', array( $this->marker_post_type, 'register' ), 6 );
 		add_action( 'init', array( $this->assets, 'register' ) );
 		add_action( 'init', array( $this->map_block, 'register' ) );
+		add_action( 'template_redirect', array( $this->iframe_endpoint, 'maybe_render' ) );
 		add_action( 'admin_menu', array( $this->admin_menu, 'register' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue_admin_assets' ) );
 		add_action( 'rest_api_init', array( $this->geocode_route, 'register' ) );

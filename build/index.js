@@ -21,12 +21,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _components_Icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/Icons */ "./src/components/Icons.tsx");
-/* harmony import */ var _map_bootstrap__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../map/bootstrap */ "./src/map/bootstrap.ts");
-/* harmony import */ var _map_defaults__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../map/defaults */ "./src/map/defaults.ts");
-/* harmony import */ var _map_zoom_control_options__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../map/zoom-control-options */ "./src/map/zoom-control-options.ts");
-/* harmony import */ var _map_style_presets__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../map/style-presets */ "./src/map/style-presets.ts");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var _embed__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./embed */ "./src/block/embed.ts");
+/* harmony import */ var _map_bootstrap__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../map/bootstrap */ "./src/map/bootstrap.ts");
+/* harmony import */ var _map_defaults__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../map/defaults */ "./src/map/defaults.ts");
+/* harmony import */ var _map_zoom_control_options__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../map/zoom-control-options */ "./src/map/zoom-control-options.ts");
+/* harmony import */ var _map_style_presets__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../map/style-presets */ "./src/map/style-presets.ts");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__);
+
 
 
 
@@ -66,7 +68,7 @@ function parseHeightValue(rawValue, fallbackUnit) {
   if (typeof rawValue === "number") {
     return {
       height: rawValue,
-      heightUnit: (0,_map_defaults__WEBPACK_IMPORTED_MODULE_6__.normalizeHeightUnit)(fallbackUnit)
+      heightUnit: (0,_map_defaults__WEBPACK_IMPORTED_MODULE_7__.normalizeHeightUnit)(fallbackUnit)
     };
   }
   if (typeof rawValue !== "string") {
@@ -78,7 +80,7 @@ function parseHeightValue(rawValue, fallbackUnit) {
   }
   return {
     height: Number(match[1]),
-    heightUnit: (0,_map_defaults__WEBPACK_IMPORTED_MODULE_6__.normalizeHeightUnit)(match[2] || fallbackUnit)
+    heightUnit: (0,_map_defaults__WEBPACK_IMPORTED_MODULE_7__.normalizeHeightUnit)(match[2] || fallbackUnit)
   };
 }
 function parseLengthValue(rawValue, fallback = "1px") {
@@ -97,7 +99,22 @@ function parseLengthValue(rawValue, fallback = "1px") {
     return "0px";
   }
   const unit = match[2] || fallback.replace(/^-?\d*\.?\d+/, "") || "px";
-  return `${Number(match[1])}${(0,_map_defaults__WEBPACK_IMPORTED_MODULE_6__.normalizeHeightUnit)(unit)}`;
+  return `${Number(match[1])}${(0,_map_defaults__WEBPACK_IMPORTED_MODULE_7__.normalizeHeightUnit)(unit)}`;
+}
+function copyTextToClipboard(value) {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(value).then(() => true).catch(() => false);
+  }
+  const element = document.createElement("textarea");
+  element.value = value;
+  element.setAttribute("readonly", "readonly");
+  element.style.position = "absolute";
+  element.style.left = "-9999px";
+  document.body.appendChild(element);
+  element.select();
+  const copied = document.execCommand("copy");
+  document.body.removeChild(element);
+  return Promise.resolve(copied);
 }
 function stringifyBorderRadiusValue(value) {
   if (!value) {
@@ -182,23 +199,23 @@ function ZoomControlColorSettings({
   defaultBorderColor,
   onChange
 }) {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("div", {
     style: {
       display: "grid",
       gap: "8px",
       marginBottom: "16px"
     },
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Background", "minimal-map"),
       value: backgroundColor,
       defaultValue: defaultBackgroundColor,
       onChange: value => onChange("zoomControlsBackgroundColor", value)
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Foreground", "minimal-map"),
       value: iconColor,
       defaultValue: defaultIconColor,
       onChange: value => onChange("zoomControlsIconColor", value)
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Border", "minimal-map"),
       value: borderColor,
       defaultValue: defaultBorderColor,
@@ -213,18 +230,18 @@ function CreditsColorSettings({
   defaultForegroundColor,
   onChange
 }) {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("div", {
     style: {
       display: "grid",
       gap: "8px",
       marginBottom: "16px"
     },
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Background", "minimal-map"),
       value: backgroundColor,
       defaultValue: defaultBackgroundColor,
       onChange: value => onChange("creditsBackgroundColor", value)
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Foreground", "minimal-map"),
       value: foregroundColor,
       defaultValue: defaultForegroundColor,
@@ -241,33 +258,33 @@ function SearchPanelColorSettings({
   defaults,
   onChange
 }) {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("div", {
     style: {
       display: "grid",
       gap: "8px",
       marginBottom: "16px"
     },
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Background Primary", "minimal-map"),
       value: backgroundPrimary,
       defaultValue: defaults.backgroundPrimary,
       onChange: value => onChange("searchPanelBackgroundPrimary", value)
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Background Secondary", "minimal-map"),
       value: backgroundSecondary,
       defaultValue: defaults.backgroundSecondary,
       onChange: value => onChange("searchPanelBackgroundSecondary", value)
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Background Hover", "minimal-map"),
       value: backgroundHover,
       defaultValue: defaults.backgroundHover,
       onChange: value => onChange("searchPanelBackgroundHover", value)
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Foreground Primary", "minimal-map"),
       value: foregroundPrimary,
       defaultValue: defaults.foregroundPrimary,
       onChange: value => onChange("searchPanelForegroundPrimary", value)
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CompactColorDropdown, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CompactColorDropdown, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Foreground Secondary", "minimal-map"),
       value: foregroundSecondary,
       defaultValue: defaults.foregroundSecondary,
@@ -281,7 +298,7 @@ function CompactColorDropdown({
   defaultValue,
   onChange
 }) {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Dropdown, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Dropdown, {
     className: "minimal-map-editor__compact-color-dropdown",
     popoverProps: {
       placement: "left-start",
@@ -291,7 +308,7 @@ function CompactColorDropdown({
     renderToggle: ({
       isOpen,
       onToggle
-    }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+    }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
       __next40pxDefaultSize: true,
       variant: "tertiary",
       onClick: onToggle,
@@ -302,24 +319,24 @@ function CompactColorDropdown({
         paddingInline: "12px",
         color: "var(--wp-components-color-foreground, #1e1e1e)"
       },
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
         justify: "flex-start",
         spacing: 3,
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ColorIndicator, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ColorIndicator, {
           colorValue: value
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.FlexItem, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.FlexItem, {
           title: label,
           children: label
         })]
       })
     }),
-    renderContent: () => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalDropdownContentWrapper, {
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+    renderContent: () => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalDropdownContentWrapper, {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
         style: {
           width: "280px",
           maxWidth: "min(280px, 100vw - 32px)"
         },
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalColorGradientControl, {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalColorGradientControl, {
           label: label,
           showTitle: false,
           clearable: false,
@@ -338,15 +355,15 @@ function ThemeDropdown({
 }) {
   const selectedTheme = themes.find(theme => theme.slug === selectedSlug) || themes.find(theme => theme.slug === "default");
   const selectedLabel = selectedTheme?.label || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Default", "minimal-map");
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("div", {
     style: {
       display: "grid",
       gap: "8px",
       marginBottom: "16px"
     },
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
       children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Style Theme", "minimal-map")
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Dropdown, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Dropdown, {
       className: "minimal-map-editor__theme-dropdown",
       popoverProps: {
         placement: "left-start",
@@ -356,7 +373,7 @@ function ThemeDropdown({
       renderToggle: ({
         isOpen,
         onToggle
-      }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+      }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
         __next40pxDefaultSize: true,
         variant: "secondary",
         onClick: onToggle,
@@ -366,9 +383,9 @@ function ThemeDropdown({
           justifyContent: "space-between",
           paddingInline: "12px"
         },
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
           children: selectedLabel
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.ChevronDownIcon, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.ChevronDownIcon, {
           size: 16,
           style: {
             flexShrink: 0
@@ -377,23 +394,23 @@ function ThemeDropdown({
       }),
       renderContent: ({
         onClose
-      }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuGroup, {
+      }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuGroup, {
         label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Switch Theme", "minimal-map"),
         children: themes.map(theme => {
           const isSelected = theme.slug === selectedSlug;
-          return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
+          return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
             onClick: () => {
               onChange(theme.slug);
               onClose();
             },
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
               justify: "space-between",
               style: {
                 width: "100%"
               },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
                 children: theme.label
-              }), isSelected && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.CheckIcon, {
+              }), isSelected && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.CheckIcon, {
                 size: 16,
                 style: {
                   flexShrink: 0,
@@ -414,15 +431,15 @@ function CollectionDropdown({
 }) {
   const selectedCollection = options.find(option => option.id === selectedId);
   const selectedLabel = selectedId > 0 ? selectedCollection?.title || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Collection unavailable", "minimal-map") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("All locations", "minimal-map");
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("div", {
     style: {
       display: "grid",
       gap: "8px",
       marginBottom: "16px"
     },
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
       children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Collection", "minimal-map")
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Dropdown, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Dropdown, {
       className: "minimal-map-editor__collection-dropdown",
       popoverProps: {
         placement: "left-start",
@@ -432,7 +449,7 @@ function CollectionDropdown({
       renderToggle: ({
         isOpen,
         onToggle
-      }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+      }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
         __next40pxDefaultSize: true,
         variant: "secondary",
         onClick: onToggle,
@@ -442,9 +459,9 @@ function CollectionDropdown({
           justifyContent: "space-between",
           paddingInline: "12px"
         },
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
           children: selectedLabel
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.ChevronDownIcon, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.ChevronDownIcon, {
           size: 16,
           style: {
             flexShrink: 0
@@ -453,21 +470,21 @@ function CollectionDropdown({
       }),
       renderContent: ({
         onClose
-      }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuGroup, {
+      }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuGroup, {
         label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Switch Collection", "minimal-map"),
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
           onClick: () => {
             onChange(0);
             onClose();
           },
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
             justify: "space-between",
             style: {
               width: "100%"
             },
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
               children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("All locations", "minimal-map")
-            }), selectedId === 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.CheckIcon, {
+            }), selectedId === 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.CheckIcon, {
               size: 16,
               style: {
                 flexShrink: 0,
@@ -477,19 +494,19 @@ function CollectionDropdown({
           })
         }), options.map(option => {
           const isSelected = selectedId === option.id;
-          return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
+          return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
             onClick: () => {
               onChange(option.id);
               onClose();
             },
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
               justify: "space-between",
               style: {
                 width: "100%"
               },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
                 children: option.title
-              }), isSelected && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.CheckIcon, {
+              }), isSelected && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.CheckIcon, {
                 size: 16,
                 style: {
                   flexShrink: 0,
@@ -498,7 +515,7 @@ function CollectionDropdown({
               })]
             })
           }, option.id);
-        }), options.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), options.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           style: {
             padding: "8px 12px",
             color: "#757575",
@@ -520,12 +537,14 @@ function Edit({
   const searchPanelInputRadiusRef = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useRef)(null);
   const searchPanelCardRadiusRef = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useRef)(null);
   const creditsRadiusRef = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useRef)(null);
-  const styleOptions = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useMemo)(() => (0,_map_style_presets__WEBPACK_IMPORTED_MODULE_8__.getStyleOptions)(runtimeConfig.stylePresets), []);
+  const [copyState, setCopyState] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)("idle");
+  const styleOptions = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useMemo)(() => (0,_map_style_presets__WEBPACK_IMPORTED_MODULE_9__.getStyleOptions)(runtimeConfig.stylePresets), []);
   const selectedCollection = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useMemo)(() => attributes.collectionId > 0 ? (runtimeConfig.collections ?? []).find(collection => collection.id === attributes.collectionId) ?? null : null, [attributes.collectionId]);
-  const config = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useMemo)(() => (0,_map_defaults__WEBPACK_IMPORTED_MODULE_6__.normalizeMapConfig)({
+  const config = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useMemo)(() => (0,_map_defaults__WEBPACK_IMPORTED_MODULE_7__.normalizeMapConfig)({
     ...attributes,
     locations: attributes.collectionId > 0 ? selectedCollection?.locations ?? [] : undefined
   }, runtimeConfig), [attributes, selectedCollection]);
+  const iframeSnippet = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useMemo)(() => (0,_embed__WEBPACK_IMPORTED_MODULE_5__.buildIframeSnippet)(attributes, runtimeConfig), [attributes]);
   const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.useBlockProps)({
     className: "minimal-map-editor"
   });
@@ -533,7 +552,7 @@ function Edit({
     if (!mapRef.current) {
       return undefined;
     }
-    mapInstanceRef.current = (0,_map_bootstrap__WEBPACK_IMPORTED_MODULE_5__.createMinimalMap)(mapRef.current, config, runtimeConfig);
+    mapInstanceRef.current = (0,_map_bootstrap__WEBPACK_IMPORTED_MODULE_6__.createMinimalMap)(mapRef.current, config, runtimeConfig);
     return () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.destroy();
@@ -561,6 +580,17 @@ function Edit({
       observers.forEach(observer => observer.disconnect());
     };
   }, []);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
+    if (copyState === "idle") {
+      return undefined;
+    }
+    const timeoutId = window.setTimeout(() => {
+      setCopyState("idle");
+    }, 1800);
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [copyState, iframeSnippet]);
   function updateNumberAttribute(key) {
     return value => {
       const numericValue = Number(value);
@@ -613,8 +643,16 @@ function Edit({
       });
     }
   };
+  const copyIframeSnippet = () => {
+    if (!iframeSnippet) {
+      return;
+    }
+    void copyTextToClipboard(iframeSnippet).then(copied => {
+      setCopyState(copied ? "copied" : "error");
+    });
+  };
   if (attributes._isPreview) {
-    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
       ...(0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.useBlockProps)({
         className: "minimal-map-editor__preview minimal-map-editor--preview",
         style: {
@@ -630,18 +668,18 @@ function Edit({
           fontSize: "13px"
         }
       }),
-      children: !runtimeConfig.previewImageUrl && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+      children: !runtimeConfig.previewImageUrl && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("div", {
         style: {
           textAlign: "center",
           padding: "20px"
         },
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.MapPinnedIcon, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_components_Icons__WEBPACK_IMPORTED_MODULE_4__.MapPinnedIcon, {
           size: 48,
           style: {
             marginBottom: "12px",
             opacity: 0.5
           }
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("p", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("p", {
           style: {
             margin: 0
           },
@@ -650,82 +688,111 @@ function Edit({
       })
     });
   }
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.Fragment, {
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.InspectorControls, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.Fragment, {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.InspectorControls, {
       group: "settings",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
         title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Map Settings", "minimal-map"),
         initialOpen: true,
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CollectionDropdown, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CollectionDropdown, {
           options: runtimeConfig.collections ?? [],
           selectedId: attributes.collectionId,
           onChange: value => setAttributes({
             collectionId: value
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(ThemeDropdown, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(ThemeDropdown, {
           themes: runtimeConfig.styleThemes ?? [],
           selectedSlug: attributes.styleThemeSlug,
           onChange: value => setAttributes({
             styleThemeSlug: value
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Center Latitude", "minimal-map"),
           type: "number",
           step: "0.000001",
           value: attributes.centerLat,
           onChange: updateNumberAttribute("centerLat")
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Center Longitude", "minimal-map"),
           type: "number",
           step: "0.000001",
           value: attributes.centerLng,
           onChange: updateNumberAttribute("centerLng")
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.RangeControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.RangeControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Zoom", "minimal-map"),
           value: attributes.zoom,
           onChange: updateZoom,
           min: 0,
           max: 22,
           step: 0.5
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Show Zoom Controls", "minimal-map"),
           checked: attributes.showZoomControls,
           onChange: value => setAttributes({
             showZoomControls: value
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Allow Zoom via Scroll", "minimal-map"),
           checked: attributes.scrollZoom,
           onChange: value => setAttributes({
             scrollZoom: value
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Allow Two-Finger Zoom on Mobile", "minimal-map"),
           checked: attributes.mobileTwoFingerZoom,
           onChange: value => setAttributes({
             mobileTwoFingerZoom: value
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Allow Search", "minimal-map"),
           checked: attributes.allowSearch,
           onChange: value => setAttributes({
             allowSearch: value
           })
         })]
-      })
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.InspectorControls, {
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
+        title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Embed via Iframe", "minimal-map"),
+        initialOpen: false,
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextareaControl, {
+          label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Iframe Snippet", "minimal-map"),
+          value: iframeSnippet,
+          readOnly: true,
+          rows: 6,
+          help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("The snippet updates automatically when this block configuration changes.", "minimal-map"),
+          onChange: () => {}
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("div", {
+          style: {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "12px"
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+            __next40pxDefaultSize: true,
+            variant: "secondary",
+            onClick: copyIframeSnippet,
+            disabled: !iframeSnippet,
+            children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Copy Snippet", "minimal-map")
+          }), copyState === "copied" ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
+            children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Copied", "minimal-map")
+          }) : null, copyState === "error" ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
+            children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Copy failed", "minimal-map")
+          }) : null]
+        })]
+      })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.InspectorControls, {
       group: "styles",
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
         title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Appearance", "minimal-map"),
         initialOpen: false,
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalUnitControl, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalUnitControl, {
           className: "minimal-map-editor__height-control components-border-radius-control__unit-control",
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Height", "minimal-map"),
           value: `${attributes.height ?? 420}${attributes.heightUnit || "px"}`,
           onChange: updateHeight,
           units: HEIGHT_UNITS,
           size: "__unstable-large"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.SelectControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.SelectControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Style Preset", "minimal-map"),
           value: attributes.stylePreset,
           options: styleOptions,
@@ -733,10 +800,10 @@ function Edit({
             stylePreset: value
           })
         })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
         title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Zoom Controls", "minimal-map"),
         initialOpen: false,
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(ZoomControlColorSettings, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(ZoomControlColorSettings, {
           backgroundColor: attributes.zoomControlsBackgroundColor,
           iconColor: attributes.zoomControlsIconColor,
           borderColor: attributes.zoomControlsBorderColor,
@@ -746,7 +813,7 @@ function Edit({
           onChange: (key, value) => setAttributes({
             [key]: value
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalToggleGroupControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalToggleGroupControl, {
           __next40pxDefaultSize: true,
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Position", "minimal-map"),
           value: attributes.zoomControlsPosition,
@@ -758,14 +825,14 @@ function Edit({
               });
             }
           },
-          children: _map_zoom_control_options__WEBPACK_IMPORTED_MODULE_7__.ZOOM_CONTROLS_POSITION_OPTIONS.map(option => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalToggleGroupControlOptionIcon, {
+          children: _map_zoom_control_options__WEBPACK_IMPORTED_MODULE_8__.ZOOM_CONTROLS_POSITION_OPTIONS.map(option => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalToggleGroupControlOptionIcon, {
             value: option.value,
             label: option.label,
             icon: option.icon
           }, option.value))
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           className: "minimal-map-editor__box-control",
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
             __next40pxDefaultSize: true,
             label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Padding", "minimal-map"),
             values: attributes.zoomControlsPadding,
@@ -777,9 +844,9 @@ function Edit({
               });
             }
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           className: "minimal-map-editor__box-control",
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
             __next40pxDefaultSize: true,
             label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Outer Margin", "minimal-map"),
             values: attributes.zoomControlsOuterMargin,
@@ -791,9 +858,9 @@ function Edit({
               });
             }
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           ref: zoomControlsRadiusRef,
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalBorderRadiusControl, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalBorderRadiusControl, {
             onChange: value => {
               setAttributes({
                 zoomControlsBorderRadius: stringifyBorderRadiusValue(value)
@@ -801,17 +868,17 @@ function Edit({
             },
             values: parseBorderRadiusValue(attributes.zoomControlsBorderRadius)
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalUnitControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalUnitControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Border Width", "minimal-map"),
           value: attributes.zoomControlsBorderWidth,
           onChange: updateBorderWidth,
           units: BORDER_UNITS,
           size: "__unstable-large"
         })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
         title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Search Panel", "minimal-map"),
         initialOpen: false,
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(SearchPanelColorSettings, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(SearchPanelColorSettings, {
           backgroundPrimary: attributes.searchPanelBackgroundPrimary,
           backgroundSecondary: attributes.searchPanelBackgroundSecondary,
           backgroundHover: attributes.searchPanelBackgroundHover,
@@ -827,9 +894,9 @@ function Edit({
           onChange: (key, value) => setAttributes({
             [key]: value
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           className: "minimal-map-editor__box-control",
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
             __next40pxDefaultSize: true,
             label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Outer Margin", "minimal-map"),
             values: attributes.searchPanelOuterMargin,
@@ -841,12 +908,12 @@ function Edit({
               });
             }
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           ref: searchPanelInputRadiusRef,
           style: {
             marginBottom: "8px"
           },
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalBorderRadiusControl, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalBorderRadiusControl, {
             label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Border Radius Input", "minimal-map"),
             onChange: value => {
               setAttributes({
@@ -855,12 +922,12 @@ function Edit({
             },
             values: parseBorderRadiusValue(attributes.searchPanelBorderRadiusInput || "10px")
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           ref: searchPanelCardRadiusRef,
           style: {
             marginBottom: "8px"
           },
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalBorderRadiusControl, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalBorderRadiusControl, {
             label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Border Radius Card", "minimal-map"),
             onChange: value => {
               setAttributes({
@@ -869,23 +936,23 @@ function Edit({
             },
             values: parseBorderRadiusValue(attributes.searchPanelBorderRadiusCard)
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalUnitControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalUnitControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Card Gap", "minimal-map"),
           value: attributes.searchPanelCardGap,
           onChange: updateSearchPanelCardGap,
           units: HEIGHT_UNITS,
           size: "__unstable-large"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalUnitControl, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalUnitControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Panel Width", "minimal-map"),
           value: attributes.searchPanelWidth,
           onChange: updateSearchPanelWidth,
           units: HEIGHT_UNITS,
           size: "__unstable-large"
         })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
         title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Credits", "minimal-map"),
         initialOpen: false,
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(CreditsColorSettings, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(CreditsColorSettings, {
           backgroundColor: attributes.creditsBackgroundColor,
           foregroundColor: attributes.creditsForegroundColor,
           defaultBackgroundColor: runtimeConfig.defaults?.creditsBackgroundColor ?? "#ffffff",
@@ -893,12 +960,12 @@ function Edit({
           onChange: (key, value) => setAttributes({
             [key]: value
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           ref: creditsRadiusRef,
           style: {
             marginBottom: "8px"
           },
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalBorderRadiusControl, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.__experimentalBorderRadiusControl, {
             label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Border Radius", "minimal-map"),
             onChange: value => {
               setAttributes({
@@ -907,9 +974,9 @@ function Edit({
             },
             values: parseBorderRadiusValue(attributes.creditsBorderRadius)
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           className: "minimal-map-editor__box-control",
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
             __next40pxDefaultSize: true,
             label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Padding", "minimal-map"),
             values: attributes.creditsPadding,
@@ -921,9 +988,9 @@ function Edit({
               });
             }
           })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
           className: "minimal-map-editor__box-control",
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BoxControl, {
             __next40pxDefaultSize: true,
             label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Outer Margin", "minimal-map"),
             values: attributes.creditsOuterMargin,
@@ -937,9 +1004,9 @@ function Edit({
           })
         })]
       })]
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
       ...blockProps,
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
         ref: mapRef,
         className: "minimal-map-editor__canvas",
         style: {
@@ -948,6 +1015,66 @@ function Edit({
       })
     })]
   });
+}
+
+/***/ },
+
+/***/ "./src/block/embed.ts"
+/*!****************************!*\
+  !*** ./src/block/embed.ts ***!
+  \****************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   EMBED_PAYLOAD_VERSION: () => (/* binding */ EMBED_PAYLOAD_VERSION),
+/* harmony export */   EMBED_QUERY_PARAM: () => (/* binding */ EMBED_QUERY_PARAM),
+/* harmony export */   buildEmbedUrl: () => (/* binding */ buildEmbedUrl),
+/* harmony export */   buildIframeSnippet: () => (/* binding */ buildIframeSnippet),
+/* harmony export */   createCanonicalEmbedAttributes: () => (/* binding */ createCanonicalEmbedAttributes),
+/* harmony export */   createEmbedPayload: () => (/* binding */ createEmbedPayload)
+/* harmony export */ });
+/* harmony import */ var _map_defaults__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../map/defaults */ "./src/map/defaults.ts");
+
+const EMBED_PAYLOAD_VERSION = 1;
+const EMBED_QUERY_PARAM = 'minimal-map-config';
+const EMBED_ATTRIBUTE_KEYS = ['centerLat', 'centerLng', 'zoom', 'collectionId', 'height', 'heightUnit', 'stylePreset', 'styleThemeSlug', 'showZoomControls', 'allowSearch', 'scrollZoom', 'mobileTwoFingerZoom', 'zoomControlsPosition', 'zoomControlsPadding', 'zoomControlsOuterMargin', 'zoomControlsBackgroundColor', 'zoomControlsIconColor', 'zoomControlsBorderRadius', 'zoomControlsBorderColor', 'zoomControlsBorderWidth', 'zoomControlsPlusIcon', 'zoomControlsMinusIcon', 'searchPanelBackgroundPrimary', 'searchPanelBackgroundSecondary', 'searchPanelBackgroundHover', 'searchPanelForegroundPrimary', 'searchPanelForegroundSecondary', 'searchPanelOuterMargin', 'searchPanelBorderRadiusInput', 'searchPanelBorderRadiusCard', 'searchPanelCardGap', 'searchPanelWidth', 'creditsPadding', 'creditsOuterMargin', 'creditsBackgroundColor', 'creditsForegroundColor', 'creditsBorderRadius'];
+function encodeBase64Url(value) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach(byte => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/u, '');
+}
+function escapeHtmlAttribute(value) {
+  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function createCanonicalEmbedAttributes(attributes) {
+  const canonical = {};
+  EMBED_ATTRIBUTE_KEYS.forEach(key => {
+    canonical[key] = attributes[key];
+  });
+  return canonical;
+}
+function createEmbedPayload(attributes) {
+  return {
+    v: EMBED_PAYLOAD_VERSION,
+    attributes: createCanonicalEmbedAttributes(attributes)
+  };
+}
+function buildEmbedUrl(attributes, runtimeConfig) {
+  if (!runtimeConfig.embedBaseUrl) {
+    return '';
+  }
+  const url = new URL(runtimeConfig.embedBaseUrl);
+  url.searchParams.set(EMBED_QUERY_PARAM, encodeBase64Url(JSON.stringify(createEmbedPayload(attributes))));
+  return url.toString();
+}
+function buildIframeSnippet(attributes, runtimeConfig) {
+  const src = buildEmbedUrl(attributes, runtimeConfig);
+  const heightCssValue = `${attributes.height}${(0,_map_defaults__WEBPACK_IMPORTED_MODULE_0__.normalizeHeightUnit)(attributes.heightUnit)}`;
+  return `<iframe src="${escapeHtmlAttribute(src)}" title="Minimal Map" loading="lazy" style="width:100%;height:${escapeHtmlAttribute(heightCssValue)};border:0;"></iframe>`;
 }
 
 /***/ },

@@ -24,6 +24,7 @@ class Config {
 	 * Default style preset slug.
 	 */
 	const DEFAULT_STYLE_PRESET = 'liberty';
+	const EMBED_PAYLOAD_VERSION = 1;
 
 	/**
 	 * Allowed CSS units for map height.
@@ -233,8 +234,57 @@ class Config {
 			'messages'      => array(
 				'fallback' => __( 'Map preview unavailable because this browser does not support WebGL.', 'minimal-map' ),
 			),
+			'embedBaseUrl' => $this->get_embed_base_url(),
 			'previewImageUrl' => plugins_url( 'assets/preview.png', MINIMAL_MAP_FILE ),
 		);
+	}
+
+	/**
+	 * Get the canonical public iframe endpoint URL.
+	 *
+	 * @return string
+	 */
+	public function get_embed_base_url() {
+		return add_query_arg(
+			Iframe_Endpoint::QUERY_VAR,
+			'1',
+			home_url( '/' )
+		);
+	}
+
+	/**
+	 * Decode one embed payload and return normalized block config.
+	 *
+	 * @param string $encoded_payload Base64url-encoded JSON payload.
+	 * @return array<string, mixed>|\WP_Error
+	 */
+	public function normalize_embed_payload( $encoded_payload ) {
+		if ( ! is_string( $encoded_payload ) || '' === $encoded_payload ) {
+			return new \WP_Error(
+				'minimal_map_invalid_embed_payload',
+				__( 'The map embed configuration is missing or invalid.', 'minimal-map' )
+			);
+		}
+
+		$decoded_payload = $this->decode_embed_payload_json( $encoded_payload );
+
+		if ( ! is_array( $decoded_payload ) ) {
+			return new \WP_Error(
+				'minimal_map_invalid_embed_payload',
+				__( 'The map embed configuration is missing or invalid.', 'minimal-map' )
+			);
+		}
+
+		$version = isset( $decoded_payload['v'] ) ? (int) $decoded_payload['v'] : 0;
+
+		if ( self::EMBED_PAYLOAD_VERSION !== $version || ! isset( $decoded_payload['attributes'] ) || ! is_array( $decoded_payload['attributes'] ) ) {
+			return new \WP_Error(
+				'minimal_map_invalid_embed_payload',
+				__( 'The map embed configuration is missing or invalid.', 'minimal-map' )
+			);
+		}
+
+		return $this->normalize_block_attributes( $decoded_payload['attributes'] );
 	}
 
 	/**
@@ -513,6 +563,31 @@ class Config {
 		}
 
 		return $formatted . $unit;
+	}
+
+	/**
+	 * Decode one base64url JSON payload.
+	 *
+	 * @param string $encoded_payload Base64url-encoded JSON payload.
+	 * @return array<string, mixed>|null
+	 */
+	private function decode_embed_payload_json( $encoded_payload ) {
+		$normalized = strtr( trim( $encoded_payload ), '-_', '+/' );
+		$padding    = strlen( $normalized ) % 4;
+
+		if ( 0 !== $padding ) {
+			$normalized .= str_repeat( '=', 4 - $padding );
+		}
+
+		$decoded = base64_decode( $normalized, true );
+
+		if ( false === $decoded ) {
+			return null;
+		}
+
+		$payload = json_decode( $decoded, true );
+
+		return is_array( $payload ) ? $payload : null;
 	}
 
 	/**

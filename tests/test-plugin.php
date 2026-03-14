@@ -96,6 +96,19 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Encode one embed payload using the public base64url format.
+	 *
+	 * @param array<string, mixed> $payload Embed payload.
+	 * @return string
+	 */
+	private function encode_embed_payload( $payload ) {
+		return rtrim(
+			strtr( base64_encode( wp_json_encode( $payload ) ), '+/', '-_' ),
+			'='
+		);
+	}
+
+	/**
 	 * The block should be registered on init.
 	 *
 	 * @return void
@@ -270,6 +283,95 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Embed payloads should decode and sanitize through the shared block config pipeline.
+	 *
+	 * @return void
+	 */
+	public function test_normalize_embed_payload_accepts_v1_payloads() {
+		$config         = new \MinimalMap\Config();
+		$payload        = array(
+			'v'          => \MinimalMap\Config::EMBED_PAYLOAD_VERSION,
+			'attributes' => array(
+				'height'           => 320,
+				'heightUnit'       => 'vh',
+				'zoom'             => 11,
+				'collectionId'     => 999999,
+				'zoomControlsBorderColor' => 'invalid',
+			),
+		);
+		$encoded_payload = $this->encode_embed_payload( $payload );
+		$normalized      = $config->normalize_embed_payload( $encoded_payload );
+
+		$this->assertIsArray( $normalized );
+		$this->assertSame( '320vh', $normalized['heightCssValue'] );
+		$this->assertSame( '#dcdcde', $normalized['zoomControlsBorderColor'] );
+		$this->assertSame( array(), $normalized['locations'] );
+	}
+
+	/**
+	 * Invalid embed payloads should be rejected.
+	 *
+	 * @return void
+	 */
+	public function test_normalize_embed_payload_rejects_invalid_payloads() {
+		$config = new \MinimalMap\Config();
+
+		$this->assertWPError( $config->normalize_embed_payload( '%%%not-valid%%%' ) );
+		$this->assertWPError(
+			$config->normalize_embed_payload(
+				$this->encode_embed_payload(
+					array(
+						'v' => \MinimalMap\Config::EMBED_PAYLOAD_VERSION,
+					)
+				)
+			)
+		);
+	}
+
+	/**
+	 * The iframe endpoint should render a standalone map document for valid payloads.
+	 *
+	 * @return void
+	 */
+	public function test_iframe_endpoint_renders_map_surface_for_valid_payload() {
+		$config  = new \MinimalMap\Config();
+		$view    = new \MinimalMap\Map_View( $config );
+		$endpoint = new \MinimalMap\Iframe_Endpoint( $config, $view );
+		$encoded_payload = $this->encode_embed_payload(
+			array(
+				'v'          => \MinimalMap\Config::EMBED_PAYLOAD_VERSION,
+				'attributes' => array(
+					'height' => 360,
+					'zoom'   => 8,
+				),
+			)
+		);
+
+		$response = $endpoint->build_response( $encoded_payload );
+
+		$this->assertSame( 200, $response['status'] );
+		$this->assertStringContainsString( 'minimal-map-surface', $response['html'] );
+		$this->assertStringContainsString( 'data-minimal-map-config=', $response['html'] );
+		$this->assertStringContainsString( '360px', $response['html'] );
+	}
+
+	/**
+	 * The iframe endpoint should return a bad request document for malformed payloads.
+	 *
+	 * @return void
+	 */
+	public function test_iframe_endpoint_returns_400_for_invalid_payload() {
+		$config   = new \MinimalMap\Config();
+		$view     = new \MinimalMap\Map_View( $config );
+		$endpoint = new \MinimalMap\Iframe_Endpoint( $config, $view );
+		$response = $endpoint->build_response( 'not-a-payload' );
+
+		$this->assertSame( 400, $response['status'] );
+		$this->assertStringContainsString( 'Invalid Minimal Map Embed', $response['html'] );
+		$this->assertStringNotContainsString( 'minimal-map-surface', $response['html'] );
+	}
+
+	/**
 	 * The collection post type should be registered on init.
 	 *
 	 * @return void
@@ -372,6 +474,21 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 		$this->assertSame(
 			\MinimalMap\Logos\Logo_Post_Type::get_rest_path(),
 			$admin_config['logosConfig']['restPath']
+		);
+	}
+
+	/**
+	 * Client config should expose the public iframe base URL.
+	 *
+	 * @return void
+	 */
+	public function test_client_config_includes_embed_base_url() {
+		$config        = new \MinimalMap\Config();
+		$client_config = $config->get_client_config();
+
+		$this->assertSame(
+			add_query_arg( 'minimal-map-iframe', '1', home_url( '/' ) ),
+			$client_config['embedBaseUrl']
 		);
 	}
 }
