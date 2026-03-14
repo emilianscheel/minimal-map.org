@@ -1,4 +1,4 @@
-# [`minimal-map`](https://github.com/emilianscheel/minimal-map)
+# [`🗺️ minimal-map`](https://github.com/emilianscheel/minimal-map)
 
 Render a minimalist MapLibre-powered map in Wordpress.
 
