@@ -164,6 +164,7 @@ export interface RawMapConfig {
 	markerContent?: string | null;
 	markerClassName?: string;
 	markerOffsetY?: number | string;
+	markerScale?: number | string;
 	centerOffsetY?: number | string;
 	locations?: MapLocationPoint[] | null;
 	interactive?: boolean;
@@ -185,6 +186,7 @@ export interface NormalizedMapConfig extends MapDefaults {
 	markerContent: string | null;
 	markerClassName: string;
 	markerOffsetY: number;
+	markerScale: number;
 	centerOffsetY: number;
 	locations: MapLocationPoint[];
 	interactive: boolean;

@@ -1,5 +1,4 @@
 import type { MapLocationTag, TagRecord } from "../../types";
-import "./style.scss";
 
 interface TagBadgeProps {
   tag: Pick<TagRecord, "name" | "background_color" | "foreground_color"> | MapLocationTag;

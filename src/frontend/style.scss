@@ -1,3 +1,6 @@
+@use "../components/TagBadge/style";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
 .wp-block-minimal-map-map,
 .minimal-map-editor {
   width: 100%;

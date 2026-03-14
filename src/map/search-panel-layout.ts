@@ -1,3 +1,4 @@
+import { getNodeDocument, getNodeWindow } from './dom-context';
 import type { NormalizedMapConfig } from '../types';
 
 export const DEFAULT_SEARCH_PANEL_WIDTH = '320px';
@@ -90,15 +91,18 @@ export function getSearchPanelDesktopPadding(
 	>,
 	searchHost?: HTMLElement | null
 ): number {
+	const hostWindow = getNodeWindow(searchHost) ?? (typeof window !== 'undefined' ? window : null);
+
 	if (
 		!config.allowSearch ||
-		(typeof window !== 'undefined' && window.innerWidth <= MOBILE_BREAKPOINT)
+		(hostWindow !== null && hostWindow.innerWidth <= MOBILE_BREAKPOINT)
 	) {
 		return 0;
 	}
 
-	if (searchHost && typeof document !== 'undefined') {
-		const measure = document.createElement('div');
+	if (searchHost && getNodeDocument(searchHost)) {
+		const doc = getNodeDocument(searchHost) as Document;
+		const measure = doc.createElement('div');
 		measure.style.position = 'absolute';
 		measure.style.top = '0';
 		measure.style.left = '0';

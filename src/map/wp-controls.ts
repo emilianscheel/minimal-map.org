@@ -1,6 +1,7 @@
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import { __ } from '@wordpress/i18n';
 import { getZoomControlRuntimeIconSvg } from './zoom-control-options';
+import { getMapDomContext } from './dom-context';
 import type { NormalizedMapConfig, WordPressZoomControls } from '../types';
 
 function applyControlStyles(controls: HTMLDivElement, config: NormalizedMapConfig): void {
@@ -20,9 +21,15 @@ function applyControlStyles(controls: HTMLDivElement, config: NormalizedMapConfi
 	controls.style.setProperty('--minimal-map-controls-button-border-width', config.zoomControlsBorderWidth);
 }
 
-function createControlButton(label: string, icon: string, onClick: () => void): HTMLButtonElement {
-	const button = document.createElement('button');
-	const iconWrap = document.createElement('span');
+function createControlButton(
+	label: string,
+	icon: string,
+	onClick: () => void,
+	host: HTMLElement
+): HTMLButtonElement {
+	const context = getMapDomContext(host);
+	const button = context.doc.createElement('button');
+	const iconWrap = context.doc.createElement('span');
 
 	button.type = 'button';
 	button.className = 'minimal-map-controls__button';
@@ -41,7 +48,8 @@ export function createWordPressZoomControls(
 	map: MapLibreMap,
 	config: NormalizedMapConfig
 ): WordPressZoomControls {
-	const controls = document.createElement('div');
+	const context = getMapDomContext(host);
+	const controls = context.doc.createElement('div');
 
 	controls.className = 'minimal-map-controls';
 	applyControlStyles(controls, config);
@@ -49,12 +57,14 @@ export function createWordPressZoomControls(
 	const zoomInButton = createControlButton(
 		__( 'Zoom in', 'minimal-map' ),
 		getZoomControlRuntimeIconSvg(config.zoomControlsPlusIcon),
-		() => map.zoomIn()
+		() => map.zoomIn(),
+		host
 	);
 	const zoomOutButton = createControlButton(
 		__( 'Zoom out', 'minimal-map' ),
 		getZoomControlRuntimeIconSvg(config.zoomControlsMinusIcon),
-		() => map.zoomOut()
+		() => map.zoomOut(),
+		host
 	);
 
 	controls.append(zoomInButton, zoomOutButton);

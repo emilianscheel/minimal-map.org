@@ -1,8 +1,14 @@
 import { __ } from "@wordpress/i18n";
+import { getMapDomContext } from "./dom-context";
 import type { NormalizedMapConfig, WordPressAttributionControl } from "../types";
 
-function createAttributionLink(href: string, label: string): HTMLAnchorElement {
-  const link = document.createElement("a");
+function createAttributionLink(
+  href: string,
+  label: string,
+  host: HTMLElement,
+): HTMLAnchorElement {
+  const context = getMapDomContext(host);
+  const link = context.doc.createElement("a");
 
   link.href = href;
   link.target = "_blank";
@@ -16,17 +22,20 @@ export function createAttributionPill(
   host: HTMLElement,
   config: NormalizedMapConfig,
 ): WordPressAttributionControl {
-  const root = document.createElement("div");
-  const content = document.createElement("span");
+  const context = getMapDomContext(host);
+  const root = context.doc.createElement("div");
+  const content = context.doc.createElement("span");
   const tilesLink = createAttributionLink(
     "https://openfreemap.org/",
     "OpenFreeMap",
+    host,
   );
-  const separator = document.createElement("span");
-  const dataPrefix = document.createElement("span");
+  const separator = context.doc.createElement("span");
+  const dataPrefix = context.doc.createElement("span");
   const dataLink = createAttributionLink(
     "https://www.openstreetmap.org/copyright",
     "OpenStreetMap",
+    host,
   );
 
   root.className = "minimal-map-attribution";

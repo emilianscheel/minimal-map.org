@@ -10,6 +10,8 @@ import type {
 	StyleThemeRecord,
 } from '../types';
 
+const COLLECTION_MARKER_SCALE = 24 / 41;
+
 function CollectionMiniMap({
 	collection,
 	locations,
@@ -39,8 +41,8 @@ function CollectionMiniMap({
 		styleTheme: theme?.colors,
 		showZoomControls: false,
 		allowSearch: false,
-		markerClassName: 'minimal-map-admin__collection-mini-map-marker',
 		markerOffsetY: 0,
+		markerScale: COLLECTION_MARKER_SCALE,
 		centerOffsetY: 0,
 		locations: previewLocations,
 		interactive: false,

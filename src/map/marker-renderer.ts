@@ -1,0 +1,477 @@
+import type { GeoJSONSource, Map as MapLibreMap, MapMouseEvent } from 'maplibre-gl';
+import type { MapLocationPoint, NormalizedMapConfig } from '../types';
+import { getMapDomContext, type MapDomContext } from './dom-context';
+
+const CUSTOM_MARKER_ICON_SIZE = {
+	width: 32,
+	height: 32,
+};
+
+const DEFAULT_MARKER_ICON_SIZE = {
+	width: 27,
+	height: 41,
+};
+
+const DEFAULT_MARKER_OFFSET_Y = -14;
+const EMPTY_FEATURE_COLLECTION = {
+	type: 'FeatureCollection',
+	features: [],
+} as GeoJSON.FeatureCollection<GeoJSON.Point>;
+
+const DEFAULT_MARKER_SHADOW_ELLIPSES = [
+	{ rx: '10.5', ry: '5.25002273' },
+	{ rx: '10.5', ry: '5.25002273' },
+	{ rx: '9.5', ry: '4.77275007' },
+	{ rx: '8.5', ry: '4.29549936' },
+	{ rx: '7.5', ry: '3.81822308' },
+	{ rx: '6.5', ry: '3.34094679' },
+	{ rx: '5.5', ry: '2.86367051' },
+	{ rx: '4.5', ry: '2.38636864' },
+];
+
+export interface RasterizedMarkerImage {
+	width: number;
+	height: number;
+	data: Uint8ClampedArray;
+}
+
+export interface MarkerRendererConfig
+	extends Pick<NormalizedMapConfig, 'markerContent' | 'markerOffsetY' | 'markerScale'> {
+	points: MapLocationPoint[];
+}
+
+export interface MarkerRenderer {
+	destroy: () => void;
+	handleClick: (event: Pick<MapMouseEvent, 'point'>) => boolean;
+	rebuild: () => Promise<void>;
+	update: (config: MarkerRendererConfig) => Promise<void>;
+}
+
+export interface CreateMarkerRendererOptions {
+	host: HTMLElement;
+	map: Pick<
+		MapLibreMap,
+		| 'addImage'
+		| 'addLayer'
+		| 'addSource'
+		| 'getLayer'
+		| 'getSource'
+		| 'hasImage'
+		| 'isStyleLoaded'
+		| 'queryRenderedFeatures'
+		| 'removeImage'
+		| 'removeLayer'
+		| 'removeSource'
+	>;
+	onLocationSelect?: (locationId: number) => void;
+	rasterizeSvgToImage?: (
+		svgMarkup: string,
+		size: { height: number; width: number },
+		context: MapDomContext
+	) => Promise<RasterizedMarkerImage>;
+}
+
+interface MarkerFeatureProperties {
+	iconId: string;
+	iconOffset: [number, number];
+	iconScale: number;
+	locationId: number | null;
+}
+
+interface MarkerIconSpec {
+	id: string;
+	height: number;
+	key: string;
+	offsetY: number;
+	svgMarkup: string;
+	width: number;
+}
+
+interface MarkerRenderData {
+	featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point>;
+	icons: Map<string, MarkerIconSpec>;
+}
+
+interface MarkerFeaturePoint extends MapLocationPoint {
+	markerContent?: string;
+}
+
+let markerRendererCount = 0;
+
+function createDefaultMarkerSvg(): string {
+	const shadowEllipses = DEFAULT_MARKER_SHADOW_ELLIPSES.map(
+		({ rx, ry }) =>
+			`<ellipse opacity="0.04" cx="10.5" cy="5.80029008" rx="${rx}" ry="${ry}" />`
+	).join('');
+
+	return `
+<svg xmlns="http://www.w3.org/2000/svg" display="block" width="27" height="41" viewBox="0 0 27 41" aria-hidden="true" focusable="false">
+	<g fill="none" fill-rule="evenodd">
+		<g fill-rule="nonzero">
+			<g transform="translate(3 29)" fill="#000000">
+				${shadowEllipses}
+			</g>
+			<g fill="#3FB1CE">
+				<path d="M27,13.5 C27,19.074644 20.250001,27.000002 14.75,34.500002 C14.016665,35.500004 12.983335,35.500004 12.25,34.500002 C6.7499993,27.000002 0,19.222562 0,13.5 C0,6.0441559 6.0441559,0 13.5,0 C20.955844,0 27,6.0441559 27,13.5 Z" />
+			</g>
+			<g opacity="0.25" fill="#000000">
+				<path d="M13.5,0 C6.0441559,0 0,6.0441559 0,13.5 C0,19.222562 6.7499993,27 12.25,34.5 C13,35.522727 14.016664,35.500004 14.75,34.5 C20.250001,27 27,19.074644 27,13.5 C27,6.0441559 20.955844,0 13.5,0 Z M13.5,1 C20.415404,1 26,6.584596 26,13.5 C26,15.898657 24.495584,19.181431 22.220703,22.738281 C19.945823,26.295132 16.705119,30.142167 13.943359,33.908203 C13.743445,34.180814 13.612715,34.322738 13.5,34.441406 C13.387285,34.322738 13.256555,34.180814 13.056641,33.908203 C10.284481,30.127985 7.4148684,26.314159 5.015625,22.773438 C2.6163816,19.232715 1,15.953538 1,13.5 C1,6.584596 6.584596,1 13.5,1 Z" />
+			</g>
+			<g transform="translate(8 8)">
+				<circle fill="#000000" opacity="0.25" cx="5.5" cy="5.5" r="5.4999962" />
+				<circle fill="#FFFFFF" cx="5.5" cy="5.5" r="5.4999962" />
+			</g>
+		</g>
+	</g>
+</svg>`.trim();
+}
+
+function hashString(value: string): string {
+	let hash = 2166136261;
+
+	for (let index = 0; index < value.length; index += 1) {
+		hash ^= value.charCodeAt(index);
+		hash = Math.imul(hash, 16777619);
+	}
+
+	return (hash >>> 0).toString(36);
+}
+
+function getPointMarkerContent(
+	defaultMarkerContent: string | null,
+	point: MarkerFeaturePoint
+): string | null {
+	if (typeof point.markerContent === 'string' && point.markerContent.trim() !== '') {
+		return point.markerContent;
+	}
+
+	return defaultMarkerContent;
+}
+
+function getMarkerIconSpec(markerContent: string | null): MarkerIconSpec {
+	if (typeof markerContent === 'string' && markerContent.trim().startsWith('<svg')) {
+		const svgMarkup = markerContent.trim();
+		const hash = hashString(svgMarkup);
+
+		return {
+			id: `minimal-map-marker-${hash}`,
+			height: CUSTOM_MARKER_ICON_SIZE.height,
+			key: `custom:${hash}`,
+			offsetY: 0,
+			svgMarkup,
+			width: CUSTOM_MARKER_ICON_SIZE.width,
+		};
+	}
+
+	return {
+		id: 'minimal-map-marker-default',
+		height: DEFAULT_MARKER_ICON_SIZE.height,
+		key: 'default',
+		offsetY: DEFAULT_MARKER_OFFSET_Y,
+		svgMarkup: createDefaultMarkerSvg(),
+		width: DEFAULT_MARKER_ICON_SIZE.width,
+	};
+}
+
+function buildMarkerRenderData(config: MarkerRendererConfig): MarkerRenderData {
+	const icons = new Map<string, MarkerIconSpec>();
+
+	const features = config.points.map((point) => {
+		const iconSpec = getMarkerIconSpec(getPointMarkerContent(config.markerContent, point));
+		const featureProperties: MarkerFeatureProperties = {
+			iconId: iconSpec.id,
+			iconOffset: [0, iconSpec.offsetY + config.markerOffsetY],
+			iconScale: config.markerScale,
+			locationId: typeof point.id === 'number' ? point.id : null,
+		};
+
+		icons.set(iconSpec.key, iconSpec);
+
+		return {
+			type: 'Feature',
+			geometry: {
+				type: 'Point',
+				coordinates: [point.lng, point.lat],
+			},
+			properties: featureProperties,
+		};
+	});
+
+	return {
+		featureCollection: {
+			type: 'FeatureCollection',
+			features,
+		} as GeoJSON.FeatureCollection<GeoJSON.Point>,
+		icons,
+	};
+}
+
+async function loadSvgImage(
+	svgMarkup: string,
+	context: MapDomContext
+): Promise<HTMLImageElement> {
+	return new Promise((resolve, reject) => {
+		const image = new context.win.Image();
+		const blob = new context.win.Blob([svgMarkup], {
+			type: 'image/svg+xml;charset=utf-8',
+		});
+		const objectUrl = context.win.URL.createObjectURL(blob);
+
+		image.onload = () => {
+			context.win.URL.revokeObjectURL(objectUrl);
+			resolve(image);
+		};
+		image.onerror = () => {
+			context.win.URL.revokeObjectURL(objectUrl);
+			reject(new Error('Failed to load SVG marker image.'));
+		};
+		image.src = objectUrl;
+	});
+}
+
+export async function rasterizeSvgToImageData(
+	svgMarkup: string,
+	size: { height: number; width: number },
+	context: MapDomContext
+): Promise<RasterizedMarkerImage> {
+	const canvas = context.doc.createElement('canvas');
+	canvas.width = size.width;
+	canvas.height = size.height;
+
+	const drawingContext = canvas.getContext('2d', {
+		willReadFrequently: true,
+	});
+
+	if (!drawingContext) {
+		throw new Error('Failed to create canvas rendering context for map marker.');
+	}
+
+	const image = await loadSvgImage(svgMarkup, context);
+	drawingContext.clearRect(0, 0, size.width, size.height);
+	drawingContext.drawImage(image, 0, 0, size.width, size.height);
+
+	return {
+		width: size.width,
+		height: size.height,
+		data: drawingContext.getImageData(0, 0, size.width, size.height).data,
+	};
+}
+
+export function createMarkerRenderer({
+	host,
+	map,
+	onLocationSelect,
+	rasterizeSvgToImage = rasterizeSvgToImageData,
+}: CreateMarkerRendererOptions): MarkerRenderer {
+	const context = getMapDomContext(host);
+	const instanceId = ++markerRendererCount;
+	const sourceId = `minimal-map-markers-source-${instanceId}`;
+	const layerId = `minimal-map-markers-layer-${instanceId}`;
+	const emptyConfig: MarkerRendererConfig = {
+		markerContent: null,
+		markerOffsetY: 0,
+		markerScale: 1,
+		points: [],
+	};
+	let currentConfig = emptyConfig;
+	let destroyed = false;
+	let revision = 0;
+	let activeIcons = new Map<string, MarkerIconSpec>();
+	const rasterizedImages = new Map<string, Promise<RasterizedMarkerImage>>();
+
+	function getSource(): GeoJSONSource | null {
+		return (map.getSource(sourceId) as GeoJSONSource | undefined) ?? null;
+	}
+
+	function ensureSource(): GeoJSONSource {
+		const existingSource = getSource();
+
+		if (existingSource) {
+			return existingSource;
+		}
+
+		map.addSource(sourceId, {
+			type: 'geojson',
+			data: EMPTY_FEATURE_COLLECTION,
+		});
+
+		return getSource() as GeoJSONSource;
+	}
+
+	function ensureLayer(): void {
+		if (map.getLayer(layerId)) {
+			return;
+		}
+
+		map.addLayer({
+			id: layerId,
+			type: 'symbol',
+			source: sourceId,
+			layout: {
+				'icon-image': ['get', 'iconId'] as never,
+				'icon-size': ['get', 'iconScale'] as never,
+				'icon-offset': ['get', 'iconOffset'] as never,
+				'icon-anchor': 'center',
+				'icon-allow-overlap': true,
+				'icon-ignore-placement': true,
+			},
+		});
+	}
+
+	function clearSourceAndLayer(): void {
+		if (map.getLayer(layerId)) {
+			map.removeLayer(layerId);
+		}
+
+		if (getSource()) {
+			map.removeSource(sourceId);
+		}
+	}
+
+	function clearImages(): void {
+		activeIcons.forEach((iconSpec) => {
+			if (map.hasImage(iconSpec.id)) {
+				map.removeImage(iconSpec.id);
+			}
+		});
+		activeIcons.clear();
+		rasterizedImages.clear();
+	}
+
+	function pruneUnusedIcons(nextIcons: Map<string, MarkerIconSpec>): void {
+		activeIcons.forEach((iconSpec, key) => {
+			if (nextIcons.has(key)) {
+				return;
+			}
+
+			if (map.hasImage(iconSpec.id)) {
+				map.removeImage(iconSpec.id);
+			}
+
+			activeIcons.delete(key);
+			rasterizedImages.delete(key);
+		});
+	}
+
+	async function resolveIconImage(iconSpec: MarkerIconSpec): Promise<RasterizedMarkerImage> {
+		if (!rasterizedImages.has(iconSpec.key)) {
+			rasterizedImages.set(
+				iconSpec.key,
+				rasterizeSvgToImage(
+					iconSpec.svgMarkup,
+					{
+						width: iconSpec.width,
+						height: iconSpec.height,
+					},
+					context
+				).catch(async () => {
+					const fallbackSpec = getMarkerIconSpec(null);
+					return rasterizeSvgToImage(
+						fallbackSpec.svgMarkup,
+						{
+							width: fallbackSpec.width,
+							height: fallbackSpec.height,
+						},
+						context
+					);
+				})
+			);
+		}
+
+		return rasterizedImages.get(iconSpec.key) as Promise<RasterizedMarkerImage>;
+	}
+
+	async function ensureImages(
+		icons: Map<string, MarkerIconSpec>,
+		currentRevision: number
+	): Promise<void> {
+		await Promise.all(
+			Array.from(icons.values()).map(async (iconSpec) => {
+				if (destroyed || currentRevision !== revision) {
+					return;
+				}
+
+				activeIcons.set(iconSpec.key, iconSpec);
+
+				if (map.hasImage(iconSpec.id)) {
+					return;
+				}
+
+				const image = await resolveIconImage(iconSpec);
+
+				if (destroyed || currentRevision !== revision || map.hasImage(iconSpec.id)) {
+					return;
+				}
+
+				map.addImage(iconSpec.id, image);
+			})
+		);
+	}
+
+	async function sync(nextConfig: MarkerRendererConfig, currentRevision: number): Promise<void> {
+		currentConfig = nextConfig;
+
+		if (!map.isStyleLoaded()) {
+			return;
+		}
+
+		if (nextConfig.points.length === 0) {
+			clearSourceAndLayer();
+			pruneUnusedIcons(new Map());
+			return;
+		}
+
+		const renderData = buildMarkerRenderData(nextConfig);
+		pruneUnusedIcons(renderData.icons);
+		await ensureImages(renderData.icons, currentRevision);
+
+		if (destroyed || currentRevision !== revision || !map.isStyleLoaded()) {
+			return;
+		}
+
+		const source = ensureSource();
+		ensureLayer();
+		source.setData(renderData.featureCollection);
+	}
+
+	return {
+		destroy() {
+			destroyed = true;
+			revision += 1;
+			clearSourceAndLayer();
+			clearImages();
+		},
+		handleClick(event) {
+			if (!map.getLayer(layerId)) {
+				return false;
+			}
+
+			const feature = map
+				.queryRenderedFeatures(event.point, {
+					layers: [layerId],
+				})
+				.find((candidate) => candidate.properties?.locationId !== null);
+
+			if (!feature) {
+				return false;
+			}
+
+			const locationId = Number(feature.properties?.locationId);
+
+			if (!Number.isInteger(locationId) || locationId <= 0) {
+				return false;
+			}
+
+			onLocationSelect?.(locationId);
+			return true;
+		},
+		async rebuild() {
+			const currentRevision = ++revision;
+			await sync(currentConfig, currentRevision);
+		},
+		async update(nextConfig) {
+			const currentRevision = ++revision;
+			await sync(nextConfig, currentRevision);
+		},
+	};
+}

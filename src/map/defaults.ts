@@ -416,6 +416,10 @@ export function normalizeMapConfig(
 	const markerClassName =
 		typeof rawConfig.markerClassName === 'string' ? rawConfig.markerClassName.trim() : '';
 	const markerOffsetY = Number.isFinite(Number(rawConfig.markerOffsetY)) ? Number(rawConfig.markerOffsetY) : 0;
+	const markerScale =
+		Number.isFinite(Number(rawConfig.markerScale)) && Number(rawConfig.markerScale) > 0
+			? Number(rawConfig.markerScale)
+			: 1;
 	const centerOffsetY = Number.isFinite(Number(rawConfig.centerOffsetY)) ? Number(rawConfig.centerOffsetY) : 0;
 	const locations = normalizeLocations(rawConfig.locations ?? runtimeConfig.locations);
 
@@ -480,6 +484,7 @@ export function normalizeMapConfig(
 		markerContent,
 		markerClassName,
 		markerOffsetY,
+		markerScale,
 		centerOffsetY,
 		locations,
 		interactive: rawConfig.interactive ?? true,

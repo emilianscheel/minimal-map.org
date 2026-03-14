@@ -1,5 +1,4 @@
 import maplibregl, { LngLatBounds, type Map as MapLibreMap } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
 import { createAttributionPill } from './attribution-pill';
 import { normalizeMapConfig } from './defaults';
 import { syncTouchZoomInteraction } from './interactions';
@@ -7,6 +6,8 @@ import { applyStyleTheme } from '../lib/styles/themeEngine';
 import { createWordPressZoomControls } from './wp-controls';
 import { createWordPressSearchControl } from './SearchControl';
 import { getSearchPanelDesktopPadding } from './search-panel-layout';
+import { createMarkerRenderer, type MarkerRenderer, type MarkerRendererConfig } from './marker-renderer';
+import { getMapDomContext, type MapDomContext } from './dom-context';
 import type {
 	MapRuntimeConfig,
 	MapLocationPoint,
@@ -22,19 +23,15 @@ interface MinimalMapState {
 	attribution: WordPressAttributionControl | null;
 	config: NormalizedMapConfig | null;
 	controls: WordPressZoomControls | null;
+	map: MapLibreMap | null;
+	markerRenderer: MarkerRenderer | null;
+	observer: ResizeObserver | null;
 	searchControl: WordPressSearchControl | null;
 	selectedLocationId: number | null;
-	map: MapLibreMap | null;
-	markers: maplibregl.Marker[];
-	observer: ResizeObserver | null;
 }
 
-function canCreateWebGLContext(): boolean {
-	if (typeof window === 'undefined' || typeof document === 'undefined') {
-		return false;
-	}
-
-	const canvas = document.createElement('canvas');
+function canCreateWebGLContext(context: MapDomContext): boolean {
+	const canvas = context.doc.createElement('canvas');
 
 	return Boolean(
 		canvas.getContext('webgl2') ||
@@ -43,11 +40,11 @@ function canCreateWebGLContext(): boolean {
 	);
 }
 
-function createFallback(host: HTMLElement, message: string): void {
+function createFallback(host: HTMLElement, message: string, context: MapDomContext): void {
 	host.innerHTML = '';
-	const notice = document.createElement('div');
-	const content = document.createElement('div');
-	const paragraph = document.createElement('p');
+	const notice = context.doc.createElement('div');
+	const content = context.doc.createElement('div');
+	const paragraph = context.doc.createElement('p');
 
 	notice.className = 'components-notice is-warning minimal-map-fallback';
 	content.className = 'components-notice__content';
@@ -57,12 +54,12 @@ function createFallback(host: HTMLElement, message: string): void {
 	host.appendChild(notice);
 }
 
-function createShell(host: HTMLElement, config: NormalizedMapConfig): HTMLElement {
+function createShell(host: HTMLElement, config: NormalizedMapConfig, context: MapDomContext): HTMLElement {
 	host.innerHTML = '';
 	host.classList.add('minimal-map-runtime');
 	host.style.height = config.heightCssValue;
 
-	const viewport = document.createElement('div');
+	const viewport = context.doc.createElement('div');
 	viewport.className = 'minimal-map-runtime__viewport';
 	host.appendChild(viewport);
 
@@ -78,47 +75,6 @@ function getMarkerContent(
 	}
 
 	return config.markerContent;
-}
-
-function createMarker(
-	config: NormalizedMapConfig,
-	point: MapLocationPoint,
-	onClick?: (id: number) => void
-): maplibregl.Marker {
-	const options: maplibregl.MarkerOptions = {
-		offset: [ 0, config.markerOffsetY ],
-		anchor: 'center',
-	};
-
-	const markerContent = getMarkerContent(config, point);
-
-	if (markerContent) {
-		const el = document.createElement('div');
-		el.className = 'minimal-map-custom-marker';
-
-		// Create inner wrapper for transform-based centering
-		const inner = document.createElement('div');
-		inner.innerHTML = markerContent;
-		el.appendChild(inner);
-
-		// Ensure MapLibre sees zero size for absolute coordinate alignment
-		el.style.width = '0';
-		el.style.height = '0';
-		options.element = el;
-	}
-
-	const marker = new maplibregl.Marker(options).setLngLat([ point.lng, point.lat ]);
-
-	if (config.markerClassName) {
-		marker.getElement().classList.add(...config.markerClassName.split(/\s+/).filter(Boolean));
-	}
-
-	if (point.id && onClick) {
-		marker.getElement().style.cursor = 'pointer';
-		marker.getElement().addEventListener('click', () => onClick(point.id as number));
-	}
-
-	return marker;
 }
 
 function didZoomControlsStyleChange(
@@ -178,17 +134,20 @@ function syncCenter(
 	zoomChanged = false
 ): void {
 	const target = {
-		center: [ config.centerLng, config.centerLat ] as [ number, number ],
-		offset: [ 0, config.centerOffsetY ] as [ number, number ],
+		center: [config.centerLng, config.centerLat] as [number, number],
+		offset: [0, config.centerOffsetY] as [number, number],
 	};
 
 	if (zoomChanged) {
-		map.easeTo({
-			...target,
-			duration: 180,
-			essential: true,
-			zoom: config.zoom,
-		}, { isMinimalMapInternal: true });
+		map.easeTo(
+			{
+				...target,
+				duration: 180,
+				essential: true,
+				zoom: config.zoom,
+			},
+			{ isMinimalMapInternal: true }
+		);
 		return;
 	}
 
@@ -208,8 +167,18 @@ function getRenderedPoints(config: NormalizedMapConfig): MapLocationPoint[] {
 		{
 			lat: config.markerLat,
 			lng: config.markerLng,
+			markerContent: config.markerContent ?? undefined,
 		},
 	];
+}
+
+function getMarkerRendererConfig(config: NormalizedMapConfig): MarkerRendererConfig {
+	return {
+		markerContent: config.markerContent,
+		markerOffsetY: config.markerOffsetY,
+		markerScale: config.markerScale,
+		points: getRenderedPoints(config),
+	};
 }
 
 function didRenderedPointsChange(
@@ -226,7 +195,7 @@ function didRenderedPointsChange(
 	return previousPoints.some((point, index) => {
 		const nextPoint = nextPoints[index];
 
-		return point.lat !== nextPoint.lat || point.lng !== nextPoint.lng;
+		return point.lat !== nextPoint.lat || point.lng !== nextPoint.lng || point.id !== nextPoint.id;
 	});
 }
 
@@ -270,13 +239,16 @@ function syncViewport(
 
 	if (points.length === 1) {
 		const [point] = points;
-		map.easeTo({
-			center: [point.lng, point.lat],
-			duration: 180,
-			essential: true,
-			offset: [0, config.centerOffsetY],
-			zoom: config.zoom,
-		}, { isMinimalMapInternal: true });
+		map.easeTo(
+			{
+				center: [point.lng, point.lat],
+				duration: 180,
+				essential: true,
+				offset: [0, config.centerOffsetY],
+				zoom: config.zoom,
+			},
+			{ isMinimalMapInternal: true }
+		);
 		return;
 	}
 
@@ -285,11 +257,15 @@ function syncViewport(
 		new LngLatBounds([points[0].lng, points[0].lat], [points[0].lng, points[0].lat])
 	);
 
-	map.fitBounds(bounds, {
-		duration: 180,
-		essential: true,
-		padding: 48,
-	}, { isMinimalMapInternal: true });
+	map.fitBounds(
+		bounds,
+		{
+			duration: 180,
+			essential: true,
+			padding: 48,
+		},
+		{ isMinimalMapInternal: true }
+	);
 }
 
 export function createMinimalMap(
@@ -301,63 +277,49 @@ export function createMinimalMap(
 		attribution: null,
 		config: null,
 		controls: null,
+		map: null,
+		markerRenderer: null,
+		observer: null,
 		searchControl: null,
 		selectedLocationId: null,
-		map: null,
-		markers: [],
-		observer: null,
 	};
 
-	function syncMarkers(config: NormalizedMapConfig, forceRecreate = false): void {
+	function focusLocation(locationId: number, config: NormalizedMapConfig): void {
 		if (!state.map) {
 			return;
 		}
 
-		const points = getRenderedPoints(config);
+		const point = getRenderedPoints(config).find((candidate) => candidate.id === locationId);
 
-		if (forceRecreate || points.length === 0) {
-			state.markers.forEach((marker) => marker.remove());
-			state.markers = [];
-		}
-
-		if (points.length === 0) {
+		if (!point) {
 			return;
 		}
 
-		const onMarkerClick = (id: number) => {
-			const point = points.find(p => p.id === id);
-			if (point && state.map) {
-				const activeConfig = state.config ?? config;
-				state.selectedLocationId = id;
-				state.map.easeTo({
-					center: [point.lng, point.lat],
-					zoom: Math.max(state.map.getZoom(), 15),
-					padding: {
-						left: getSearchPanelDesktopPadding(
-							activeConfig,
-							state.searchControl
-								? host.querySelector<HTMLElement>('.minimal-map-search-host')
-								: null
-						),
-						top: 0,
-						right: 0,
-						bottom: 0,
-					},
-					essential: true
-				}, { isMinimalMapInternal: true });
-				if (state.searchControl) {
-					state.searchControl.update(activeConfig, id);
-				}
-			}
-		};
-
-		state.markers = points.map((point) => 
-			createMarker(config, point, onMarkerClick).addTo(state.map as MapLibreMap)
+		state.selectedLocationId = locationId;
+		state.map.easeTo(
+			{
+				center: [point.lng, point.lat],
+				zoom: Math.max(state.map.getZoom(), 15),
+				padding: {
+					left: getSearchPanelDesktopPadding(
+						config,
+						state.searchControl
+							? host.querySelector<HTMLElement>('.minimal-map-search-host')
+							: null
+					),
+					top: 0,
+					right: 0,
+					bottom: 0,
+				},
+				essential: true,
+			},
+			{ isMinimalMapInternal: true }
 		);
+		state.searchControl?.update(config, locationId);
 	}
 
 	function setupUserInteractionListeners(map: MapLibreMap): void {
-		const clearSelection = (event: any) => {
+		const clearSelection = (event: { isMinimalMapInternal?: boolean }) => {
 			if (event.isMinimalMapInternal) {
 				return;
 			}
@@ -387,9 +349,9 @@ export function createMinimalMap(
 		if (config.allowSearch && config.locations.length > 0 && state.map) {
 			if (!state.searchControl) {
 				state.searchControl = createWordPressSearchControl(
-					host, 
-					state.map, 
-					config, 
+					host,
+					state.map,
+					config,
 					state.selectedLocationId ?? undefined,
 					(location) => {
 						if (location.id) {
@@ -415,13 +377,22 @@ export function createMinimalMap(
 		}
 	}
 
+	function syncMarkers(config: NormalizedMapConfig): void {
+		if (!state.markerRenderer) {
+			return;
+		}
+
+		void state.markerRenderer.update(getMarkerRendererConfig(config));
+	}
+
 	function build(rawConfig: RawMapConfig): void {
+		const context = getMapDomContext(host);
 		const config = normalizeMapConfig(rawConfig, runtimeConfig);
 		state.config = config;
-		const viewport = createShell(host, config);
+		const viewport = createShell(host, config, context);
 
-		if (!canCreateWebGLContext()) {
-			createFallback(host, config.fallbackMessage);
+		if (!canCreateWebGLContext(context)) {
+			createFallback(host, config.fallbackMessage, context);
 			return;
 		}
 
@@ -429,7 +400,7 @@ export function createMinimalMap(
 			state.map = new maplibregl.Map({
 				attributionControl: false,
 				boxZoom: config.interactive,
-				center: [ config.centerLng, config.centerLat ],
+				center: [config.centerLng, config.centerLat],
 				container: viewport,
 				doubleClickZoom: config.interactive,
 				dragPan: config.interactive,
@@ -441,11 +412,19 @@ export function createMinimalMap(
 				zoom: config.zoom,
 			});
 		} catch {
-			createFallback(host, config.fallbackMessage);
+			createFallback(host, config.fallbackMessage, context);
 			return;
 		}
 
 		const map = state.map;
+		state.markerRenderer = createMarkerRenderer({
+			host,
+			map,
+			onLocationSelect: (locationId) => {
+				const activeConfig = state.config ?? config;
+				focusLocation(locationId, activeConfig);
+			},
+		});
 
 		if (!config.interactive) {
 			map.boxZoom.disable();
@@ -459,55 +438,68 @@ export function createMinimalMap(
 		syncTouchZoomInteraction(map, config);
 
 		map.on('load', () => {
-			syncViewport(map, config);
+			const activeConfig = state.config ?? config;
+			syncViewport(map, activeConfig);
 			map.resize();
 
-			if (config.styleTheme) {
+			if (activeConfig.styleTheme) {
 				try {
-					applyStyleTheme(map, config.styleTheme, config.stylePreset);
-				} catch (e) {
-					console.warn('Initial theme application failed', e);
+					applyStyleTheme(map, activeConfig.styleTheme, activeConfig.stylePreset);
+				} catch (error) {
+					console.warn('Initial theme application failed', error);
 				}
 			}
+
+			void state.markerRenderer?.rebuild();
 		});
 
 		map.on('style.load', () => {
-			if (config.styleTheme) {
+			const activeConfig = state.config ?? config;
+
+			if (activeConfig.styleTheme) {
 				try {
-					applyStyleTheme(map, config.styleTheme, config.stylePreset);
-				} catch (e) {
-					console.warn('Style theme re-application failed', e);
+					applyStyleTheme(map, activeConfig.styleTheme, activeConfig.stylePreset);
+				} catch (error) {
+					console.warn('Style theme re-application failed', error);
 				}
 			}
+
+			void state.markerRenderer?.rebuild();
 		});
+
 		map.on('click', (event) => {
-			if (!config.interactive) {
+			if (state.markerRenderer?.handleClick(event)) {
 				return;
 			}
 
-			const coordinates = {
+			const activeConfig = state.config ?? config;
+
+			if (!activeConfig.interactive) {
+				return;
+			}
+
+			runtimeConfig.onMapClick?.({
 				lat: event.lngLat.lat,
 				lng: event.lngLat.lng,
-			};
-
-			runtimeConfig.onMapClick?.(coordinates);
+			});
 		});
+
 		map.on('error', () => {
 			if (map.loaded()) {
 				return;
 			}
 
-			createFallback(host, config.fallbackMessage);
+			createFallback(host, (state.config ?? config).fallbackMessage, context);
 		});
 
-		if (typeof window.ResizeObserver === 'function') {
-			state.observer = new window.ResizeObserver(() => {
+		if (typeof context.win.ResizeObserver === 'function') {
+			state.observer = new context.win.ResizeObserver(() => {
 				state.map?.resize();
 			});
 			state.observer.observe(host);
 		}
 
-		syncMarkers(config, true);
+		syncMarkers(config);
 		syncControls(config);
 		syncSearch(config);
 		syncAttribution(config);
@@ -524,12 +516,14 @@ export function createMinimalMap(
 		state.searchControl?.destroy();
 		state.searchControl = null;
 
+		state.markerRenderer?.destroy();
+		state.markerRenderer = null;
+
 		state.observer?.disconnect();
 		state.observer = null;
 
 		state.map?.remove();
 		state.map = null;
-		state.markers = [];
 
 		host.innerHTML = '';
 	}
@@ -553,8 +547,8 @@ export function createMinimalMap(
 		if (JSON.stringify(previousConfig?.styleTheme) !== JSON.stringify(nextConfig.styleTheme)) {
 			try {
 				applyStyleTheme(state.map, nextConfig.styleTheme, nextConfig.stylePreset);
-			} catch (e) {
-				console.warn('Live theme update failed', e);
+			} catch (error) {
+				console.warn('Live theme update failed', error);
 			}
 		}
 
@@ -605,20 +599,12 @@ export function createMinimalMap(
 		if (
 			!previousConfig ||
 			previousConfig.markerContent !== nextConfig.markerContent ||
-			previousConfig.markerClassName !== nextConfig.markerClassName ||
 			previousConfig.markerOffsetY !== nextConfig.markerOffsetY ||
+			previousConfig.markerScale !== nextConfig.markerScale ||
 			didRenderedPointsChange(previousConfig, nextConfig) ||
 			didRenderedMarkerContentChange(previousConfig, nextConfig)
 		) {
-			syncMarkers(
-				nextConfig,
-				!previousConfig ||
-					previousConfig.markerContent !== nextConfig.markerContent ||
-					previousConfig.markerClassName !== nextConfig.markerClassName ||
-					previousConfig.markerOffsetY !== nextConfig.markerOffsetY ||
-					didRenderedPointsChange(previousConfig, nextConfig) ||
-					didRenderedMarkerContentChange(previousConfig, nextConfig)
-			);
+			syncMarkers(nextConfig);
 		}
 
 		state.config = nextConfig;

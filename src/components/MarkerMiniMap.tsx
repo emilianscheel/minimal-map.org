@@ -29,6 +29,7 @@ export default function MarkerMiniMap({ marker, theme }: { marker: MarkerRecord;
 			showAttribution: false,
 			height: 100,
 			heightUnit: '%',
+			markerScale: 1.25,
 			styleTheme: theme?.colors,
 			stylePreset: theme?.basePreset,
 		});
@@ -62,6 +63,7 @@ export default function MarkerMiniMap({ marker, theme }: { marker: MarkerRecord;
 			showAttribution: false,
 			height: 100,
 			heightUnit: '%',
+			markerScale: 1.25,
 			styleTheme: theme?.colors,
 			stylePreset: theme?.basePreset,
 		});
