@@ -1,21 +1,21 @@
 # `minimal-map`
 
-![Dashboard overview](dashboard.png)
+![Dashboard overview](./assets/dashboard.png)
 
-![Location management](locations.png)
+![Location management](./assets/locations.png)
 
-![Collection management](collections.png)
+![Collection management](./assets/collections.png)
 
-![Tag management](tags.png)
+![Tag management](./assets/tags.png)
 
-![Map style management](styles.png)
+![Map style management](./assets/styles.png)
 
-![Search interface](search.png)
+![Search interface](./assets/search.png)
 
-![Zoom controls](zoom.png)
+![Zoom controls](./assets/zoom.png)
 
-![Layout options](layout.png)
+![Layout options](./assets/layout.png)
 
-![Gutenberg block integration](gutenberg.png)
+![Gutenberg block integration](./assets/gutenberg.png)
 
-![Map preview](preview.png)
+![Map preview](./assets/preview.png)
