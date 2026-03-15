@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Minimal Map plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Minimal Map 0.2.0\n"
+"Project-Id-Version: Minimal Map 0.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/minimal-map\n"
 "Last-Translator: Emilian Scheel\n"
 "Language-Team: German\n"
