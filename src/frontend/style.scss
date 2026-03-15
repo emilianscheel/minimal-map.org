@@ -416,6 +416,12 @@
   gap: var(--minimal-map-search-card-gap);
   background: var(--minimal-map-search-background-primary);
   min-width: 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }
 
 .minimal-map-search__result-item {
