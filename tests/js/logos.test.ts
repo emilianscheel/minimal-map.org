@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { buildLocationMeta } from '../../src/lib/locations/buildLocationMeta';
 import { normalizeLocationRecord } from '../../src/lib/locations/normalizeLocationRecord';
 import { normalizeLogoRecord } from '../../src/lib/logos/normalizeLogoRecord';
+import { createDefaultOpeningHours } from '../../src/lib/locations/openingHours';
 
 describe('logo and location helpers', () => {
 	test('normalizeLogoRecord keeps filename and svg content', () => {
@@ -36,6 +37,7 @@ describe('logo and location helpers', () => {
 					latitude: '52.5',
 					longitude: '13.4',
 					logo_id: 22,
+					marker_id: 0,
 				},
 				minimal_map_tag: [3],
 			})
@@ -63,6 +65,9 @@ describe('logo and location helpers', () => {
 				latitude: '52.5',
 				longitude: '13.4',
 				logo_id: 11,
+				marker_id: 0,
+				opening_hours: createDefaultOpeningHours(),
+				opening_hours_notes: '',
 				tag_ids: [],
 			})
 		).toMatchObject({

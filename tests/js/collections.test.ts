@@ -11,6 +11,7 @@ import {
 	areCollectionMiniMapPropsEqual,
 	haveSameCollectionLocationIds,
 } from '../../src/lib/collections/collectionMiniMap';
+import { createDefaultOpeningHours } from '../../src/lib/locations/openingHours';
 import type { CollectionRecord, LocationRecord } from '../../src/types';
 
 const LOCATIONS: LocationRecord[] = [
@@ -29,6 +30,9 @@ const LOCATIONS: LocationRecord[] = [
 		latitude: '52.517',
 		longitude: '13.388',
 		logo_id: 0,
+		marker_id: 0,
+		opening_hours: createDefaultOpeningHours(),
+		opening_hours_notes: '',
 		tag_ids: [],
 	},
 	{
@@ -46,6 +50,9 @@ const LOCATIONS: LocationRecord[] = [
 		latitude: '48.137154',
 		longitude: '11.576124',
 		logo_id: 0,
+		marker_id: 0,
+		opening_hours: createDefaultOpeningHours(),
+		opening_hours_notes: '',
 		tag_ids: [],
 	},
 	{
@@ -63,6 +70,9 @@ const LOCATIONS: LocationRecord[] = [
 		latitude: '53.543764',
 		longitude: '9.966819',
 		logo_id: 0,
+		marker_id: 0,
+		opening_hours: createDefaultOpeningHours(),
+		opening_hours_notes: '',
 		tag_ids: [],
 	},
 	{
@@ -80,6 +90,9 @@ const LOCATIONS: LocationRecord[] = [
 		latitude: '',
 		longitude: '',
 		logo_id: 0,
+		marker_id: 0,
+		opening_hours: createDefaultOpeningHours(),
+		opening_hours_notes: '',
 		tag_ids: [],
 	},
 ];

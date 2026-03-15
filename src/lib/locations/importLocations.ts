@@ -7,6 +7,7 @@ import type {
 import { createCollection } from '../collections/createCollection';
 import { createLocation } from './createLocation';
 import { geocodeAddress } from './geocodeAddress';
+import { createDefaultOpeningHours } from './openingHours';
 
 export const COMMON_CSV_HEADERS = [
 	'title',
@@ -255,6 +256,8 @@ function createBaseImportForm(): LocationFormState {
 		longitude: '',
 		logo_id: 0,
 		marker_id: 0,
+		opening_hours: createDefaultOpeningHours(),
+		opening_hours_notes: '',
 		tag_ids: [],
 	};
 }

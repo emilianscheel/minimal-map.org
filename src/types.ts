@@ -417,6 +417,24 @@ export interface WordPressAttributionControl {
 	destroy: () => void;
 }
 
+export type OpeningHoursDayKey =
+	| 'monday'
+	| 'tuesday'
+	| 'wednesday'
+	| 'thursday'
+	| 'friday'
+	| 'saturday'
+	| 'sunday';
+
+export interface LocationOpeningHoursDay {
+	open: string;
+	close: string;
+	lunch_start: string;
+	lunch_duration_minutes: number;
+}
+
+export type LocationOpeningHours = Record<OpeningHoursDayKey, LocationOpeningHoursDay>;
+
 export interface LocationMeta {
 	telephone: string;
 	email: string;
@@ -431,6 +449,8 @@ export interface LocationMeta {
 	longitude: string;
 	logo_id: number;
 	marker_id: number;
+	opening_hours: LocationOpeningHours;
+	opening_hours_notes: string;
 }
 
 export interface LocationRecord extends LocationMeta {
@@ -487,7 +507,7 @@ export interface LocationFormState extends LocationMeta {
 
 export type LocationFormMode = 'create' | 'edit';
 
-export type LocationDialogStep = 'details' | 'address' | 'map';
+export type LocationDialogStep = 'details' | 'opening_hours' | 'address' | 'map';
 
 export interface FieldErrors {
 	title?: string;
@@ -498,6 +518,7 @@ export interface FieldErrors {
 	postal_code?: string;
 	city?: string;
 	country?: string;
+	opening_hours?: Partial<Record<OpeningHoursDayKey, string>>;
 }
 
 export interface MapCoordinates {

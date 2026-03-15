@@ -1,4 +1,5 @@
 import type { LocationFormState, LocationRecord } from '../../types';
+import { normalizeOpeningHours } from './openingHours';
 
 export function createLocationFormStateFromRecord(location: LocationRecord): LocationFormState {
 	return {
@@ -16,6 +17,8 @@ export function createLocationFormStateFromRecord(location: LocationRecord): Loc
 		longitude: location.longitude,
 		logo_id: location.logo_id,
 		marker_id: location.marker_id,
+		opening_hours: normalizeOpeningHours(location.opening_hours),
+		opening_hours_notes: location.opening_hours_notes,
 		tag_ids: location.tag_ids,
 	};
 }

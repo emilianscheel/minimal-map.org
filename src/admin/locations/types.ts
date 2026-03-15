@@ -11,6 +11,8 @@ import type {
 	LocationFormState,
 	LocationRecord,
 	MapCoordinates,
+	OpeningHoursDayKey,
+	LocationOpeningHoursDay,
 	StyleThemeRecord,
 	TagRecord,
 } from '../../types';
@@ -95,6 +97,12 @@ export interface LocationsController {
 	onBack: () => void;
 	onCancel: () => void;
 	onChangeFormValue: (key: keyof LocationFormState, value: any) => void;
+	onChangeOpeningHoursDayValue: (
+		dayKey: OpeningHoursDayKey,
+		field: keyof LocationOpeningHoursDay,
+		value: string | number
+	) => void;
+	onChangeOpeningHoursNotes: (value: string) => void;
 	onChangeCsvImportMapping: (field: keyof CsvImportMapping, columnIndex: string) => void;
 	onMapLocationSelect: (coordinates: MapCoordinates) => void;
 	onCloseCustomCsvImportModal: () => void;

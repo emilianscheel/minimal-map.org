@@ -21,6 +21,7 @@ import {
 	getQuickAssignableTag,
 	mergeLocationTagIds,
 } from '../../src/admin/locations/assignmentHelpers';
+import { createDefaultOpeningHours } from '../../src/lib/locations/openingHours';
 
 function createLocationRecord(overrides: Partial<LocationRecord>): LocationRecord {
 	return {
@@ -39,6 +40,8 @@ function createLocationRecord(overrides: Partial<LocationRecord>): LocationRecor
 		longitude: '',
 		logo_id: 0,
 		marker_id: 0,
+		opening_hours: createDefaultOpeningHours(),
+		opening_hours_notes: '',
 		tag_ids: [],
 		...overrides,
 	};

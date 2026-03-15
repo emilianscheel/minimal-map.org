@@ -45,6 +45,22 @@ class Location_Post_Type {
 		'longitude'    => 'sanitize_text_field',
 		'logo_id'      => 'absint',
 		'marker_id'    => 'absint',
+		'opening_hours_notes' => 'sanitize_textarea_field',
+	);
+
+	/**
+	 * Supported opening-hours day keys.
+	 *
+	 * @var string[]
+	 */
+	const OPENING_HOURS_DAY_KEYS = array(
+		'monday',
+		'tuesday',
+		'wednesday',
+		'thursday',
+		'friday',
+		'saturday',
+		'sunday',
 	);
 
 	/**
@@ -88,6 +104,21 @@ class Location_Post_Type {
 				)
 			);
 		}
+
+		register_post_meta(
+			self::POST_TYPE,
+			'opening_hours',
+			array(
+				'auth_callback'     => array( $this, 'can_manage_locations' ),
+				'sanitize_callback' => array( $this, 'sanitize_opening_hours' ),
+				'show_in_rest'      => array(
+					'schema' => $this->get_opening_hours_schema(),
+				),
+				'single'            => true,
+				'type'              => 'object',
+				'default'           => $this->get_default_opening_hours(),
+			)
+		);
 	}
 
 	/**
@@ -122,6 +153,43 @@ class Location_Post_Type {
 	}
 
 	/**
+	 * Sanitize one opening-hours object.
+	 *
+	 * @param mixed $value Raw meta value.
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function sanitize_opening_hours( $value ) {
+		if ( ! is_array( $value ) ) {
+			return $this->get_default_opening_hours();
+		}
+
+		$sanitized = array();
+
+		foreach ( self::OPENING_HOURS_DAY_KEYS as $day_key ) {
+			$day_value = isset( $value[ $day_key ] ) && is_array( $value[ $day_key ] )
+				? $value[ $day_key ]
+				: array();
+
+			$sanitized[ $day_key ] = array(
+				'open'                   => $this->sanitize_opening_hours_time(
+					isset( $day_value['open'] ) ? $day_value['open'] : ''
+				),
+				'close'                  => $this->sanitize_opening_hours_time(
+					isset( $day_value['close'] ) ? $day_value['close'] : ''
+				),
+				'lunch_start'            => $this->sanitize_opening_hours_time(
+					isset( $day_value['lunch_start'] ) ? $day_value['lunch_start'] : ''
+				),
+				'lunch_duration_minutes' => isset( $day_value['lunch_duration_minutes'] )
+					? absint( $day_value['lunch_duration_minutes'] )
+					: 0,
+			);
+		}
+
+		return $sanitized;
+	}
+
+	/**
 	 * Get the REST path for locations.
 	 *
 	 * @return string
@@ -147,5 +215,105 @@ class Location_Post_Type {
 		}
 
 		return property_exists( $counts, 'publish' ) ? (int) $counts->publish : 0;
+	}
+
+	/**
+	 * Get the default opening-hours day shape.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function get_default_opening_hours_day() {
+		return array(
+			'open'                   => '',
+			'close'                  => '',
+			'lunch_start'            => '',
+			'lunch_duration_minutes' => 0,
+		);
+	}
+
+	/**
+	 * Get the default opening-hours object.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private function get_default_opening_hours() {
+		$defaults = array();
+
+		foreach ( self::OPENING_HOURS_DAY_KEYS as $day_key ) {
+			$defaults[ $day_key ] = $this->get_default_opening_hours_day();
+		}
+
+		return $defaults;
+	}
+
+	/**
+	 * Get the REST schema for one opening-hours day.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function get_opening_hours_day_schema() {
+		return array(
+			'type'                 => 'object',
+			'additionalProperties' => false,
+			'properties'           => array(
+				'open'                   => array(
+					'type'    => 'string',
+					'default' => '',
+				),
+				'close'                  => array(
+					'type'    => 'string',
+					'default' => '',
+				),
+				'lunch_start'            => array(
+					'type'    => 'string',
+					'default' => '',
+				),
+				'lunch_duration_minutes' => array(
+					'type'    => 'integer',
+					'default' => 0,
+				),
+			),
+			'default'              => $this->get_default_opening_hours_day(),
+		);
+	}
+
+	/**
+	 * Get the REST schema for the opening-hours object.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function get_opening_hours_schema() {
+		$properties = array();
+
+		foreach ( self::OPENING_HOURS_DAY_KEYS as $day_key ) {
+			$properties[ $day_key ] = $this->get_opening_hours_day_schema();
+		}
+
+		return array(
+			'type'                 => 'object',
+			'additionalProperties' => false,
+			'properties'           => $properties,
+			'default'              => $this->get_default_opening_hours(),
+		);
+	}
+
+	/**
+	 * Sanitize one HH:MM time value.
+	 *
+	 * @param mixed $value Raw time value.
+	 * @return string
+	 */
+	private function sanitize_opening_hours_time( $value ) {
+		if ( ! is_scalar( $value ) ) {
+			return '';
+		}
+
+		$time = trim( sanitize_text_field( (string) $value ) );
+
+		if ( '' === $time ) {
+			return '';
+		}
+
+		return preg_match( '/^(?:[01]\d|2[0-3]):[0-5]\d$/', $time ) ? $time : '';
 	}
 }

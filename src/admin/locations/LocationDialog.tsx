@@ -11,6 +11,7 @@ import Kbd from '../../components/Kbd';
 import MapStep from './MapStep';
 import type { LocationsController } from './types';
 import LocationDialogFields from './LocationDialogFields';
+import OpeningHoursStep from './OpeningHoursStep';
 
 export default function LocationDialog({ controller }: { controller: LocationsController }) {
 	if (!controller.isDialogOpen) {
@@ -71,6 +72,13 @@ export default function LocationDialog({ controller }: { controller: LocationsCo
 				)}
 				{controller.step === 'map' ? (
 					<MapStep controller={controller} />
+				) : controller.step === 'opening_hours' ? (
+					<OpeningHoursStep
+						fieldErrors={controller.fieldErrors}
+						form={controller.form}
+						onChangeDayValue={controller.onChangeOpeningHoursDayValue}
+						onChangeNotes={controller.onChangeOpeningHoursNotes}
+					/>
 				) : (
 					<LocationDialogFields
 						fieldErrors={controller.fieldErrors}

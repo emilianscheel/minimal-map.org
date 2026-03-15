@@ -11,6 +11,13 @@
 class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 
 	/**
+	 * Location content model service.
+	 *
+	 * @var \MinimalMap\Locations\Location_Post_Type
+	 */
+	private $location_post_type;
+
+	/**
 	 * Collection content model service.
 	 *
 	 * @var \MinimalMap\Collections\Collection_Post_Type
@@ -25,6 +32,7 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		$this->location_post_type   = new \MinimalMap\Locations\Location_Post_Type();
 		$this->collection_post_type = new \MinimalMap\Collections\Collection_Post_Type();
 	}
 
@@ -450,6 +458,86 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'logo_id', $registered );
 		$this->assertSame( 'integer', $registered['logo_id']['type'] );
 		$this->assertTrue( $registered['logo_id']['single'] );
+	}
+
+	/**
+	 * Location opening-hours meta should be registered as object.
+	 *
+	 * @return void
+	 */
+	public function test_location_opening_hours_meta_is_registered() {
+		$registered = get_registered_meta_keys( 'post', \MinimalMap\Locations\Location_Post_Type::POST_TYPE );
+
+		$this->assertArrayHasKey( 'opening_hours', $registered );
+		$this->assertSame( 'object', $registered['opening_hours']['type'] );
+		$this->assertTrue( $registered['opening_hours']['single'] );
+		$this->assertArrayHasKey( 'schema', $registered['opening_hours']['show_in_rest'] );
+	}
+
+	/**
+	 * Location opening-hours notes meta should be registered as string.
+	 *
+	 * @return void
+	 */
+	public function test_location_opening_hours_notes_meta_is_registered() {
+		$registered = get_registered_meta_keys( 'post', \MinimalMap\Locations\Location_Post_Type::POST_TYPE );
+
+		$this->assertArrayHasKey( 'opening_hours_notes', $registered );
+		$this->assertSame( 'string', $registered['opening_hours_notes']['type'] );
+		$this->assertTrue( $registered['opening_hours_notes']['single'] );
+	}
+
+	/**
+	 * Opening-hours sanitizer should normalize malformed or partial values.
+	 *
+	 * @return void
+	 */
+	public function test_location_opening_hours_sanitizer_normalizes_values() {
+		$sanitized = $this->location_post_type->sanitize_opening_hours(
+			array(
+				'monday'  => array(
+					'open'                   => '09:00',
+					'close'                  => '18:00',
+					'lunch_start'            => '12:30',
+					'lunch_duration_minutes' => '45',
+				),
+				'tuesday' => array(
+					'open'                   => '25:00',
+					'close'                  => '19:00',
+					'lunch_start'            => 'bad',
+					'lunch_duration_minutes' => '-10',
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'open'                   => '09:00',
+				'close'                  => '18:00',
+				'lunch_start'            => '12:30',
+				'lunch_duration_minutes' => 45,
+			),
+			$sanitized['monday']
+		);
+		$this->assertSame(
+			array(
+				'open'                   => '',
+				'close'                  => '19:00',
+				'lunch_start'            => '',
+				'lunch_duration_minutes' => 0,
+			),
+			$sanitized['tuesday']
+		);
+		$this->assertArrayHasKey( 'wednesday', $sanitized );
+		$this->assertSame(
+			array(
+				'open'                   => '',
+				'close'                  => '',
+				'lunch_start'            => '',
+				'lunch_duration_minutes' => 0,
+			),
+			$sanitized['wednesday']
+		);
 	}
 
 	/**

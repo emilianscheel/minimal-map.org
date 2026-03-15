@@ -9,6 +9,7 @@ import LogoPreview from '../../components/LogoPreview';
 import TagBadge from '../../components/TagBadge';
 import type { LocationRecord } from '../../types';
 import { formatLocationAddressLines } from '../../lib/locations/formatLocationAddressLines';
+import { formatOpeningHoursSummary } from '../../lib/locations/formatOpeningHoursSummary';
 import DeleteLocationActionModal from './DeleteLocationActionModal';
 import {
 	getQuickAssignableLogo,
@@ -111,6 +112,47 @@ function useLocationFields(controller: LocationsController): Field<LocationRecor
 									</a>
 								</span>
 							)}
+						</div>
+					);
+				},
+			},
+			{
+				id: 'opening_hours',
+				label: __('Opening hours', 'minimal-map'),
+				enableHiding: false,
+				enableSorting: false,
+				filterBy: false,
+				render: ({ item }) => {
+					const summary = formatOpeningHoursSummary(item.opening_hours);
+
+					if (summary.lines.length === 0 && !item.opening_hours_notes.trim()) {
+						return <span className="minimal-map-admin__location-opening-hours-empty">—</span>;
+					}
+
+					return (
+						<div className="minimal-map-admin__location-opening-hours">
+							{summary.lines.length > 0 ? (
+								summary.lines.map((line) => (
+									<span key={line} className="minimal-map-admin__location-opening-hours-line">
+										{line}
+									</span>
+								))
+							) : (
+								<span className="minimal-map-admin__location-opening-hours-line">—</span>
+							)}
+							{summary.hiddenLineCount > 0 ? (
+								<span className="minimal-map-admin__location-opening-hours-more">
+									{sprintf(__('+%d more', 'minimal-map'), summary.hiddenLineCount)}
+								</span>
+							) : null}
+							{item.opening_hours_notes.trim() ? (
+								<span
+									className="minimal-map-admin__location-opening-hours-note"
+									title={item.opening_hours_notes}
+								>
+									{__('Note', 'minimal-map')}
+								</span>
+							) : null}
 						</div>
 					);
 				},

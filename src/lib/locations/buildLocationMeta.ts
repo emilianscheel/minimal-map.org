@@ -1,5 +1,6 @@
 import type { LocationFormState, LocationMeta } from '../../types';
 import { normalizeWebsiteValue } from './normalizeWebsiteValue';
+import { normalizeOpeningHours } from './openingHours';
 
 export function buildLocationMeta(form: LocationFormState): LocationMeta {
 	return {
@@ -16,5 +17,7 @@ export function buildLocationMeta(form: LocationFormState): LocationMeta {
 		longitude: form.longitude.trim(),
 		logo_id: Number.isFinite(form.logo_id) ? Math.max(0, form.logo_id) : 0,
 		marker_id: Number.isFinite(form.marker_id) ? Math.max(0, form.marker_id) : 0,
+		opening_hours: normalizeOpeningHours(form.opening_hours),
+		opening_hours_notes: form.opening_hours_notes.trim(),
 	};
 }

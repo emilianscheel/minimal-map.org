@@ -16,6 +16,7 @@ import type {
 	LocationDialogStep,
 	LocationFormMode,
 	LocationFormState,
+	LocationOpeningHoursDay,
 	LocationRecord,
 	LogoRecord,
 	MarkerRecord,
@@ -23,6 +24,7 @@ import type {
 	MarkersAdminConfig,
 	LocationsAdminConfig,
 	MapCoordinates,
+	OpeningHoursDayKey,
 	StyleThemeRecord,
 	TagRecord,
 	TagsAdminConfig,
@@ -56,6 +58,7 @@ import { updateLocationCoordinates } from '../../lib/locations/updateLocationCoo
 import { updateLocation } from '../../lib/locations/updateLocation';
 import { validateAddressStep } from '../../lib/locations/validateAddressStep';
 import { validateDetailsStep } from '../../lib/locations/validateDetailsStep';
+import { validateOpeningHoursStep } from '../../lib/locations/validateOpeningHoursStep';
 import { DEFAULT_FORM_STATE, DEFAULT_VIEW, LOCATIONS_TABLE_PER_PAGE } from './constants';
 import {
 	getLocationsWithAssignedLogos,
@@ -467,6 +470,11 @@ export function useLocationsController(
 			return;
 		}
 
+		if (step === 'address') {
+			setStep('opening_hours');
+			return;
+		}
+
 		setStep('details');
 	};
 
@@ -492,6 +500,43 @@ export function useLocationsController(
 			setGeocodeError(null);
 			setGeocodeNotice(null);
 		}
+	};
+
+	const onChangeOpeningHoursDayValue = (
+		dayKey: OpeningHoursDayKey,
+		field: keyof LocationOpeningHoursDay,
+		value: string | number
+	): void => {
+		setForm((currentForm) => ({
+			...currentForm,
+			opening_hours: {
+				...currentForm.opening_hours,
+				[dayKey]: {
+					...currentForm.opening_hours[dayKey],
+					[field]:
+						field === 'lunch_duration_minutes'
+							? typeof value === 'number'
+								? Math.max(0, value)
+								: Math.max(0, Number.parseInt(`${value || 0}`, 10) || 0)
+							: `${value}`,
+				},
+			},
+		}));
+
+		setFieldErrors((currentErrors) => ({
+			...currentErrors,
+			opening_hours: {
+				...(currentErrors.opening_hours ?? {}),
+				[dayKey]: undefined,
+			},
+		}));
+	};
+
+	const onChangeOpeningHoursNotes = (value: string): void => {
+		setForm((currentForm) => ({
+			...currentForm,
+			opening_hours_notes: value,
+		}));
 	};
 
 	const dismissActionNotice = useCallback((): void => {
@@ -1252,6 +1297,19 @@ export function useLocationsController(
 			}
 
 			setSubmitError(null);
+			setStep('opening_hours');
+			return;
+		}
+
+		if (step === 'opening_hours') {
+			const errors = validateOpeningHoursStep(form);
+			setFieldErrors(errors);
+
+			if (hasFieldErrors(errors)) {
+				return;
+			}
+
+			setSubmitError(null);
 			setStep('address');
 			return;
 		}
@@ -1259,6 +1317,7 @@ export function useLocationsController(
 		if (step === 'address') {
 			const errors = {
 				...validateDetailsStep(form),
+				...validateOpeningHoursStep(form),
 				...validateAddressStep(form),
 			};
 			setFieldErrors(errors);
@@ -1635,6 +1694,8 @@ export function useLocationsController(
 		onCancel,
 		onChangeCsvImportMapping,
 		onChangeFormValue,
+		onChangeOpeningHoursDayValue,
+		onChangeOpeningHoursNotes,
 		onCloseAssignToCollectionModal: closeAssignToCollectionModal,
 		onCloseCustomCsvImportModal: closeCustomCsvImportModal,
 		onCloseAssignLogoModal: closeAssignLogoModal,

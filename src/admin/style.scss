@@ -958,9 +958,31 @@ svg.lucide {
   line-height: 1.35;
 }
 
+.minimal-map-admin__location-opening-hours {
+  display: grid;
+  gap: 4px;
+  line-height: 1.35;
+}
+
 .minimal-map-admin__location-address-line,
-.minimal-map-admin__location-contact-item {
+.minimal-map-admin__location-contact-item,
+.minimal-map-admin__location-opening-hours-line {
   display: block;
+}
+
+.minimal-map-admin__location-opening-hours-empty,
+.minimal-map-admin__location-opening-hours-more {
+  color: #646970;
+}
+
+.minimal-map-admin__location-opening-hours-note {
+  width: fit-content;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f0f0f1;
+  color: #1e1e1e;
+  font-size: 11px;
+  line-height: 1.6;
 }
 
 .minimal-map-admin__location-delete-dialog {
@@ -1077,6 +1099,10 @@ svg.lucide {
   gap: 14px;
 }
 
+.minimal-map-admin__opening-hours-step {
+  gap: 18px;
+}
+
 .minimal-map-admin__custom-csv-import-dialog {
   min-width: min(788px, calc(100vw - 64px));
 }
@@ -1129,6 +1155,44 @@ svg.lucide {
 .minimal-map-admin__location-dialog-grid--row-two,
 .minimal-map-admin__location-dialog-grid--row-three {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.minimal-map-admin__opening-hours-table {
+  display: grid;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.minimal-map-admin__opening-hours-table-header,
+.minimal-map-admin__opening-hours-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+  min-width: 680px;
+}
+
+.minimal-map-admin__opening-hours-table-header {
+  color: #50575e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.minimal-map-admin__opening-hours-row-wrapper {
+  display: grid;
+  gap: 6px;
+}
+
+.minimal-map-admin__opening-hours-day-label {
+  padding-top: 10px;
+  font-weight: 500;
+}
+
+.minimal-map-admin__opening-hours-row-error {
+  margin: 0;
+  color: #b32d2e;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .minimal-map-admin__location-map-step {
