@@ -86,6 +86,7 @@ export function LocationResultCard({
 	siteTimezone,
 }: LocationResultCardProps) {
 	const [isOpeningHoursExpanded, setOpeningHoursExpanded] = useState(false);
+	const isSearchCard = mode === 'search';
 	const hasTags = Array.isArray(location.tags) && location.tags.length > 0;
 	const showGoogleMapsButton = googleMapsNavigation && hasLocationCoordinates(location);
 	const showFooter = hasTags || showGoogleMapsButton || Boolean(distanceLabel);
@@ -140,49 +141,60 @@ export function LocationResultCard({
 	const openingHoursSection =
 		showOpeningHours && openingHoursStatus ? (
 			<div className="minimal-map-search__result-opening-hours">
-				<button
-					type="button"
-					className={`minimal-map-search__result-opening-hours-trigger is-${openingHoursStatus.state}`}
-					aria-expanded={isOpeningHoursExpanded}
-					onClick={() => setOpeningHoursExpanded((current) => !current)}
-				>
-					<Clock3 size={12} />
-					<span>{openingHoursStatus.label}</span>
-					<ChevronDown
-						size={12}
-						className={`minimal-map-search__result-opening-hours-chevron ${
-							isOpeningHoursExpanded ? 'is-open' : ''
-						}`}
-					/>
-				</button>
-				<div
-					className={`minimal-map-search__result-opening-hours-panel ${
-						isOpeningHoursExpanded ? 'is-open' : ''
-					}`}
-				>
-					<div className="minimal-map-search__result-opening-hours-panel-inner">
-						<div className="minimal-map-search__result-opening-hours-list">
-							{openingHoursLines.map((line) => (
-								<div
-									key={line.dayLabel}
-									className="minimal-map-search__result-opening-hours-row"
-								>
-									<span className="minimal-map-search__result-opening-hours-day">
-										{line.dayLabel}
-									</span>
-									<span className="minimal-map-search__result-opening-hours-value">
-										{line.value}
-									</span>
+				{isSearchCard ? (
+					<>
+						<button
+							type="button"
+							className={`minimal-map-search__result-opening-hours-trigger is-${openingHoursStatus.state}`}
+							aria-expanded={isOpeningHoursExpanded}
+							onClick={() => setOpeningHoursExpanded((current) => !current)}
+						>
+							<Clock3 size={12} />
+							<span>{openingHoursStatus.label}</span>
+							<ChevronDown
+								size={12}
+								className={`minimal-map-search__result-opening-hours-chevron ${
+									isOpeningHoursExpanded ? 'is-open' : ''
+								}`}
+							/>
+						</button>
+						<div
+							className={`minimal-map-search__result-opening-hours-panel ${
+								isOpeningHoursExpanded ? 'is-open' : ''
+							}`}
+						>
+							<div className="minimal-map-search__result-opening-hours-panel-inner">
+								<div className="minimal-map-search__result-opening-hours-list">
+									{openingHoursLines.map((line) => (
+										<div
+											key={line.dayLabel}
+											className="minimal-map-search__result-opening-hours-row"
+										>
+											<span className="minimal-map-search__result-opening-hours-day">
+												{line.dayLabel}
+											</span>
+											<span className="minimal-map-search__result-opening-hours-value">
+												{line.value}
+											</span>
+										</div>
+									))}
 								</div>
-							))}
-						</div>
-						{location.opening_hours_notes?.trim() ? (
-							<div className="minimal-map-search__result-opening-hours-notes">
-								{location.opening_hours_notes.trim()}
+								{location.opening_hours_notes?.trim() ? (
+									<div className="minimal-map-search__result-opening-hours-notes">
+										{location.opening_hours_notes.trim()}
+									</div>
+								) : null}
 							</div>
-						) : null}
+						</div>
+					</>
+				) : (
+					<div
+						className={`minimal-map-search__result-opening-hours-trigger minimal-map-search__result-opening-hours-trigger--static is-${openingHoursStatus.state}`}
+					>
+						<Clock3 size={12} />
+						<span>{openingHoursStatus.label}</span>
 					</div>
-				</div>
+				)}
 			</div>
 		) : null;
 

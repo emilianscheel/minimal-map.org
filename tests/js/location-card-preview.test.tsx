@@ -178,6 +178,11 @@ describe('location card preview controller', () => {
 			'Open - closes 11:59 pm',
 		);
 		expect(
+			(popupState.contentNode as HTMLElement)?.querySelector(
+				'button.minimal-map-search__result-opening-hours-trigger'
+			)
+		).toBeNull();
+		expect(
 			(popupState.contentNode as HTMLElement)?.style.getPropertyValue(
 				'--minimal-map-location-card-font-family'
 			)

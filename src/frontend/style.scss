@@ -534,6 +534,10 @@
   overflow-wrap: anywhere;
 }
 
+.minimal-map-search__result-opening-hours-trigger--static {
+  cursor: default;
+}
+
 .minimal-map-search__result-opening-hours-chevron {
   flex: 0 0 auto;
   transition: transform 0.16s ease;
