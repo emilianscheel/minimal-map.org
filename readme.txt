@@ -4,7 +4,7 @@ Tags: maps, gutenberg, blocks, geolocation
 Requires at least: 6.9
 Tested up to: 6.9.4
 Requires PHP: 8.3
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: MIT
 License URI: https://opensource.org/license/mit/
 
@@ -28,11 +28,16 @@ Features include:
 * Live block editor map preview.
 * Dedicated admin workspace for locations, collections, tags, markers, logos, and styles.
 * Reusable location collections for grouped maps and filtered map views.
+* Merge location collections to easily consolidate data.
 * Searchable map with integrated search panel.
+* Distance-based search results with real-time distance calculation (m/km).
+* Automatic nearest-location highlighting in search results.
 * Store locator cards with address, phone, email, website, logo, and tags.
+* Detailed opening hours with support for lunch breaks and seasonal notes.
+* Real-time "Open Now" status with customizable indicator colors.
 * Address geocoding for fast location entry.
 * Manual map pin placement and coordinate editing.
-* CSV import for locations.
+* CSV import for locations with custom field mapping.
 * CSV export for locations.
 * Example CSV export for faster onboarding.
 * Bulk-friendly location management in a native WordPress admin UI.
@@ -42,11 +47,14 @@ Features include:
 * Custom style themes for map colors and visual branding.
 * Map theme import from Minimal Map JSON or MapLibre style JSON v8.
 * Configurable zoom controls with custom position, colors, spacing, radius, and icons.
+* Choose from multiple zoom icon sets (plus/minus, circles, lines).
 * Configurable search panel colors, spacing, width, and card styling.
+* Customizable "View on Google Maps" navigation button styling.
+* Customizable map attribution (credits) styling and positioning.
 * Collection-based map output for store groups, regions, teams, and categories.
 * Iframe embed snippet generation for external embeds.
-* Custom map height controls.
-* Scroll zoom and mobile two-finger zoom settings.
+* Custom map height controls with mobile-specific height overrides.
+* Scroll zoom, mobile two-finger zoom, and cooperative gesture settings.
 * English source strings with German translations.
 * Feels native to WordPress and built for modern WordPress sites.
 
@@ -84,6 +92,13 @@ Yes. English is the source language and German translations are included.
 == Changelog ==
 
 = 0.2.0 =
+* Added detailed opening hours with lunch breaks, seasonal notes, and "Open Now" status indicators.
+* Added distance-based search results with real-time m/km calculation and nearest-result highlighting.
+* Added custom CSV field mapping for flexible location imports from external data sources.
+* Added collection merging to consolidate location groups within the admin workspace.
+* Added mobile-specific map height overrides and cooperative gesture (two-finger pan) support.
+* Added advanced styling controls for zoom icons, map attribution, and navigation buttons.
+* Expanded location data fields for more detailed contact and address information.
 * Optimized the build pipeline for latest-only WordPress and PHP support.
 * Split the admin and map runtime bundles into async chunks.
 * Added bundle budget checks and bundle analysis tooling.

@@ -20,11 +20,16 @@ Render a minimalist MapLibre-powered map in Wordpress.
 - Live block editor map preview
 - Dedicated admin workspace for locations, collections, tags, markers, logos, and styles
 - Reusable location collections for grouped maps and filtered map views
+- Merge location collections to easily consolidate data
 - Searchable map with integrated search panel
+- Distance-based search results with real-time distance calculation (m/km)
+- Automatic nearest-location highlighting in search results
 - Store locator cards with address, phone, email, website, logo, and tags
+- Detailed opening hours with support for lunch breaks and seasonal notes
+- Real-time "Open Now" status with customizable indicator colors
 - Address geocoding for fast location entry
 - Manual map pin placement and coordinate editing
-- CSV import for locations
+- CSV import for locations with custom field mapping
 - CSV export for locations
 - Example CSV export for faster onboarding
 - Bulk-friendly location management in a native WordPress admin UI
@@ -34,18 +39,21 @@ Render a minimalist MapLibre-powered map in Wordpress.
 - Custom style themes for map colors and visual branding
 - Map theme import from Minimal Map JSON or MapLibre style JSON v8
 - Configurable zoom controls with custom position, colors, spacing, radius, and icons
+- Choose from multiple zoom icon sets (plus/minus, circles, lines)
 - Configurable search panel colors, spacing, width, and card styling
+- Customizable "View on Google Maps" navigation button styling
+- Customizable map attribution (credits) styling and positioning
 - Collection-based map output for store groups, regions, teams, and categories
 - Iframe embed snippet generation for external embeds
-- Custom map height controls
-- Scroll zoom and mobile two-finger zoom settings
+- Custom map height controls with mobile-specific height overrides
+- Scroll zoom, mobile two-finger zoom, and cooperative gesture settings
 - English source strings with German translations
 - Feels native to WordPress and built for modern WordPress sites
 
 ## Development
 
 ```bash
-zip -r ../minimal-map-0.1.0.zip . \
+zip -r ../minimal-map-0.2.0.zip . \
   -x "node_modules/*" ".git/*" "src/*" "tests/*" "reports/*" ".circleci/*" ".github/*" "bin/*" \
      "package.json" "bun.lock" "webpack.config.js" "composer.json" "phpunit.xml.dist" ".distignore"
 ```
