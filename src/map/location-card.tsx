@@ -33,9 +33,17 @@ export const formatDisplayUrl = (url: string): string => {
 		.replace(/\/$/, '');
 };
 
+export const formatLocationStreet = (location: MapLocationPoint): string => {
+	return [location.street, location.house_number].filter(Boolean).join(' ');
+};
+
+export const formatLocationLocality = (location: MapLocationPoint): string => {
+	return [location.postal_code, location.city].filter(Boolean).join(' ');
+};
+
 export const formatLocationAddress = (location: MapLocationPoint): string => {
-	const streetLine = [location.street, location.house_number].filter(Boolean).join(' ');
-	const localityLine = [location.postal_code, location.city].filter(Boolean).join(' ');
+	const streetLine = formatLocationStreet(location);
+	const localityLine = formatLocationLocality(location);
 
 	return [streetLine, localityLine].filter(Boolean).join(', ');
 };
@@ -146,7 +154,10 @@ export function LocationResultCard({
 				<div className="minimal-map-search__result-title">{location.title}</div>
 				<div className="minimal-map-search__result-address">
 					<MapPin size={12} />
-					<span>{formatLocationAddress(location)}</span>
+					<div className="minimal-map-search__result-address-content">
+						<span>{formatLocationStreet(location)},</span>
+						<span>{formatLocationLocality(location)}</span>
+					</div>
 				</div>
 			</div>
 			{location.logo ? (

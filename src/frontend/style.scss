@@ -515,7 +515,15 @@
   color: var(--minimal-map-search-foreground-primary);
 }
 
-.minimal-map-search__result-address span {
+.minimal-map-search__result-address-content {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 4px;
+  row-gap: 0;
+  min-width: 0;
+}
+
+.minimal-map-search__result-address-content span {
   min-width: 0;
   overflow-wrap: anywhere;
 }
