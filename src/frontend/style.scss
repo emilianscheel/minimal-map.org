@@ -610,17 +610,18 @@
   gap: 10px;
   font-size: 12px;
   line-height: 1.45;
-  color: var(--minimal-map-search-foreground-secondary);
+  color: var(--minimal-map-search-foreground-primary);
 }
 
 .minimal-map-search__result-opening-hours-day {
   font-weight: 600;
-  color: var(--minimal-map-search-foreground-primary);
+  color: inherit;
 }
 
 .minimal-map-search__result-opening-hours-value {
   min-width: 0;
   overflow-wrap: anywhere;
+  opacity: 0.8;
 }
 
 .minimal-map-search__result-opening-hours-notes {
