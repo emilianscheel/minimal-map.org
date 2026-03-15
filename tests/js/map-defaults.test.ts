@@ -21,6 +21,41 @@ describe('map defaults normalization', () => {
 		expect(config.mobileTwoFingerZoom).toBe(true);
 	});
 
+	test('falls back to the desktop height when no mobile height override is set', () => {
+		const config = normalizeMapConfig({
+			height: 480,
+			heightUnit: 'px',
+		});
+
+		expect(config.heightMobile).toBeUndefined();
+		expect(config.heightMobileCssValue).toBe('480px');
+	});
+
+	test('preserves an explicit mobile height override', () => {
+		const config = normalizeMapConfig({
+			height: 480,
+			heightUnit: 'px',
+			heightMobile: 60,
+			heightMobileUnit: 'vh',
+		});
+
+		expect(config.heightMobile).toBe(60);
+		expect(config.heightMobileUnit).toBe('vh');
+		expect(config.heightMobileCssValue).toBe('60vh');
+	});
+
+	test('falls back cleanly when the mobile height unit is invalid', () => {
+		const config = normalizeMapConfig({
+			height: 480,
+			heightUnit: 'px',
+			heightMobile: 50,
+			heightMobileUnit: 'bad-unit',
+		});
+
+		expect(config.heightMobileUnit).toBe('px');
+		expect(config.heightMobileCssValue).toBe('50px');
+	});
+
 	test('allows raw config to override the runtime mobile two-finger zoom default', () => {
 		const config = normalizeMapConfig(
 			{

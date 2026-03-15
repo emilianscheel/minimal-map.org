@@ -145,6 +145,28 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'px', $attributes['heightUnit'] );
 		$this->assertSame( '36px', $attributes['heightCssValue'] );
+		$this->assertSame( '36px', $attributes['heightMobileCssValue'] );
+	}
+
+	/**
+	 * Mobile height should be normalized independently when provided.
+	 *
+	 * @return void
+	 */
+	public function test_height_mobile_override_normalizes_to_css_value() {
+		$config     = new \MinimalMap\Config();
+		$attributes = $config->normalize_block_attributes(
+			array(
+				'height'           => 36,
+				'heightUnit'       => 'px',
+				'heightMobile'     => 55,
+				'heightMobileUnit' => 'vh',
+			)
+		);
+
+		$this->assertSame( 55.0, $attributes['heightMobile'] );
+		$this->assertSame( 'vh', $attributes['heightMobileUnit'] );
+		$this->assertSame( '55vh', $attributes['heightMobileCssValue'] );
 	}
 
 	/**
@@ -292,10 +314,12 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 		$payload        = array(
 			'v'          => \MinimalMap\Config::EMBED_PAYLOAD_VERSION,
 			'attributes' => array(
-				'height'           => 320,
-				'heightUnit'       => 'vh',
-				'zoom'             => 11,
-				'collectionId'     => 999999,
+				'height'                   => 320,
+				'heightUnit'               => 'vh',
+				'heightMobile'             => 44,
+				'heightMobileUnit'         => 'rem',
+				'zoom'                     => 11,
+				'collectionId'             => 999999,
 				'zoomControlsBorderColor' => 'invalid',
 			),
 		);
@@ -304,6 +328,7 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 
 		$this->assertIsArray( $normalized );
 		$this->assertSame( '320vh', $normalized['heightCssValue'] );
+		$this->assertSame( '44rem', $normalized['heightMobileCssValue'] );
 		$this->assertSame( '#dcdcde', $normalized['zoomControlsBorderColor'] );
 		$this->assertSame( array(), $normalized['locations'] );
 	}

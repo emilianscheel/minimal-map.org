@@ -11,6 +11,7 @@ import {
 	DEFAULT_ZOOM_CONTROLS_PLUS_ICON,
 	DEFAULT_ZOOM_CONTROLS_POSITION,
 } from './zoom-control-options';
+import { formatHeightCssValue } from './responsive';
 import type {
 	BoxValue,
 	HeightUnit,
@@ -85,6 +86,20 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 
 export function normalizeHeightUnit(unit?: string | null): HeightUnit {
 	return HEIGHT_UNITS.includes(unit as HeightUnit) ? (unit as HeightUnit) : 'px';
+}
+
+function normalizeOptionalHeight(value: number | string | undefined | null): number | undefined {
+	if (value === null || typeof value === 'undefined' || value === '') {
+		return undefined;
+	}
+
+	const numericValue = Number(value);
+
+	if (Number.isNaN(numericValue) || numericValue <= 0) {
+		return undefined;
+	}
+
+	return numericValue;
 }
 
 function normalizeBoxValue(value: BoxValue | null | undefined, fallback: Required<BoxValue>): Required<BoxValue> {
@@ -166,10 +181,18 @@ function normalizeBorderRadiusValue(value: string | BoxValue | null | undefined,
 }
 
 function getDefaults(runtimeConfig: MapRuntimeConfig): MapDefaults {
+	const heightUnit = normalizeHeightUnit(runtimeConfig.defaults?.heightUnit);
+	const heightMobile = normalizeOptionalHeight(runtimeConfig.defaults?.heightMobile);
+
 	return {
 		...DEFAULT_MAP_DEFAULTS,
 		...runtimeConfig.defaults,
-		heightUnit: normalizeHeightUnit(runtimeConfig.defaults?.heightUnit),
+		heightUnit,
+		heightMobile,
+		heightMobileUnit:
+			typeof heightMobile !== 'undefined'
+				? normalizeHeightUnit(runtimeConfig.defaults?.heightMobileUnit ?? heightUnit)
+				: undefined,
 		stylePreset: `${runtimeConfig.defaults?.stylePreset ?? DEFAULT_MAP_DEFAULTS.stylePreset}`,
 		showZoomControls: runtimeConfig.defaults?.showZoomControls ?? DEFAULT_MAP_DEFAULTS.showZoomControls,
 		allowSearch: runtimeConfig.defaults?.allowSearch ?? DEFAULT_MAP_DEFAULTS.allowSearch,
@@ -310,6 +333,16 @@ export function normalizeMapConfig(
 	const collectionId = Math.max(0, Number(rawConfig.collectionId ?? defaults.collectionId) || 0);
 	const height = Math.max(1, Number(rawConfig.height ?? defaults.height));
 	const heightUnit = normalizeHeightUnit(rawConfig.heightUnit ?? defaults.heightUnit);
+	const heightMobile = normalizeOptionalHeight(rawConfig.heightMobile ?? defaults.heightMobile);
+	const heightMobileUnit =
+		typeof heightMobile !== 'undefined'
+			? normalizeHeightUnit(rawConfig.heightMobileUnit ?? defaults.heightMobileUnit ?? heightUnit)
+			: undefined;
+	const heightCssValue = formatHeightCssValue(height, heightUnit);
+	const heightMobileCssValue =
+		typeof heightMobile !== 'undefined' && typeof heightMobileUnit !== 'undefined'
+			? formatHeightCssValue(heightMobile, heightMobileUnit)
+			: heightCssValue;
 	const zoomControlsPosition = normalizeZoomControlsPosition(
 		rawConfig.zoomControlsPosition ?? defaults.zoomControlsPosition,
 		defaults.zoomControlsPosition
@@ -441,7 +474,10 @@ export function normalizeMapConfig(
 		collectionId,
 		height,
 		heightUnit,
-		heightCssValue: `${trimNumber(height)}${heightUnit}`,
+		heightMobile,
+		heightMobileUnit,
+		heightCssValue,
+		heightMobileCssValue,
 		stylePreset,
 		styleUrl,
 		styleTheme,
@@ -490,12 +526,6 @@ export function normalizeMapConfig(
 		interactive: rawConfig.interactive ?? true,
 		showAttribution: rawConfig.showAttribution ?? true,
 	};
-}
-
-function trimNumber(value: number): string {
-	const rounded = Number(value.toFixed(4));
-
-	return `${rounded}`;
 }
 
 function clampNumber(value: number | string, minimum: number, maximum: number): number {

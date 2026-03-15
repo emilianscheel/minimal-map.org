@@ -13,6 +13,7 @@ import {
 	applySearchPanelCssVariables,
 	getSearchPanelDesktopPadding,
 } from './search-panel-layout';
+import { isMobileViewport } from './responsive';
 
 interface SearchControlProps {
 	doc: Document;
@@ -277,7 +278,7 @@ export function createWordPressSearchControl(
 
 	const onSelect = (location: MapLocationPoint) => {
 		onLocationSelect?.(location);
-		const isMobile = context.win.innerWidth <= 600;
+		const isMobile = isMobileViewport(context.win.innerWidth);
 
 		map.easeTo(
 			{

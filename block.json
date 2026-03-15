@@ -33,6 +33,12 @@
       "type": "string",
       "default": "px"
     },
+    "heightMobile": {
+      "type": "number"
+    },
+    "heightMobileUnit": {
+      "type": "string"
+    },
     "stylePreset": {
       "type": "string",
       "default": "liberty"

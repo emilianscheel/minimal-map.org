@@ -153,6 +153,14 @@ class Config {
 		$height     = $height > 0 ? $height : (float) $this->get_default_block_attributes()['height'];
 		$height_unit = isset( $attributes['heightUnit'] ) ? sanitize_text_field( (string) $attributes['heightUnit'] ) : 'px';
 		$height_unit = in_array( $height_unit, self::HEIGHT_UNITS, true ) ? $height_unit : 'px';
+		$height_mobile = isset( $attributes['heightMobile'] ) ? (float) $attributes['heightMobile'] : 0.0;
+		$height_mobile = $height_mobile > 0 ? $height_mobile : null;
+		$height_mobile_unit = isset( $attributes['heightMobileUnit'] ) ? sanitize_text_field( (string) $attributes['heightMobileUnit'] ) : $height_unit;
+		$height_mobile_unit = in_array( $height_mobile_unit, self::HEIGHT_UNITS, true ) ? $height_mobile_unit : $height_unit;
+		$height_css_value = $this->format_dimension_value( $height, $height_unit );
+		$height_mobile_css_value = null !== $height_mobile
+			? $this->format_dimension_value( $height_mobile, $height_mobile_unit )
+			: $height_css_value;
 		$locations    = $collection_id > 0
 			? $this->get_map_locations( $this->get_collection_location_ids( $collection_id ) )
 			: $this->get_map_locations();
@@ -177,7 +185,10 @@ class Config {
 			'collectionId'     => $collection_id,
 			'height'           => $height,
 			'heightUnit'       => $height_unit,
-			'heightCssValue'   => $this->format_dimension_value( $height, $height_unit ),
+			'heightMobile'     => $height_mobile,
+			'heightMobileUnit' => null !== $height_mobile ? $height_mobile_unit : null,
+			'heightCssValue'   => $height_css_value,
+			'heightMobileCssValue' => $height_mobile_css_value,
 			'stylePreset'      => $preset,
 			'styleUrl'         => $presets[ $preset ]['style_url'],
 			'styleTheme'       => $style_theme,

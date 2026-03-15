@@ -30,6 +30,7 @@ import { CheckIcon, ChevronDownIcon, MapPinnedIcon } from "../components/Icons";
 import { buildIframeSnippet } from "./embed";
 import { createMinimalMap } from "../map/bootstrap";
 import { normalizeHeightUnit, normalizeMapConfig } from "../map/defaults";
+import { getActiveHeightCssValue } from "../map/responsive";
 import {
   type ZoomControlIconOption,
   ZOOM_CONTROLS_POSITION_OPTIONS,
@@ -102,6 +103,17 @@ function parseHeightValue(
     height: Number(match[1]),
     heightUnit: normalizeHeightUnit(match[2] || fallbackUnit),
   };
+}
+
+function getHeightControlValue(
+  height: number | undefined,
+  unit: string | undefined,
+): string | undefined {
+  if (typeof height !== "number" || Number.isNaN(height)) {
+    return undefined;
+  }
+
+  return `${height}${normalizeHeightUnit(unit)}`;
 }
 
 interface EditProps {
@@ -702,6 +714,12 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
       ),
     [attributes, selectedCollection],
   );
+  const [previewHeightCssValue, setPreviewHeightCssValue] = useState(() =>
+    getActiveHeightCssValue(
+      config,
+      typeof window !== "undefined" ? window.innerWidth : undefined,
+    ),
+  );
   const iframeSnippet = useMemo(
     () => buildIframeSnippet(attributes, runtimeConfig),
     [attributes],
@@ -729,6 +747,37 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
 
   useEffect(() => {
     mapInstanceRef.current?.update(config);
+  }, [config]);
+
+  useEffect(() => {
+    const nextHeightCssValue = getActiveHeightCssValue(
+      config,
+      typeof window !== "undefined" ? window.innerWidth : undefined,
+    );
+
+    setPreviewHeightCssValue((currentValue) =>
+      currentValue === nextHeightCssValue ? currentValue : nextHeightCssValue,
+    );
+  }, [config]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const syncPreviewHeight = (): void => {
+      const nextHeightCssValue = getActiveHeightCssValue(config, window.innerWidth);
+
+      setPreviewHeightCssValue((currentValue) =>
+        currentValue === nextHeightCssValue ? currentValue : nextHeightCssValue,
+      );
+    };
+
+    window.addEventListener("resize", syncPreviewHeight);
+
+    return () => {
+      window.removeEventListener("resize", syncPreviewHeight);
+    };
   }, [config]);
 
   useEffect(() => {
@@ -803,6 +852,33 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
     setAttributes({
       height: parsed.height,
       heightUnit: parsed.heightUnit,
+    });
+  };
+
+  const updateHeightMobile = (value?: string | number): void => {
+    if (
+      typeof value === "undefined" ||
+      (typeof value === "string" && value.trim() === "")
+    ) {
+      setAttributes({
+        heightMobile: undefined,
+        heightMobileUnit: undefined,
+      });
+      return;
+    }
+
+    const parsed = parseHeightValue(
+      value,
+      attributes.heightMobileUnit || attributes.heightUnit || "px",
+    );
+
+    if (!parsed || Number.isNaN(parsed.height) || parsed.height <= 0) {
+      return;
+    }
+
+    setAttributes({
+      heightMobile: parsed.height,
+      heightMobileUnit: parsed.heightUnit,
     });
   };
 
@@ -997,10 +1073,22 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           <UnitControl
             className="minimal-map-editor__height-control components-border-radius-control__unit-control"
             label={__("Height", "minimal-map")}
-            value={`${attributes.height ?? 420}${
-              attributes.heightUnit || "px"
-            }`}
+            value={getHeightControlValue(
+              attributes.height ?? 420,
+              attributes.heightUnit || "px",
+            )}
             onChange={updateHeight}
+            units={HEIGHT_UNITS}
+            size="__unstable-large"
+          />
+          <UnitControl
+            className="minimal-map-editor__height-control components-border-radius-control__unit-control"
+            label={__("Height Mobile", "minimal-map")}
+            value={getHeightControlValue(
+              attributes.heightMobile,
+              attributes.heightMobileUnit || attributes.heightUnit || "px",
+            )}
+            onChange={updateHeightMobile}
             units={HEIGHT_UNITS}
             size="__unstable-large"
           />
@@ -1244,7 +1332,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
         <div
           ref={mapRef}
           className="minimal-map-editor__canvas"
-          style={{ height: config.heightCssValue }}
+          style={{ height: previewHeightCssValue }}
         />
       </div>
     </>

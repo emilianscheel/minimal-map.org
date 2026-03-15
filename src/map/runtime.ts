@@ -6,6 +6,7 @@ import { applyStyleTheme } from '../lib/styles/themeEngine';
 import { createWordPressZoomControls } from './wp-controls';
 import { createWordPressSearchControl } from './SearchControl';
 import { getSearchPanelDesktopPadding } from './search-panel-layout';
+import { getActiveHeightCssValue } from './responsive';
 import { createMarkerRenderer, type MarkerRenderer, type MarkerRendererConfig } from './marker-renderer';
 import { getMapDomContext, type MapDomContext } from './dom-context';
 import type {
@@ -26,6 +27,7 @@ interface MinimalMapState {
 	map: MapLibreMap | null;
 	markerRenderer: MarkerRenderer | null;
 	observer: ResizeObserver | null;
+	resizeHandler: (() => void) | null;
 	searchControl: WordPressSearchControl | null;
 	selectedLocationId: number | null;
 }
@@ -57,7 +59,7 @@ function createFallback(host: HTMLElement, message: string, context: MapDomConte
 function createShell(host: HTMLElement, config: NormalizedMapConfig, context: MapDomContext): HTMLElement {
 	host.innerHTML = '';
 	host.classList.add('minimal-map-runtime');
-	host.style.height = config.heightCssValue;
+	host.style.height = getActiveHeightCssValue(config, context.win.innerWidth);
 
 	const viewport = context.doc.createElement('div');
 	viewport.className = 'minimal-map-runtime__viewport';
@@ -273,6 +275,7 @@ export function createMinimalMap(
 	initialConfig: RawMapConfig = {},
 	runtimeConfig: MapRuntimeConfig = {}
 ): MinimalMapInstance {
+	const context = getMapDomContext(host);
 	const state: MinimalMapState = {
 		attribution: null,
 		config: null,
@@ -280,9 +283,18 @@ export function createMinimalMap(
 		map: null,
 		markerRenderer: null,
 		observer: null,
+		resizeHandler: null,
 		searchControl: null,
 		selectedLocationId: null,
 	};
+
+	function applyResponsiveHostHeight(config: NormalizedMapConfig): void {
+		const nextHeightCssValue = getActiveHeightCssValue(config, context.win.innerWidth);
+
+		if (host.style.height !== nextHeightCssValue) {
+			host.style.height = nextHeightCssValue;
+		}
+	}
 
 	function focusLocation(locationId: number, config: NormalizedMapConfig): void {
 		if (!state.map) {
@@ -386,7 +398,6 @@ export function createMinimalMap(
 	}
 
 	function build(rawConfig: RawMapConfig): void {
-		const context = getMapDomContext(host);
 		const config = normalizeMapConfig(rawConfig, runtimeConfig);
 		state.config = config;
 		const viewport = createShell(host, config, context);
@@ -499,6 +510,18 @@ export function createMinimalMap(
 			state.observer.observe(host);
 		}
 
+		state.resizeHandler = () => {
+			const activeConfig = state.config ?? config;
+			const previousHeight = host.style.height;
+
+			applyResponsiveHostHeight(activeConfig);
+
+			if (host.style.height !== previousHeight) {
+				state.map?.resize();
+			}
+		};
+		context.win.addEventListener('resize', state.resizeHandler);
+
 		syncMarkers(config);
 		syncControls(config);
 		syncSearch(config);
@@ -521,6 +544,10 @@ export function createMinimalMap(
 
 		state.observer?.disconnect();
 		state.observer = null;
+		if (state.resizeHandler) {
+			context.win.removeEventListener('resize', state.resizeHandler);
+			state.resizeHandler = null;
+		}
 
 		state.map?.remove();
 		state.map = null;
@@ -538,7 +565,7 @@ export function createMinimalMap(
 			return;
 		}
 
-		host.style.height = nextConfig.heightCssValue;
+		applyResponsiveHostHeight(nextConfig);
 
 		if (!previousConfig || previousConfig.styleUrl !== nextConfig.styleUrl) {
 			state.map.setStyle(nextConfig.styleUrl);

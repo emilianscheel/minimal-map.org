@@ -28,6 +28,8 @@ export interface MapDefaults {
 	collectionId: number;
 	height: number;
 	heightUnit: HeightUnit;
+	heightMobile?: number;
+	heightMobileUnit?: HeightUnit;
 	stylePreset: string;
 	styleThemeSlug: string;
 	showZoomControls: boolean;
@@ -124,6 +126,8 @@ export interface RawMapConfig {
 	collectionId?: number | string;
 	height?: number | string;
 	heightUnit?: string;
+	heightMobile?: number | string | null;
+	heightMobileUnit?: string | null;
 	stylePreset?: string;
 	styleUrl?: string;
 	styleTheme?: Partial<StyleThemeColors>;
@@ -173,6 +177,7 @@ export interface RawMapConfig {
 
 export interface NormalizedMapConfig extends MapDefaults {
 	heightCssValue: string;
+	heightMobileCssValue: string;
 	styleUrl: string;
 	styleTheme: Partial<StyleThemeColors>;
 	fallbackMessage: string;
@@ -329,6 +334,8 @@ export interface MapBlockAttributes {
 	collectionId: number;
 	height: number;
 	heightUnit: HeightUnit;
+	heightMobile?: number;
+	heightMobileUnit?: HeightUnit;
 	stylePreset: string;
 	styleThemeSlug: string;
 	showZoomControls: boolean;

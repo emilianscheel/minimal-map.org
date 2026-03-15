@@ -1,8 +1,8 @@
 import { getNodeDocument, getNodeWindow } from './dom-context';
+import { MOBILE_BREAKPOINT } from './responsive';
 import type { NormalizedMapConfig } from '../types';
 
 export const DEFAULT_SEARCH_PANEL_WIDTH = '320px';
-const MOBILE_BREAKPOINT = 600;
 
 type SearchPanelConfig = Pick<
 	NormalizedMapConfig,
