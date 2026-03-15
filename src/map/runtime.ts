@@ -507,6 +507,7 @@ export function createMinimalMap(
 				style: config.styleUrl,
 				touchZoomRotate: config.interactive && config.mobileTwoFingerZoom,
 				zoom: config.zoom,
+				cooperativeGestures: config.cooperativeGestures,
 			});
 		} catch {
 			createFallback(host, config.fallbackMessage, context);

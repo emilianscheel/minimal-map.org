@@ -78,6 +78,7 @@ class Config {
 			'inMapLocationCard' => false,
 			'scrollZoom'       => false,
 			'mobileTwoFingerZoom' => false,
+			'cooperativeGestures' => true,
 			'zoomControlsPosition'        => 'top-right',
 			'zoomControlsPadding'         => array(
 				'top'    => '8px',
@@ -212,6 +213,7 @@ class Config {
 			'inMapLocationCard' => ! empty( $attributes['inMapLocationCard'] ),
 			'scrollZoom'       => ! empty( $attributes['scrollZoom'] ),
 			'mobileTwoFingerZoom' => ! empty( $attributes['mobileTwoFingerZoom'] ),
+			'cooperativeGestures' => ! empty( $attributes['cooperativeGestures'] ),
 			'zoomControlsPosition'        => $this->sanitize_zoom_controls_position( $attributes['zoomControlsPosition'] ?? '' ),
 			'zoomControlsPadding'         => $this->sanitize_box_value( $attributes['zoomControlsPadding'] ?? array(), $this->get_default_block_attributes()['zoomControlsPadding'] ),
 			'zoomControlsOuterMargin'     => $this->sanitize_box_value( $attributes['zoomControlsOuterMargin'] ?? array(), $this->get_default_block_attributes()['zoomControlsOuterMargin'] ),
@@ -549,6 +551,7 @@ class Config {
 		$sections = array();
 		$map_config = $this->get_client_config();
 		$map_config['defaults']['mobileTwoFingerZoom'] = true;
+		$map_config['defaults']['cooperativeGestures'] = true;
 
 		foreach ( Admin\Admin_Menu::get_sections() as $view => $section ) {
 			$sections[] = array(

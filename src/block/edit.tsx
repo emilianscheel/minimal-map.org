@@ -1093,6 +1093,16 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             }
           />
           <ToggleControl
+            label={__("Require Two Fingers to Move on Mobile", "minimal-map")}
+            help={__(
+              "When enabled, one finger scrolls the page, while two fingers are required to move or zoom the map.",
+              "minimal-map",
+            )}
+            checked={attributes.cooperativeGestures}
+            onChange={(value: boolean) =>
+              setAttributes({ cooperativeGestures: value })
+            }
+          />          <ToggleControl
             label={__("Allow Search", "minimal-map")}
             checked={attributes.allowSearch}
             onChange={(value: boolean) => setAttributes({ allowSearch: value })}

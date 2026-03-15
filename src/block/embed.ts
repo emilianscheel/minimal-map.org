@@ -24,6 +24,7 @@ const EMBED_ATTRIBUTE_KEYS: Array<keyof EmbedAttributes> = [
 	'inMapLocationCard',
 	'scrollZoom',
 	'mobileTwoFingerZoom',
+	'cooperativeGestures',
 	'zoomControlsPosition',
 	'zoomControlsPadding',
 	'zoomControlsOuterMargin',

@@ -38,6 +38,7 @@ export interface MapDefaults {
 	inMapLocationCard: boolean;
 	scrollZoom: boolean;
 	mobileTwoFingerZoom: boolean;
+	cooperativeGestures: boolean;
 	zoomControlsPosition: ZoomControlsPosition;
 	zoomControlsPadding: BoxValue;
 	zoomControlsOuterMargin: BoxValue;
@@ -162,6 +163,7 @@ export interface RawMapConfig {
 	inMapLocationCard?: boolean;
 	scrollZoom?: boolean;
 	mobileTwoFingerZoom?: boolean;
+	cooperativeGestures?: boolean;
 	zoomControlsPosition?: string;
 	zoomControlsPadding?: BoxValue | null;
 	zoomControlsOuterMargin?: BoxValue | null;
@@ -232,6 +234,7 @@ export interface NormalizedMapConfig extends MapDefaults {
 	interactive: boolean;
 	scrollZoom: boolean;
 	mobileTwoFingerZoom: boolean;
+	cooperativeGestures: boolean;
 	showAttribution: boolean;
 	allowSearch: boolean;
 	googleMapsNavigation: boolean;
@@ -383,6 +386,7 @@ export interface MapBlockAttributes {
 	inMapLocationCard: boolean;
 	scrollZoom: boolean;
 	mobileTwoFingerZoom: boolean;
+	cooperativeGestures: boolean;
 	zoomControlsPosition: ZoomControlsPosition;
 	zoomControlsPadding: BoxValue;
 	zoomControlsOuterMargin: BoxValue;

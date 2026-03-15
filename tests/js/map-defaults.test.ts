@@ -21,6 +21,27 @@ describe('map defaults normalization', () => {
 		expect(config.mobileTwoFingerZoom).toBe(true);
 	});
 
+	test('falls back to enabled cooperative gestures for shared maps without overrides', () => {
+		const config = normalizeMapConfig();
+
+		expect(config.cooperativeGestures).toBe(true);
+	});
+
+	test('allows raw config to override the runtime cooperative gestures default', () => {
+		const config = normalizeMapConfig(
+			{
+				cooperativeGestures: false,
+			},
+			{
+				defaults: {
+					cooperativeGestures: true,
+				},
+			}
+		);
+
+		expect(config.cooperativeGestures).toBe(false);
+	});
+
 	test('falls back to the desktop height when no mobile height override is set', () => {
 		const config = normalizeMapConfig({
 			height: 480,

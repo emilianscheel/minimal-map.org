@@ -197,6 +197,25 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Cooperative gestures should default on for blocks and accept explicit disablement.
+	 *
+	 * @return void
+	 */
+	public function test_cooperative_gestures_defaults_on_for_blocks() {
+		$config = new \MinimalMap\Config();
+
+		$default_attributes = $config->normalize_block_attributes( array() );
+		$disabled_attributes = $config->normalize_block_attributes(
+			array(
+				'cooperativeGestures' => false,
+			)
+		);
+
+		$this->assertTrue( $default_attributes['cooperativeGestures'] );
+		$this->assertFalse( $disabled_attributes['cooperativeGestures'] );
+	}
+
+	/**
 	 * Published locations with valid coordinates should be exposed to the client.
 	 *
 	 * @return void

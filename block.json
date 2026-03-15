@@ -71,6 +71,10 @@
       "type": "boolean",
       "default": false
     },
+    "cooperativeGestures": {
+      "type": "boolean",
+      "default": true
+    },
     "zoomControlsPosition": {
       "type": "string",
       "default": "top-right"

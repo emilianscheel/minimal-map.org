@@ -44,6 +44,7 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 	inMapLocationCard: false,
 	scrollZoom: false,
 	mobileTwoFingerZoom: true,
+	cooperativeGestures: true,
 	zoomControlsPosition: DEFAULT_ZOOM_CONTROLS_POSITION,
 	zoomControlsPadding: DEFAULT_ZOOM_CONTROLS_PADDING,
 	zoomControlsOuterMargin: DEFAULT_ZOOM_CONTROLS_OUTER_MARGIN,
@@ -562,6 +563,9 @@ export function normalizeMapConfig(
 		scrollZoom: Boolean(rawConfig.scrollZoom ?? defaults.scrollZoom),
 		mobileTwoFingerZoom: Boolean(
 			rawConfig.mobileTwoFingerZoom ?? defaults.mobileTwoFingerZoom
+		),
+		cooperativeGestures: Boolean(
+			rawConfig.cooperativeGestures ?? defaults.cooperativeGestures
 		),
 		zoomControlsPosition,
 		zoomControlsPadding,
