@@ -505,6 +505,10 @@
   border: 0;
   background: transparent;
   color: var(--minimal-map-search-foreground-primary);
+  font-family: var(
+    --minimal-map-location-card-font-family,
+    var(--wp--style--global--font-family, inherit)
+  );
   font-size: 13px;
   opacity: 0.8;
   cursor: pointer;
