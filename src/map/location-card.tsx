@@ -1,6 +1,12 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { Globe, Mail, MapPin, Navigation, Phone } from 'lucide-react';
+import { useState } from '@wordpress/element';
+import { ChevronDown, Clock3, Globe, Mail, MapPin, Navigation, Phone } from 'lucide-react';
 import TagBadge from '../components/TagBadge';
+import { isOpeningHoursConfigured } from '../lib/locations/openingHours';
+import {
+	getOpeningHoursDisplayLines,
+	getOpeningHoursStatus,
+} from './location-opening-hours';
 import type { MapLocationLogo, MapLocationPoint } from '../types';
 
 export interface LocationResultCardProps {
@@ -12,6 +18,8 @@ export interface LocationResultCardProps {
 	location: MapLocationPoint;
 	mode: 'search' | 'in-map';
 	onSelect?: () => void;
+	siteLocale: string;
+	siteTimezone: string;
 }
 
 export const formatDisplayUrl = (url: string): string => {
@@ -74,10 +82,23 @@ export function LocationResultCard({
 	location,
 	mode,
 	onSelect,
+	siteLocale,
+	siteTimezone,
 }: LocationResultCardProps) {
+	const [isOpeningHoursExpanded, setOpeningHoursExpanded] = useState(false);
 	const hasTags = Array.isArray(location.tags) && location.tags.length > 0;
 	const showGoogleMapsButton = googleMapsNavigation && hasLocationCoordinates(location);
 	const showFooter = hasTags || showGoogleMapsButton || Boolean(distanceLabel);
+	const showOpeningHours =
+		location.opening_hours && isOpeningHoursConfigured(location.opening_hours);
+	const openingHoursStatus =
+		showOpeningHours && location.opening_hours
+			? getOpeningHoursStatus(location.opening_hours, siteLocale, siteTimezone)
+			: null;
+	const openingHoursLines =
+		showOpeningHours && location.opening_hours
+			? getOpeningHoursDisplayLines(location.opening_hours, siteLocale)
+			: [];
 	const layout = (
 		<div className="minimal-map-search__result-layout">
 			<div className="minimal-map-search__result-content">
@@ -116,6 +137,54 @@ export function LocationResultCard({
 			) : null}
 		</div>
 	);
+	const openingHoursSection =
+		showOpeningHours && openingHoursStatus ? (
+			<div className="minimal-map-search__result-opening-hours">
+				<button
+					type="button"
+					className={`minimal-map-search__result-opening-hours-trigger is-${openingHoursStatus.state}`}
+					aria-expanded={isOpeningHoursExpanded}
+					onClick={() => setOpeningHoursExpanded((current) => !current)}
+				>
+					<Clock3 size={12} />
+					<span>{openingHoursStatus.label}</span>
+					<ChevronDown
+						size={12}
+						className={`minimal-map-search__result-opening-hours-chevron ${
+							isOpeningHoursExpanded ? 'is-open' : ''
+						}`}
+					/>
+				</button>
+				<div
+					className={`minimal-map-search__result-opening-hours-panel ${
+						isOpeningHoursExpanded ? 'is-open' : ''
+					}`}
+				>
+					<div className="minimal-map-search__result-opening-hours-panel-inner">
+						<div className="minimal-map-search__result-opening-hours-list">
+							{openingHoursLines.map((line) => (
+								<div
+									key={line.dayLabel}
+									className="minimal-map-search__result-opening-hours-row"
+								>
+									<span className="minimal-map-search__result-opening-hours-day">
+										{line.dayLabel}
+									</span>
+									<span className="minimal-map-search__result-opening-hours-value">
+										{line.value}
+									</span>
+								</div>
+							))}
+						</div>
+						{location.opening_hours_notes?.trim() ? (
+							<div className="minimal-map-search__result-opening-hours-notes">
+								{location.opening_hours_notes.trim()}
+							</div>
+						) : null}
+					</div>
+				</div>
+			</div>
+		) : null;
 
 	return (
 		<div
@@ -135,6 +204,7 @@ export function LocationResultCard({
 			) : (
 				<div className="minimal-map-location-card__body">{layout}</div>
 			)}
+			{openingHoursSection}
 			{showFooter ? (
 				<div className="minimal-map-search__result-footer">
 					<div className="minimal-map-search__result-footer-content">

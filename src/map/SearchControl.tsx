@@ -46,6 +46,8 @@ interface SearchControlProps {
 	locations: MapLocationPoint[];
 	onSelect: (selection: MapLocationSelection) => void;
 	selectedId?: number;
+	siteLocale: string;
+	siteTimezone: string;
 }
 
 export const MapSearchControl = ({
@@ -57,6 +59,8 @@ export const MapSearchControl = ({
 	locations,
 	onSelect,
 	selectedId: selectedIdProp,
+	siteLocale,
+	siteTimezone,
 }: SearchControlProps) => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [isFocused, setIsFocused] = useState(false);
@@ -236,6 +240,8 @@ export const MapSearchControl = ({
 					location={location}
 					mode="search"
 					onSelect={() => handleSelect(location, distanceLabel)}
+					siteLocale={siteLocale}
+					siteTimezone={siteTimezone}
 				/>
 			))}
 		</div>
@@ -398,6 +404,8 @@ export function createWordPressSearchControl(
 				locations={config.locations}
 				onSelect={onSelect}
 				selectedId={selectedId}
+				siteLocale={config.siteLocale}
+				siteTimezone={config.siteTimezone}
 			/>
 		);
 	};

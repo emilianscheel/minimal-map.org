@@ -132,6 +132,8 @@ function createAddressSearchControl(
 			googleMapsButtonShowIcon,
 			locations,
 			onSelect,
+			siteLocale: 'en-US',
+			siteTimezone: 'Europe/Berlin',
 		}),
 	);
 

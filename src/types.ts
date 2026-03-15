@@ -105,6 +105,8 @@ export interface MapLocationPoint {
 	city?: string;
 	state?: string;
 	country?: string;
+	opening_hours?: LocationOpeningHours;
+	opening_hours_notes?: string;
 }
 
 export interface MapLocationSelection {
@@ -134,6 +136,8 @@ export interface MapRuntimeConfig {
 	messages?: MapMessages;
 	embedBaseUrl?: string;
 	previewImageUrl?: string;
+	siteTimezone?: string;
+	siteLocale?: string;
 	onMapClick?: (coordinates: MapCoordinates) => void;
 }
 
@@ -198,6 +202,8 @@ export interface RawMapConfig {
 	locations?: MapLocationPoint[] | null;
 	interactive?: boolean;
 	showAttribution?: boolean;
+	siteTimezone?: string;
+	siteLocale?: string;
 }
 
 export interface NormalizedMapConfig extends MapDefaults {
@@ -226,6 +232,8 @@ export interface NormalizedMapConfig extends MapDefaults {
 	allowSearch: boolean;
 	googleMapsNavigation: boolean;
 	inMapLocationCard: boolean;
+	siteTimezone: string;
+	siteLocale: string;
 }
 
 export interface MinimalMapInstance {

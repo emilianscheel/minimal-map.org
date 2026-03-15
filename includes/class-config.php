@@ -263,6 +263,8 @@ class Config {
 			'locations'     => $this->get_map_locations(),
 			'collections'   => $this->get_map_collections(),
 			'frontendGeocodePath' => Frontend_Geocode_Route::get_rest_path(),
+			'siteTimezone' => $this->get_site_timezone_string(),
+			'siteLocale' => str_replace( '_', '-', get_locale() ),
 			'messages'      => array(
 				'fallback' => __( 'Map preview unavailable because this browser does not support WebGL.', 'minimal-map' ),
 			),
@@ -425,6 +427,8 @@ class Config {
 				'city'         => (string) get_post_meta( $post->ID, 'city', true ),
 				'state'        => (string) get_post_meta( $post->ID, 'state', true ),
 				'country'      => (string) get_post_meta( $post->ID, 'country', true ),
+				'opening_hours' => get_post_meta( $post->ID, 'opening_hours', true ),
+				'opening_hours_notes' => (string) get_post_meta( $post->ID, 'opening_hours_notes', true ),
 			);
 
 			$location_tags = $this->get_location_tags( $post->ID );
@@ -449,6 +453,27 @@ class Config {
 		}
 
 		return $locations;
+	}
+
+	/**
+	 * Get the configured site timezone string for frontend time formatting.
+	 *
+	 * @return string
+	 */
+	private function get_site_timezone_string() {
+		$timezone = wp_timezone_string();
+
+		if ( '' !== $timezone ) {
+			return $timezone;
+		}
+
+		$site_timezone = wp_timezone();
+
+		if ( $site_timezone instanceof \DateTimeZone ) {
+			return $site_timezone->getName();
+		}
+
+		return 'UTC';
 	}
 
 	/**

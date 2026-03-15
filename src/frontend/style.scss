@@ -488,6 +488,114 @@
   overflow-wrap: anywhere;
 }
 
+.minimal-map-search__result-opening-hours {
+  display: grid;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.minimal-map-search__result-opening-hours-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--minimal-map-search-foreground-primary);
+  font-size: 13px;
+  opacity: 0.8;
+  cursor: pointer;
+  text-align: left;
+}
+
+.minimal-map-search__result-opening-hours-trigger:hover,
+.minimal-map-search__result-opening-hours-trigger:focus-visible {
+  opacity: 1;
+}
+
+.minimal-map-search__result-opening-hours-trigger:focus-visible {
+  outline: 2px solid #3858e8;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.minimal-map-search__result-opening-hours-trigger.is-open {
+  color: #1a7f37;
+}
+
+.minimal-map-search__result-opening-hours-trigger.is-closed {
+  color: var(--minimal-map-search-foreground-primary);
+}
+
+.minimal-map-search__result-opening-hours-trigger span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.minimal-map-search__result-opening-hours-chevron {
+  flex: 0 0 auto;
+  transition: transform 0.16s ease;
+}
+
+.minimal-map-search__result-opening-hours-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.minimal-map-search__result-opening-hours-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition:
+    grid-template-rows 0.18s ease,
+    opacity 0.18s ease;
+  opacity: 0;
+}
+
+.minimal-map-search__result-opening-hours-panel.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.minimal-map-search__result-opening-hours-panel-inner {
+  overflow: hidden;
+}
+
+.minimal-map-search__result-opening-hours-list {
+  display: grid;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.minimal-map-search__result-opening-hours-row {
+  display: grid;
+  grid-template-columns: minmax(88px, auto) minmax(0, 1fr);
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--minimal-map-search-foreground-secondary);
+}
+
+.minimal-map-search__result-opening-hours-day {
+  font-weight: 600;
+  color: var(--minimal-map-search-foreground-primary);
+}
+
+.minimal-map-search__result-opening-hours-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.minimal-map-search__result-opening-hours-notes {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgb(0 0 0 / 8%);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--minimal-map-search-foreground-secondary);
+}
+
 .minimal-map-search__result-meta {
   display: flex;
   flex-wrap: wrap;

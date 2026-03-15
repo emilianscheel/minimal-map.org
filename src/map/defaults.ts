@@ -12,6 +12,7 @@ import {
 	DEFAULT_ZOOM_CONTROLS_POSITION,
 } from './zoom-control-options';
 import { formatHeightCssValue } from './responsive';
+import { normalizeOpeningHours } from '../lib/locations/openingHours';
 import type {
 	BoxValue,
 	HeightUnit,
@@ -588,6 +589,8 @@ export function normalizeMapConfig(
 		locations,
 		interactive: rawConfig.interactive ?? true,
 		showAttribution: rawConfig.showAttribution ?? true,
+		siteTimezone: `${rawConfig.siteTimezone ?? runtimeConfig.siteTimezone ?? 'UTC'}`,
+		siteLocale: `${rawConfig.siteLocale ?? runtimeConfig.siteLocale ?? 'en-US'}`,
 	};
 }
 
@@ -633,6 +636,9 @@ function normalizeLocationPoint(value: MapLocationPoint | null | undefined): Map
 
 	return { 
 		...value,
+		opening_hours: normalizeOpeningHours(value.opening_hours),
+		opening_hours_notes:
+			typeof value.opening_hours_notes === 'string' ? value.opening_hours_notes : '',
 		lat, 
 		lng 
 	};

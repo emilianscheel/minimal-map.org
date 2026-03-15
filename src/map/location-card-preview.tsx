@@ -172,6 +172,8 @@ export function createLocationCardPreviewController({
 					googleMapsNavigation={config.googleMapsNavigation}
 					location={location}
 					mode="in-map"
+					siteLocale={config.siteLocale}
+					siteTimezone={config.siteTimezone}
 				/>
 			);
 

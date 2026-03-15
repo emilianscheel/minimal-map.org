@@ -95,6 +95,8 @@ describe('location card preview controller', () => {
 		const enabledConfig = normalizeMapConfig({
 			inMapLocationCard: true,
 			googleMapsNavigation: true,
+			siteLocale: 'en-US',
+			siteTimezone: 'Europe/Berlin',
 			locations: [
 				{
 					id: 1,
@@ -102,6 +104,51 @@ describe('location card preview controller', () => {
 					lat: 52.52,
 					lng: 13.405,
 					city: 'Berlin',
+					opening_hours: {
+						monday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						tuesday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						wednesday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						thursday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						friday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						saturday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						sunday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+					},
+					opening_hours_notes: 'Seasonal hours apply.',
 				},
 			],
 		});
@@ -126,6 +173,9 @@ describe('location card preview controller', () => {
 		expect((popupState.contentNode as HTMLElement)?.textContent).toContain('500 m away');
 		expect((popupState.contentNode as HTMLElement)?.textContent).toContain(
 			'Open in Google Maps',
+		);
+		expect((popupState.contentNode as HTMLElement)?.textContent).toContain(
+			'Open - closes 11:59 pm',
 		);
 		expect(
 			(popupState.contentNode as HTMLElement)?.style.getPropertyValue(

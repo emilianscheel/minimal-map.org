@@ -241,20 +241,45 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 	public function test_client_config_includes_locations_payload() {
 		$config = new \MinimalMap\Config();
 
-		$this->create_location( '48.137154', '11.576124' );
+		$location_id = $this->create_location( '48.137154', '11.576124' );
+		update_post_meta(
+			$location_id,
+			'opening_hours',
+			array(
+				'monday' => array(
+					'open'                   => '09:00',
+					'close'                  => '18:00',
+					'lunch_start'            => '12:30',
+					'lunch_duration_minutes' => 30,
+				),
+			)
+		);
+		update_post_meta( $location_id, 'opening_hours_notes', 'Seasonal hours apply.' );
 
 		$client_config = $config->get_client_config();
 
 		$this->assertArrayHasKey( 'locations', $client_config );
-		$this->assertSame(
-			array(
-				array(
-					'lat' => 48.137154,
-					'lng' => 11.576124,
-				),
-			),
-			$client_config['locations']
-		);
+		$this->assertCount( 1, $client_config['locations'] );
+		$this->assertSame( 48.137154, $client_config['locations'][0]['lat'] );
+		$this->assertSame( 11.576124, $client_config['locations'][0]['lng'] );
+		$this->assertSame( '09:00', $client_config['locations'][0]['opening_hours']['monday']['open'] );
+		$this->assertSame( 30, $client_config['locations'][0]['opening_hours']['monday']['lunch_duration_minutes'] );
+		$this->assertSame( 'Seasonal hours apply.', $client_config['locations'][0]['opening_hours_notes'] );
+	}
+
+	/**
+	 * Client config should expose site locale and timezone for opening-hours formatting.
+	 *
+	 * @return void
+	 */
+	public function test_client_config_includes_site_time_metadata() {
+		$config = new \MinimalMap\Config();
+
+		$client_config = $config->get_client_config();
+
+		$this->assertSame( str_replace( '_', '-', get_locale() ), $client_config['siteLocale'] );
+		$this->assertArrayHasKey( 'siteTimezone', $client_config );
+		$this->assertNotSame( '', $client_config['siteTimezone'] );
 	}
 
 	/**
