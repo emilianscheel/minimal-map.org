@@ -7,6 +7,7 @@ import type {
 import {
 	buildMappedLocationForm,
 	countMappedCsvGeocodeRequests,
+	createEmptyCsvImportAssignments,
 	createEmptyCsvImportMapping,
 	detectCsvDelimiter,
 	isCommonCsvFormat,
@@ -100,38 +101,49 @@ describe('location import helpers', () => {
 		const sleepCalls: number[] = [];
 		const collectionAssignments: number[][] = [];
 		const progressUpdates: Array<[number, number]> = [];
+		const assignments = createEmptyCsvImportAssignments();
+		assignments.logoId = 9;
+		assignments.markerId = 11;
+		assignments.tagIds = [3, 7, 3];
 
 		expect(countMappedCsvGeocodeRequests(parsed, mapping)).toBe(2);
 
-		const result = await runMappedCsvImport(parsed, mapping, LOCATIONS_CONFIG, COLLECTIONS_CONFIG, {
-			createLocationFn: async (_config, form) => {
-				createdForms.push({ ...form });
-				return { id: 100 + createdForms.length };
-			},
-			createCollectionFn: async (_config, _title, locationIds) => {
-				collectionAssignments.push(locationIds);
-			},
-			geocodeAddressFn: async (_config, form) => {
-				geocodeTitles.push(form.title);
+		const result = await runMappedCsvImport(
+			parsed,
+			mapping,
+			assignments,
+			LOCATIONS_CONFIG,
+			COLLECTIONS_CONFIG,
+			{
+				createLocationFn: async (_config, form) => {
+					createdForms.push({ ...form });
+					return { id: 100 + createdForms.length };
+				},
+				createCollectionFn: async (_config, _title, locationIds) => {
+					collectionAssignments.push(locationIds);
+				},
+				geocodeAddressFn: async (_config, form) => {
+					geocodeTitles.push(form.title);
 
-				if (form.title === 'Berlin Office') {
-					return {
-						success: true,
-						label: 'Berlin Office',
-						lat: 52.517,
-						lng: 13.388,
-					};
-				}
+					if (form.title === 'Berlin Office') {
+						return {
+							success: true,
+							label: 'Berlin Office',
+							lat: 52.517,
+							lng: 13.388,
+						};
+					}
 
-				throw new Error('rate limited');
-			},
-			sleep: async (ms) => {
-				sleepCalls.push(ms);
-			},
-			onGeocodeProgress: (completed, total) => {
-				progressUpdates.push([completed, total]);
-			},
-		});
+					throw new Error('rate limited');
+				},
+				sleep: async (ms) => {
+					sleepCalls.push(ms);
+				},
+				onGeocodeProgress: (completed, total) => {
+					progressUpdates.push([completed, total]);
+				},
+			}
+		);
 
 		expect(result).toEqual({
 			importedCount: 3,
@@ -149,10 +161,19 @@ describe('location import helpers', () => {
 		expect(createdForms[0].latitude).toBe('52.517');
 		expect(createdForms[0].longitude).toBe('13.388');
 		expect(createdForms[0].telephone).toBe('+49 30 123');
+		expect(createdForms[0].logo_id).toBe(9);
+		expect(createdForms[0].marker_id).toBe(11);
+		expect(createdForms[0].tag_ids).toEqual([3, 7]);
 		expect(createdForms[1].latitude).toBe('');
 		expect(createdForms[1].longitude).toBe('');
+		expect(createdForms[1].logo_id).toBe(9);
+		expect(createdForms[1].marker_id).toBe(11);
+		expect(createdForms[1].tag_ids).toEqual([3, 7]);
 		expect(createdForms[2].latitude).toBe('');
 		expect(createdForms[2].longitude).toBe('');
+		expect(createdForms[2].logo_id).toBe(9);
+		expect(createdForms[2].marker_id).toBe(11);
+		expect(createdForms[2].tag_ids).toEqual([3, 7]);
 		expect(collectionAssignments).toEqual([[101, 102, 103]]);
 	});
 

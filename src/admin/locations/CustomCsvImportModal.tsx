@@ -1,10 +1,8 @@
-import { Button, Modal, SelectControl } from '@wordpress/components';
+import { Button, FormTokenField, Modal, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import type { KeyboardEvent } from 'react';
 import Kbd from '../../components/Kbd';
-import {
-	CUSTOM_CSV_MAPPING_FIELDS,
-} from '../../lib/locations/importLocations';
+import { CUSTOM_CSV_MAPPING_FIELDS } from '../../lib/locations/importLocations';
 import { shouldHandleDialogEnter } from '../../lib/locations/shouldHandleDialogEnter';
 import type { LocationsController } from './types';
 
@@ -28,6 +26,24 @@ export default function CustomCsvImportModal({ controller }: { controller: Locat
 			value: `${index}`,
 		})),
 	];
+	const logoOptions = [
+		{ label: __('None', 'minimal-map'), value: '' },
+		...controller.logos.map((logo) => ({
+			label: logo.title || __('Untitled logo', 'minimal-map'),
+			value: `${logo.id}`,
+		})),
+	];
+	const markerOptions = [
+		{ label: __('None', 'minimal-map'), value: '' },
+		...controller.markers.map((marker) => ({
+			label: marker.title || __('Untitled marker', 'minimal-map'),
+			value: `${marker.id}`,
+		})),
+	];
+	const selectedTagNames = controller.csvImportTagIds
+		.map((id) => controller.tags.find((tag) => tag.id === id)?.name)
+		.filter((name): name is string => !!name);
+	const tagSuggestions = controller.tags.map((tag) => tag.name);
 
 	return (
 		<Modal
@@ -48,6 +64,10 @@ export default function CustomCsvImportModal({ controller }: { controller: Locat
 
 					const target = event.target;
 					const isHTMLElement = target instanceof HTMLElement;
+
+					if (isHTMLElement && target.classList.contains('components-form-token-field__input')) {
+						return;
+					}
 
 					if (
 						(isHTMLElement &&
@@ -82,20 +102,77 @@ export default function CustomCsvImportModal({ controller }: { controller: Locat
 										__next40pxDefaultSize
 										__nextHasNoMarginBottom
 										hideLabelFromVision
-										label={field.label}
-										value={
-											controller.csvImportMapping[field.key] === null
-												? ''
-												: `${controller.csvImportMapping[field.key]}`
-										}
-										options={columnOptions}
-										onChange={(value) =>
-											controller.onChangeCsvImportMapping(field.key, value)
-										}
-									/>
+									label={field.label}
+									value={
+										controller.csvImportMapping[field.key] === null
+											? ''
+											: `${controller.csvImportMapping[field.key]}`
+									}
+									options={columnOptions}
+									onChange={(value) =>
+										controller.onChangeCsvImportMapping(field.key, value)
+									}
+									disabled={controller.isImporting}
+								/>
 								</div>
 							))}
+							<div className="minimal-map-admin__custom-csv-import-row">
+								<SelectControl
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+									hideLabelFromVision
+									label={__('Logo', 'minimal-map')}
+									value="logo"
+									options={[{ label: __('Logo', 'minimal-map'), value: 'logo' }]}
+									disabled
+								/>
+								<SelectControl
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+									hideLabelFromVision
+									label={__('Logo', 'minimal-map')}
+									value={controller.csvImportLogoId}
+									options={logoOptions}
+									onChange={controller.onSelectCsvImportLogo}
+									disabled={controller.isImporting}
+								/>
+							</div>
+							<div className="minimal-map-admin__custom-csv-import-row">
+								<SelectControl
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+									hideLabelFromVision
+									label={__('Marker', 'minimal-map')}
+									value="marker"
+									options={[{ label: __('Marker', 'minimal-map'), value: 'marker' }]}
+									disabled
+								/>
+								<SelectControl
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+									hideLabelFromVision
+									label={__('Marker', 'minimal-map')}
+									value={controller.csvImportMarkerId}
+									options={markerOptions}
+									onChange={controller.onSelectCsvImportMarker}
+									disabled={controller.isImporting}
+								/>
+							</div>
 						</div>
+						<FormTokenField
+							label={__('Tags', 'minimal-map')}
+							value={selectedTagNames}
+							suggestions={tagSuggestions}
+							onChange={(tokenNames) => {
+								const nextTagIds = tokenNames
+									.map((name) => controller.tags.find((tag) => tag.name === name)?.id)
+									.filter((id): id is number => id !== undefined);
+								controller.onSelectCsvImportTags(nextTagIds);
+							}}
+							disabled={controller.isImporting}
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+						/>
 						<div className="minimal-map-admin__location-dialog-footer">
 							<div className="minimal-map-admin__location-dialog-footer-start" />
 							<div className="minimal-map-admin__location-dialog-actions">

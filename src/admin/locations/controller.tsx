@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react';
 import { ExportLocationsDropdown } from './ExportLocationsDropdown';
 import { ImportLocationsButton } from './ImportLocationsButton';
 import type {
+	CsvImportAssignments,
 	CsvImportMapping,
 	ParsedCsvData,
 } from '../../lib/locations/importLocations';
@@ -40,6 +41,7 @@ import { duplicateLocation } from '../../lib/locations/duplicateLocation';
 import { fetchAllLocations } from '../../lib/locations/fetchAllLocations';
 import {
 	countMappedCsvGeocodeRequests,
+	createEmptyCsvImportAssignments,
 	createEmptyCsvImportMapping,
 	isCommonCsvFormat,
 	parseCsvFile,
@@ -147,6 +149,9 @@ export function useLocationsController(
 	const [csvImportMapping, setCsvImportMapping] = useState<CsvImportMapping>(
 		createEmptyCsvImportMapping()
 	);
+	const [csvImportLogoId, setCsvImportLogoId] = useState('');
+	const [csvImportMarkerId, setCsvImportMarkerId] = useState('');
+	const [csvImportTagIds, setCsvImportTagIds] = useState<number[]>([]);
 	const [csvImportProgressCompleted, setCsvImportProgressCompleted] = useState(0);
 	const [csvImportProgressTotal, setCsvImportProgressTotal] = useState(0);
 	const [selection, setSelection] = useState<string[]>([]);
@@ -298,6 +303,9 @@ export function useLocationsController(
 		setCustomCsvImportStep('mapping');
 		setPendingCsvImport(null);
 		setCsvImportMapping(createEmptyCsvImportMapping());
+		setCsvImportLogoId('');
+		setCsvImportMarkerId('');
+		setCsvImportTagIds([]);
 		setCsvImportProgressCompleted(0);
 		setCsvImportProgressTotal(0);
 	}, []);
@@ -1437,6 +1445,12 @@ export function useLocationsController(
 			return;
 		}
 
+		const csvImportAssignments: CsvImportAssignments = {
+			...createEmptyCsvImportAssignments(),
+			logoId: csvImportLogoId === '' ? 0 : Number(csvImportLogoId),
+			markerId: csvImportMarkerId === '' ? 0 : Number(csvImportMarkerId),
+			tagIds: csvImportTagIds,
+		};
 		const totalGeocodeRequests = countMappedCsvGeocodeRequests(pendingCsvImport, csvImportMapping);
 
 		setActionNotice(null);
@@ -1449,6 +1463,7 @@ export function useLocationsController(
 			const result = await runMappedCsvImport(
 				pendingCsvImport,
 				csvImportMapping,
+				csvImportAssignments,
 				config,
 				collectionsConfig,
 				{
@@ -1488,7 +1503,10 @@ export function useLocationsController(
 	}, [
 		collectionsConfig,
 		config,
+		csvImportLogoId,
 		csvImportMapping,
+		csvImportMarkerId,
+		csvImportTagIds,
 		loadLocations,
 		pendingCsvImport,
 		resetCustomCsvImportState,
@@ -1546,7 +1564,10 @@ export function useLocationsController(
 		assignmentMarkerId,
 		assignmentTagIds,
 		csvImportHeaders: pendingCsvImport?.headers ?? [],
+		csvImportLogoId,
+		csvImportMarkerId,
 		csvImportRows: pendingCsvImport?.rows ?? [],
+		csvImportTagIds,
 		csvImportMapping,
 		csvImportProgressCompleted,
 		csvImportProgressTotal,
@@ -1661,6 +1682,9 @@ export function useLocationsController(
 		onSelectAssignmentLogo: setAssignmentLogoId,
 		onSelectAssignmentMarker: setAssignmentMarkerId,
 		onSelectAssignmentTags: setAssignmentTagIds,
+		onSelectCsvImportLogo: setCsvImportLogoId,
+		onSelectCsvImportMarker: setCsvImportMarkerId,
+		onSelectCsvImportTags: setCsvImportTagIds,
 		onAddLocation: openDialog,
 		paginatedLocations,
 		selection,

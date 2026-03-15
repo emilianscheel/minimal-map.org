@@ -28,7 +28,10 @@ export interface LocationsController {
 	assignmentMarkerId: string;
 	assignmentTagIds: number[];
 	csvImportHeaders: string[];
+	csvImportLogoId: string;
+	csvImportMarkerId: string;
 	csvImportRows: string[][];
+	csvImportTagIds: number[];
 	csvImportMapping: CsvImportMapping;
 	csvImportProgressCompleted: number;
 	csvImportProgressTotal: number;
@@ -133,6 +136,9 @@ export interface LocationsController {
 	onSelectAssignmentLogo: (logoId: string) => void;
 	onSelectAssignmentMarker: (markerId: string) => void;
 	onSelectAssignmentTags: (tagIds: number[]) => void;
+	onSelectCsvImportLogo: (logoId: string) => void;
+	onSelectCsvImportMarker: (markerId: string) => void;
+	onSelectCsvImportTags: (tagIds: number[]) => void;
 	onImportLocations: (file: File) => Promise<void>;
 	onStartCustomCsvImport: () => Promise<void>;
 	onExportLocations: () => void;

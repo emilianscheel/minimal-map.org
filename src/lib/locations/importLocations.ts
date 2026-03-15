@@ -39,6 +39,11 @@ export type CsvDelimiter = ',' | ';';
 export type CommonCsvHeader = (typeof COMMON_CSV_HEADERS)[number];
 export type CustomCsvMappingField = (typeof CUSTOM_CSV_MAPPING_FIELDS)[number]['key'];
 export type CsvImportMapping = Record<CustomCsvMappingField, number | null>;
+export interface CsvImportAssignments {
+	logoId: number;
+	markerId: number;
+	tagIds: number[];
+}
 
 export interface ParsedCsvData {
 	delimiter: CsvDelimiter;
@@ -201,6 +206,14 @@ export function createEmptyCsvImportMapping(): CsvImportMapping {
 	}, {} as CsvImportMapping);
 }
 
+export function createEmptyCsvImportAssignments(): CsvImportAssignments {
+	return {
+		logoId: 0,
+		markerId: 0,
+		tagIds: [],
+	};
+}
+
 export function isCommonCsvFormat(parsedCsv: ParsedCsvData): boolean {
 	if (parsedCsv.normalizedHeaders.length !== COMMON_CSV_HEADERS.length) {
 		return false;
@@ -267,6 +280,18 @@ export function buildMappedLocationForm(
 	form.title = form.title || getImportedLocationFallbackTitle();
 
 	return form;
+}
+
+function applyCsvImportAssignments(
+	form: LocationFormState,
+	assignments: CsvImportAssignments
+): LocationFormState {
+	return {
+		...form,
+		logo_id: Number.isFinite(assignments.logoId) ? Math.max(0, assignments.logoId) : 0,
+		marker_id: Number.isFinite(assignments.markerId) ? Math.max(0, assignments.markerId) : 0,
+		tag_ids: [...new Set(assignments.tagIds.filter((tagId) => Number.isFinite(tagId) && tagId > 0))],
+	};
 }
 
 function buildCommonLocationForm(
@@ -373,6 +398,7 @@ export async function runCommonCsvImport(
 export async function runMappedCsvImport(
 	parsedCsv: ParsedCsvData,
 	mapping: CsvImportMapping,
+	assignments: CsvImportAssignments,
 	locationsConfig: LocationsAdminConfig,
 	collectionsConfig: CollectionsAdminConfig,
 	dependencies: ImportDependencies & {
@@ -391,7 +417,10 @@ export async function runMappedCsvImport(
 	dependencies.onGeocodeProgress?.(completedGeocodeRequests, totalGeocodeRequests);
 
 	for (const row of parsedCsv.rows) {
-		const form = buildMappedLocationForm(row, mapping);
+		const form = applyCsvImportAssignments(
+			buildMappedLocationForm(row, mapping),
+			assignments
+		);
 
 		if (hasRequiredGeocodeFields(form)) {
 			try {
