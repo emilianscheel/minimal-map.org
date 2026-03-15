@@ -513,17 +513,12 @@
   opacity: 0.8;
   cursor: pointer;
   text-align: left;
+  outline: none;
 }
 
 .minimal-map-search__result-opening-hours-trigger:hover,
 .minimal-map-search__result-opening-hours-trigger:focus-visible {
   opacity: 1;
-}
-
-.minimal-map-search__result-opening-hours-trigger:focus-visible {
-  outline: 2px solid #3858e8;
-  outline-offset: 2px;
-  border-radius: 4px;
 }
 
 .minimal-map-search__result-opening-hours-trigger.is-open {
@@ -674,17 +669,13 @@
   line-height: 1.4;
   text-decoration: none;
   overflow-wrap: anywhere;
+  outline: none;
 }
 
 .minimal-map-search__maps-link:hover,
 .minimal-map-search__maps-link:focus {
   color: var(--minimal-map-google-maps-button-color);
   text-decoration: none;
-}
-
-.minimal-map-search__maps-link:focus-visible {
-  outline: 2px solid #3858e8;
-  outline-offset: 2px;
 }
 
 .maplibregl-popup.minimal-map-location-popup {
