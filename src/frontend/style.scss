@@ -342,6 +342,20 @@
   box-shadow: none !important;
 }
 
+.minimal-map-search__input::-webkit-search-decoration,
+.minimal-map-search__input::-webkit-search-cancel-button,
+.minimal-map-search__input::-webkit-search-results-button,
+.minimal-map-search__input::-webkit-search-results-decoration {
+  display: none;
+}
+
+.minimal-map-search__input::-ms-clear,
+.minimal-map-search__input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .minimal-map-search__input::placeholder {
   color: var(--minimal-map-search-foreground-secondary) !important;
   opacity: 0.5;
