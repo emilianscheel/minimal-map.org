@@ -276,12 +276,14 @@
   left: var(--minimal-map-search-margin-left);
   width: var(--minimal-map-search-width);
   max-width: calc(
-    100% - var(--minimal-map-search-margin-left) -
-      var(--minimal-map-search-margin-right)
+    100% - var(--minimal-map-search-margin-left) - var(
+        --minimal-map-search-margin-right
+      )
   );
   height: calc(
-    100% - var(--minimal-map-search-margin-top) -
-      var(--minimal-map-search-margin-bottom)
+    100% - var(--minimal-map-search-margin-top) - var(
+        --minimal-map-search-margin-bottom
+      )
   );
   z-index: 10;
   pointer-events: none;
@@ -508,6 +510,7 @@
   font-weight: 600;
   min-width: 0;
   overflow-wrap: anywhere;
+  line-height: 1.4;
 }
 
 .minimal-map-search__result-tags {
@@ -592,6 +595,11 @@
   max-width: min(320px, calc(100vw - 32px));
   box-shadow: 0 16px 36px rgb(0 0 0 / 18%);
   animation: minimal-map-location-card-fade-in 0.18s ease-out both;
+}
+
+.minimal-map-location-card--in-map:hover,
+.minimal-map-location-card--in-map:focus-within {
+  background: var(--minimal-map-search-background-primary);
 }
 
 @keyframes minimal-map-location-card-fade-in {
