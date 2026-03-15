@@ -318,9 +318,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--minimal-map-search-foreground-secondary);
+  color: var(--minimal-map-search-foreground-primary);
   pointer-events: none;
   opacity: 0.6;
+}
+
+.minimal-map-search.is-focused .minimal-map-search__icon-container {
+  color: var(--minimal-map-search-foreground-secondary);
 }
 
 .minimal-map-search__input {
@@ -328,13 +332,17 @@
   height: 44px !important;
   border: none !important;
   background: transparent !important;
-  color: var(--minimal-map-search-foreground-secondary) !important;
+  color: var(--minimal-map-search-foreground-primary) !important;
   padding: 0 40px !important;
   margin: 0 !important;
   box-shadow: none !important;
   font-size: 16px !important;
   font-family: inherit !important;
   line-height: 44px !important;
+}
+
+.minimal-map-search.is-focused .minimal-map-search__input {
+  color: var(--minimal-map-search-foreground-secondary) !important;
 }
 
 .minimal-map-search__input:focus {
@@ -357,8 +365,12 @@
 }
 
 .minimal-map-search__input::placeholder {
-  color: var(--minimal-map-search-foreground-secondary) !important;
+  color: var(--minimal-map-search-foreground-primary) !important;
   opacity: 0.5;
+}
+
+.minimal-map-search.is-focused .minimal-map-search__input::placeholder {
+  color: var(--minimal-map-search-foreground-secondary) !important;
 }
 
 .minimal-map-search__clear {
@@ -820,7 +832,7 @@
 
 .minimal-map-search__state-spinner,
 .minimal-map-search__state-icon {
-  color: var(--minimal-map-search-foreground-secondary);
+  color: var(--minimal-map-search-foreground-primary);
   opacity: 0.8;
 }
 
