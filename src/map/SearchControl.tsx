@@ -2,6 +2,7 @@ import { createRoot, useEffect, useMemo, useRef, useState } from '@wordpress/ele
 import { __, sprintf } from '@wordpress/i18n';
 import { Globe, LoaderCircle, Mail, MapPin, Phone, Search, SearchX, X } from 'lucide-react';
 import type { Map as MapLibreMap } from 'maplibre-gl';
+import type { FormEvent } from 'react';
 import Kbd from '../components/Kbd';
 import TagBadge from '../components/TagBadge';
 import type {
@@ -335,6 +336,11 @@ export const MapSearchControl = ({
 		resetAddressSearch(nextValue);
 	};
 
+	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		void handleAddressSearch();
+	};
+
 	return (
 		<>
 			{isOpen ? (
@@ -347,12 +353,15 @@ export const MapSearchControl = ({
 				ref={containerRef}
 				className={`minimal-map-search ${isOpen ? 'is-focused' : ''}`}
 			>
-				<div className="minimal-map-search__input-wrapper">
+				<form
+					className="minimal-map-search__input-wrapper"
+					onSubmit={handleSearchSubmit}
+				>
 					<div className="minimal-map-search__icon-container">
 						<Search size={18} />
 					</div>
 					<input
-						type="text"
+						type="search"
 						className="minimal-map-search__input"
 						value={searchTerm}
 						onChange={(event) => handleSearchInput(event.target.value)}
@@ -362,11 +371,7 @@ export const MapSearchControl = ({
 							)
 						}
 						onFocus={() => setIsFocused(true)}
-						onKeyDown={(event) => {
-							if (event.key === 'Enter') {
-								void handleAddressSearch();
-							}
-						}}
+						enterKeyHint="search"
 						placeholder={__('Search locations...', 'minimal-map')}
 						aria-label={__('Search locations', 'minimal-map')}
 					/>
@@ -380,7 +385,7 @@ export const MapSearchControl = ({
 							<X size={16} />
 						</button>
 					) : null}
-				</div>
+				</form>
 
 				{isOpen ? (
 					<div className="minimal-map-search__results-container">

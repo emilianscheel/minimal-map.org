@@ -68,6 +68,12 @@ function setInputValue(input: HTMLInputElement, iframeDom: JSDOM, value: string)
 	input.dispatchEvent(new iframeDom.window.Event('change', { bubbles: true }));
 }
 
+function submitSearchForm(host: HTMLDivElement, iframeDom: JSDOM): void {
+	const form = host.querySelector('.minimal-map-search__input-wrapper') as HTMLFormElement;
+
+	form.dispatchEvent(new iframeDom.window.Event('submit', { bubbles: true, cancelable: true }));
+}
+
 function createAddressSearchControl(
 	geocodeSearchFn: (query: string) => Promise<GeocodeResponse>,
 ) {
@@ -321,12 +327,12 @@ describe('map iframe document context', () => {
 		focusInput(input, iframeDom);
 		setInputValue(input, iframeDom, 'Berlin');
 		await flushRender();
-		input.dispatchEvent(new iframeDom.window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+		submitSearchForm(host, iframeDom);
 		await flushRender();
 
 		setInputValue(input, iframeDom, '1600 Pennsylvania Avenue');
 		await flushRender();
-		input.dispatchEvent(new iframeDom.window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+		submitSearchForm(host, iframeDom);
 		await flushRender();
 		await flushRender();
 
@@ -351,7 +357,7 @@ describe('map iframe document context', () => {
 		focusInput(input, iframeDom);
 		setInputValue(input, iframeDom, '1600 Pennsylvania Avenue');
 		await flushRender();
-		input.dispatchEvent(new iframeDom.window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+		submitSearchForm(host, iframeDom);
 		await flushRender();
 		await flushRender();
 		await flushRender();
@@ -385,7 +391,7 @@ describe('map iframe document context', () => {
 		focusInput(input, iframeDom);
 		setInputValue(input, iframeDom, '1600 Pennsylvania Avenue');
 		await flushRender();
-		input.dispatchEvent(new iframeDom.window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+		submitSearchForm(host, iframeDom);
 		await flushRender();
 		await flushRender();
 		await flushRender();
