@@ -3,7 +3,7 @@ import { DataViews } from '@wordpress/dataviews/wp';
 import type { Action, Field, View, ViewTable } from '@wordpress/dataviews';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from '@wordpress/element';
-import { Copy, Image, Layers3, LocateFixed, MapPin, Pencil, Tags, Trash2 } from 'lucide-react';
+import { Copy, Image, Layers3, LocateFixed, MapPin, Pencil, Tags, Trash2, Clock } from 'lucide-react';
 import LocationMiniMap from '../../components/LocationMiniMap';
 import LogoPreview from '../../components/LogoPreview';
 import TagBadge from '../../components/TagBadge';
@@ -399,6 +399,24 @@ function useLocationActions(controller: LocationsController): Action<LocationRec
 						}
 
 						controller.onOpenAssignMarkerModal(items.length === 1 ? items[0] : items);
+					},
+				},
+				{
+					id: 'assign-opening-hours',
+					label: (items) =>
+						items.length === 1
+							? __('Assign Opening Hours', 'minimal-map')
+							: __('Assign Opening Hours', 'minimal-map'),
+					icon: <Clock size={16} strokeWidth={2} />,
+					context: 'single',
+					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+					supportsBulk: true,
+					callback: (items) => {
+						if (items.length === 0) {
+							return;
+						}
+
+						controller.onOpenAssignOpeningHoursModal(items.length === 1 ? items[0] : items);
 					},
 				},
 				{

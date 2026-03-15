@@ -2,6 +2,7 @@ import { DropZone, Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import AssignLogoModal from './AssignLogoModal';
 import AssignMarkerModal from './AssignMarkerModal';
+import AssignOpeningHoursModal from './AssignOpeningHoursModal';
 import AssignToCollectionModal from './AssignToCollectionModal';
 import AssignTagsModal from './AssignTagsModal';
 import CustomCsvImportModal from './CustomCsvImportModal';
@@ -59,6 +60,7 @@ export default function LocationsView({ controller }: { controller: LocationsCon
 			<AssignLogoModal controller={controller} />
 			<AssignMarkerModal controller={controller} />
 			<AssignTagsModal controller={controller} />
+			<AssignOpeningHoursModal controller={controller} />
 			<CustomCsvImportModal controller={controller} />
 			<DeleteLogoConfirmationModal controller={controller} />
 			<RemoveMarkerConfirmationModal controller={controller} />

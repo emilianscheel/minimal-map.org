@@ -59,6 +59,7 @@ export interface LocationsController {
 	isAssignLogoModalOpen: boolean;
 	isAssignMarkerModalOpen: boolean;
 	isAssignTagsModalOpen: boolean;
+	isAssignOpeningHoursModalOpen: boolean;
 	isAssignmentSaving: boolean;
 	isDeleteLogoConfirmationModalOpen: boolean;
 	isRemoveMarkerConfirmationModalOpen: boolean;
@@ -83,6 +84,7 @@ export interface LocationsController {
 	getTagsForLocation: (locationId: number) => TagRecord[];
 	selectedLogoLocations: LocationRecord[];
 	selectedMarkerLocations: LocationRecord[];
+	selectedOpeningHoursLocations: LocationRecord[];
 	selectedAssignmentLocation: LocationRecord | null;
 	selectedTagsLocations: LocationRecord[];
 	selectedLogoRemovalLocations: LocationRecord[];
@@ -100,6 +102,7 @@ export interface LocationsController {
 	onAssignLogoToLocation: () => Promise<void>;
 	onAssignMarkerToLocation: () => Promise<void>;
 	onAssignTagsToLocation: () => Promise<void>;
+	onAssignOpeningHoursToLocations: () => Promise<void>;
 	dismissActionNotice: () => void;
 	onBack: () => void;
 	onCancel: () => void;
@@ -124,6 +127,7 @@ export interface LocationsController {
 	onCloseAssignLogoModal: () => void;
 	onCloseAssignMarkerModal: () => void;
 	onCloseAssignTagsModal: () => void;
+	onCloseAssignOpeningHoursModal: () => void;
 	onCloseDeleteLogoConfirmationModal: () => void;
 	onCloseRemoveMarkerConfirmationModal: () => void;
 	onCloseRemoveTagsConfirmationModal: () => void;
@@ -138,6 +142,7 @@ export interface LocationsController {
 	onOpenAssignLogoModal: (locations: LocationRecord | LocationRecord[]) => void;
 	onOpenAssignMarkerModal: (locations: LocationRecord | LocationRecord[]) => void;
 	onOpenAssignTagsModal: (locations: LocationRecord | LocationRecord[]) => void;
+	onOpenAssignOpeningHoursModal: (locations: LocationRecord | LocationRecord[]) => void;
 	onQuickAssignLogo: (location: LocationRecord, logoId: number) => Promise<void>;
 	onQuickAssignMarker: (location: LocationRecord, markerId: number) => Promise<void>;
 	onQuickAssignTag: (location: LocationRecord, tagId: number) => Promise<void>;

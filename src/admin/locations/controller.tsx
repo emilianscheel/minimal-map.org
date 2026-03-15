@@ -126,6 +126,8 @@ export function useLocationsController(
 	const [isAssignTagsModalOpen, setAssignTagsModalOpen] = useState(false);
 	const [selectedTagsLocations, setSelectedTagsLocations] = useState<LocationRecord[]>([]);
 	const [assignmentTagIds, setAssignmentTagIds] = useState<number[]>([]);
+	const [isAssignOpeningHoursModalOpen, setAssignOpeningHoursModalOpen] = useState(false);
+	const [selectedOpeningHoursLocations, setSelectedOpeningHoursLocations] = useState<LocationRecord[]>([]);
 	const [isAssignmentSaving, setAssignmentSaving] = useState(false);
 	const [isDeleteLogoConfirmationModalOpen, setDeleteLogoConfirmationModalOpen] = useState(false);
 	const [selectedLogoRemovalLocations, setSelectedLogoRemovalLocations] =
@@ -346,6 +348,17 @@ export function useLocationsController(
 		setAssignmentTagIds([]);
 	}, []);
 
+	const resetAssignOpeningHoursState = useCallback((): void => {
+		setAssignOpeningHoursModalOpen(false);
+		setSelectedOpeningHoursLocations([]);
+		setForm((currentForm) => ({
+			...currentForm,
+			opening_hours: DEFAULT_FORM_STATE.opening_hours,
+			opening_hours_notes: DEFAULT_FORM_STATE.opening_hours_notes,
+		}));
+		setFieldErrors(createEmptyFieldErrors());
+	}, []);
+
 	const closeAssignToCollectionModal = useCallback((): void => {
 		if (isAssignmentSaving) {
 			return;
@@ -377,6 +390,14 @@ export function useLocationsController(
 
 		resetAssignTagsState();
 	}, [isAssignmentSaving, resetAssignTagsState]);
+
+	const closeAssignOpeningHoursModal = useCallback((): void => {
+		if (isAssignmentSaving) {
+			return;
+		}
+
+		resetAssignOpeningHoursState();
+	}, [isAssignmentSaving, resetAssignOpeningHoursState]);
 
 	const resetDeleteLogoConfirmationState = useCallback((): void => {
 		setDeleteLogoConfirmationModalOpen(false);
@@ -593,6 +614,37 @@ export function useLocationsController(
 		setAssignmentTagIds([]);
 		setAssignTagsModalOpen(true);
 	}, [normalizeLocationSelection]);
+
+	const onOpenAssignOpeningHoursModal = useCallback(
+		(selectedLocations: LocationRecord | LocationRecord[]): void => {
+			const nextLocations = normalizeLocationSelection(selectedLocations);
+
+			if (nextLocations.length === 0) {
+				return;
+			}
+
+			setSelectedOpeningHoursLocations(nextLocations);
+
+			// Pre-fill with the first location's opening hours if only one location is selected
+			if (nextLocations.length === 1) {
+				setForm((currentForm) => ({
+					...currentForm,
+					opening_hours: nextLocations[0].opening_hours,
+					opening_hours_notes: nextLocations[0].opening_hours_notes,
+				}));
+			} else {
+				setForm((currentForm) => ({
+					...currentForm,
+					opening_hours: DEFAULT_FORM_STATE.opening_hours,
+					opening_hours_notes: DEFAULT_FORM_STATE.opening_hours_notes,
+				}));
+			}
+
+			setFieldErrors(createEmptyFieldErrors());
+			setAssignOpeningHoursModalOpen(true);
+		},
+		[normalizeLocationSelection]
+	);
 
 	const onOpenDeleteLogoConfirmationModal = useCallback((selectedLocations: LocationRecord | LocationRecord[]): void => {
 		const nextLocations = normalizeLocationSelection(selectedLocations);
@@ -827,6 +879,68 @@ export function useLocationsController(
 		assignTagsToLocations,
 		resetAssignTagsState,
 		selectedTagsLocations,
+	]);
+
+	const onAssignOpeningHoursToLocations = useCallback(async (): Promise<void> => {
+		if (selectedOpeningHoursLocations.length === 0) {
+			return;
+		}
+
+		const errors = validateOpeningHoursStep(form);
+		setFieldErrors(errors);
+
+		if (hasFieldErrors(errors)) {
+			return;
+		}
+
+		setAssignmentSaving(true);
+		setActionNotice(null);
+
+		try {
+			for (const location of selectedOpeningHoursLocations) {
+				await updateLocation(config, location.id, {
+					...createLocationFormStateFromRecord(location),
+					opening_hours: form.opening_hours,
+					opening_hours_notes: form.opening_hours_notes,
+				});
+			}
+			await loadLocations();
+			clearSelectionAfterBulkAction(selectedOpeningHoursLocations);
+			setActionNotice({
+				status: 'success',
+				message:
+					selectedOpeningHoursLocations.length === 1
+						? __('Opening hours updated.', 'minimal-map')
+						: sprintf(
+								_n(
+									'%d location updated with new opening hours.',
+									'%d locations updated with new opening hours.',
+									selectedOpeningHoursLocations.length,
+									'minimal-map'
+								),
+								selectedOpeningHoursLocations.length
+						  ),
+			});
+			resetAssignOpeningHoursState();
+		} catch (error) {
+			setActionNotice({
+				status: 'error',
+				message:
+					error instanceof Error
+						? error.message
+						: __('Opening hours could not be updated.', 'minimal-map'),
+			});
+		} finally {
+			setAssignmentSaving(false);
+		}
+	}, [
+		clearSelectionAfterBulkAction,
+		config,
+		form.opening_hours,
+		form.opening_hours_notes,
+		loadLocations,
+		resetAssignOpeningHoursState,
+		selectedOpeningHoursLocations,
 	]);
 
 	const onQuickAssignLogo = useCallback(
@@ -1719,6 +1833,7 @@ export function useLocationsController(
 		isAssignLogoModalOpen,
 		isAssignMarkerModalOpen,
 		isAssignTagsModalOpen,
+		isAssignOpeningHoursModalOpen,
 		isAssignmentSaving,
 		isDeleteLogoConfirmationModalOpen,
 		isRemoveMarkerConfirmationModalOpen,
@@ -1745,6 +1860,7 @@ export function useLocationsController(
 		onAssignLogoToLocation,
 		onAssignMarkerToLocation,
 		onAssignTagsToLocation,
+		onAssignOpeningHoursToLocations,
 		onAdvanceCustomCsvImportStep,
 		onCancel,
 		onChangeCsvImportMapping,
@@ -1758,6 +1874,7 @@ export function useLocationsController(
 		onCloseAssignLogoModal: closeAssignLogoModal,
 		onCloseAssignMarkerModal: closeAssignMarkerModal,
 		onCloseAssignTagsModal: closeAssignTagsModal,
+		onCloseAssignOpeningHoursModal: closeAssignOpeningHoursModal,
 		onCloseDeleteLogoConfirmationModal: closeDeleteLogoConfirmationModal,
 		onCloseRemoveMarkerConfirmationModal: closeRemoveMarkerConfirmationModal,
 		onCloseRemoveTagsConfirmationModal: closeRemoveTagsConfirmationModal,
@@ -1766,6 +1883,7 @@ export function useLocationsController(
 		onOpenAssignLogoModal,
 		onOpenAssignMarkerModal,
 		onOpenAssignTagsModal,
+		onOpenAssignOpeningHoursModal,
 		onQuickAssignLogo,
 		onQuickAssignMarker,
 		onQuickAssignTag,
@@ -1809,6 +1927,7 @@ export function useLocationsController(
 		selectedAssignmentLocation,
 		selectedMarkerLocations,
 		selectedLogoLocations,
+		selectedOpeningHoursLocations,
 		selectedLogoRemovalLocations,
 		selectedMarkerRemovalLocations,
 		selectedTagRemovalLocations,
