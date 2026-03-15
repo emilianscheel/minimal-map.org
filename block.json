@@ -55,6 +55,10 @@
       "type": "boolean",
       "default": true
     },
+    "googleMapsNavigation": {
+      "type": "boolean",
+      "default": false
+    },
     "scrollZoom": {
       "type": "boolean",
       "default": false
@@ -157,6 +161,31 @@
     "searchPanelWidth": {
       "type": "string",
       "default": "320px"
+    },
+    "googleMapsButtonPadding": {
+      "type": "object",
+      "default": {
+        "top": "5px",
+        "right": "8px",
+        "bottom": "5px",
+        "left": "8px"
+      }
+    },
+    "googleMapsButtonBackgroundColor": {
+      "type": "string",
+      "default": "#f0f0f1"
+    },
+    "googleMapsButtonForegroundColor": {
+      "type": "string",
+      "default": "#1e1e1e"
+    },
+    "googleMapsButtonBorderRadius": {
+      "type": "string",
+      "default": "18px"
+    },
+    "googleMapsButtonShowIcon": {
+      "type": "boolean",
+      "default": true
     },
     "creditsPadding": {
       "type": "object",

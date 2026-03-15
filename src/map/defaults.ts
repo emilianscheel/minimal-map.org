@@ -39,6 +39,7 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 	styleThemeSlug: 'default',
 	showZoomControls: true,
 	allowSearch: true,
+	googleMapsNavigation: false,
 	scrollZoom: false,
 	mobileTwoFingerZoom: true,
 	zoomControlsPosition: DEFAULT_ZOOM_CONTROLS_POSITION,
@@ -66,6 +67,16 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 	searchPanelBorderRadiusCard: '2px',
 	searchPanelCardGap: '12px',
 	searchPanelWidth: '320px',
+	googleMapsButtonPadding: {
+		top: '5px',
+		right: '8px',
+		bottom: '5px',
+		left: '8px',
+	},
+	googleMapsButtonBackgroundColor: '#f0f0f1',
+	googleMapsButtonForegroundColor: '#1e1e1e',
+	googleMapsButtonBorderRadius: '18px',
+	googleMapsButtonShowIcon: true,
 	creditsPadding: {
 		top: '4px',
 		right: '8px',
@@ -196,6 +207,8 @@ function getDefaults(runtimeConfig: MapRuntimeConfig): MapDefaults {
 		stylePreset: `${runtimeConfig.defaults?.stylePreset ?? DEFAULT_MAP_DEFAULTS.stylePreset}`,
 		showZoomControls: runtimeConfig.defaults?.showZoomControls ?? DEFAULT_MAP_DEFAULTS.showZoomControls,
 		allowSearch: runtimeConfig.defaults?.allowSearch ?? DEFAULT_MAP_DEFAULTS.allowSearch,
+		googleMapsNavigation:
+			runtimeConfig.defaults?.googleMapsNavigation ?? DEFAULT_MAP_DEFAULTS.googleMapsNavigation,
 		scrollZoom: runtimeConfig.defaults?.scrollZoom ?? DEFAULT_MAP_DEFAULTS.scrollZoom,
 		mobileTwoFingerZoom:
 			runtimeConfig.defaults?.mobileTwoFingerZoom ?? DEFAULT_MAP_DEFAULTS.mobileTwoFingerZoom,
@@ -279,6 +292,24 @@ function getDefaults(runtimeConfig: MapRuntimeConfig): MapDefaults {
 			runtimeConfig.defaults?.searchPanelWidth,
 			DEFAULT_MAP_DEFAULTS.searchPanelWidth
 		),
+		googleMapsButtonPadding: normalizeBoxValue(
+			runtimeConfig.defaults?.googleMapsButtonPadding,
+			DEFAULT_MAP_DEFAULTS.googleMapsButtonPadding as Required<BoxValue>
+		),
+		googleMapsButtonBackgroundColor: normalizeColor(
+			runtimeConfig.defaults?.googleMapsButtonBackgroundColor,
+			DEFAULT_MAP_DEFAULTS.googleMapsButtonBackgroundColor
+		),
+		googleMapsButtonForegroundColor: normalizeColor(
+			runtimeConfig.defaults?.googleMapsButtonForegroundColor,
+			DEFAULT_MAP_DEFAULTS.googleMapsButtonForegroundColor
+		),
+		googleMapsButtonBorderRadius: normalizeBorderRadiusValue(
+			runtimeConfig.defaults?.googleMapsButtonBorderRadius,
+			DEFAULT_MAP_DEFAULTS.googleMapsButtonBorderRadius
+		),
+		googleMapsButtonShowIcon:
+			runtimeConfig.defaults?.googleMapsButtonShowIcon ?? DEFAULT_MAP_DEFAULTS.googleMapsButtonShowIcon,
 		creditsPadding: normalizeBoxValue(
 			runtimeConfig.defaults?.creditsPadding,
 			DEFAULT_MAP_DEFAULTS.creditsPadding as Required<BoxValue>
@@ -423,6 +454,22 @@ export function normalizeMapConfig(
 		rawConfig.searchPanelWidth ?? defaults.searchPanelWidth,
 		defaults.searchPanelWidth
 	);
+	const googleMapsButtonPadding = normalizeBoxValue(
+		rawConfig.googleMapsButtonPadding ?? defaults.googleMapsButtonPadding,
+		defaults.googleMapsButtonPadding as Required<BoxValue>
+	);
+	const googleMapsButtonBackgroundColor = normalizeColor(
+		rawConfig.googleMapsButtonBackgroundColor ?? defaults.googleMapsButtonBackgroundColor,
+		defaults.googleMapsButtonBackgroundColor
+	);
+	const googleMapsButtonForegroundColor = normalizeColor(
+		rawConfig.googleMapsButtonForegroundColor ?? defaults.googleMapsButtonForegroundColor,
+		defaults.googleMapsButtonForegroundColor
+	);
+	const googleMapsButtonBorderRadius = normalizeBorderRadiusValue(
+		rawConfig.googleMapsButtonBorderRadius ?? defaults.googleMapsButtonBorderRadius,
+		defaults.googleMapsButtonBorderRadius
+	);
 	const creditsPadding = normalizeBoxValue(
 		rawConfig.creditsPadding ?? defaults.creditsPadding,
 		defaults.creditsPadding as Required<BoxValue>
@@ -484,6 +531,9 @@ export function normalizeMapConfig(
 		styleThemeSlug,
 		showZoomControls: Boolean(rawConfig.showZoomControls ?? defaults.showZoomControls),
 		allowSearch: Boolean(rawConfig.allowSearch ?? defaults.allowSearch),
+		googleMapsNavigation: Boolean(
+			rawConfig.googleMapsNavigation ?? defaults.googleMapsNavigation
+		),
 		scrollZoom: Boolean(rawConfig.scrollZoom ?? defaults.scrollZoom),
 		mobileTwoFingerZoom: Boolean(
 			rawConfig.mobileTwoFingerZoom ?? defaults.mobileTwoFingerZoom
@@ -508,6 +558,13 @@ export function normalizeMapConfig(
 		searchPanelBorderRadiusCard,
 		searchPanelCardGap,
 		searchPanelWidth,
+		googleMapsButtonPadding,
+		googleMapsButtonBackgroundColor,
+		googleMapsButtonForegroundColor,
+		googleMapsButtonBorderRadius,
+		googleMapsButtonShowIcon: Boolean(
+			rawConfig.googleMapsButtonShowIcon ?? defaults.googleMapsButtonShowIcon
+		),
 		creditsPadding,
 		creditsOuterMargin,
 		creditsBackgroundColor,

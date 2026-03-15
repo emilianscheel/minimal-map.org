@@ -1,6 +1,6 @@
 import { createRoot, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Globe, LoaderCircle, Mail, MapPin, Phone, Search, SearchX, X } from 'lucide-react';
+import { Globe, LoaderCircle, Mail, MapPin, Navigation, Phone, Search, SearchX, X } from 'lucide-react';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import type { FormEvent } from 'react';
 import Kbd from '../components/Kbd';
@@ -46,6 +46,8 @@ interface SearchControlProps {
 	doc: Document;
 	frontendGeocodePath?: string;
 	geocodeSearch: GeocodeSearchFn;
+	googleMapsNavigation: boolean;
+	googleMapsButtonShowIcon: boolean;
 	locations: MapLocationPoint[];
 	onSelect: (location: MapLocationPoint) => void;
 	selectedId?: number;
@@ -68,6 +70,18 @@ const formatLocationAddress = (location: MapLocationPoint): string => {
 
 	return [streetLine, localityLine].filter(Boolean).join(', ');
 };
+
+const getGoogleMapsDirectionsUrl = (location: MapLocationPoint): string => {
+	const params = new URLSearchParams({
+		api: '1',
+		destination: `${location.lat},${location.lng}`,
+	});
+
+	return `https://www.google.com/maps/dir/?${params.toString()}`;
+};
+
+const hasLocationCoordinates = (location: MapLocationPoint): boolean =>
+	Number.isFinite(location.lat) && Number.isFinite(location.lng);
 
 const SearchResultLogo = ({ logo }: { logo: MapLocationLogo }) => {
 	const isSvgMarkup = logo.content.trim().startsWith('<svg');
@@ -94,6 +108,8 @@ export const MapSearchControl = ({
 	doc,
 	frontendGeocodePath,
 	geocodeSearch,
+	googleMapsNavigation,
+	googleMapsButtonShowIcon,
 	locations,
 	onSelect,
 	selectedId: selectedIdProp,
@@ -265,76 +281,99 @@ export const MapSearchControl = ({
 
 	const renderResultCards = () => (
 		<div className="minimal-map-search__results">
-			{renderedResults.map(({ location, distanceLabel }) => (
-				<button
-					key={location.id}
-					id={`minimal-map-result-${location.id}`}
-					type="button"
-					className={`minimal-map-search__result-item ${
-						selectedId === location.id ? 'is-selected' : ''
-					}`}
-					onClick={() => handleSelect(location)}
-				>
-					<div className="minimal-map-search__result-layout">
-						<div className="minimal-map-search__result-content">
-							<div className="minimal-map-search__result-title">
-								{location.title}
-							</div>
-							<div className="minimal-map-search__result-address">
-								<MapPin size={12} />
-								<span>{formatLocationAddress(location)}</span>
-							</div>
-							{location.telephone || location.email || location.website ? (
-								<div className="minimal-map-search__result-meta">
-									{location.telephone ? (
-										<div className="minimal-map-search__meta-item">
-											<Phone size={10} />
-											<span>{location.telephone}</span>
-										</div>
-									) : null}
-									{location.email ? (
-										<div className="minimal-map-search__meta-item">
-											<Mail size={10} />
-											<span>{location.email}</span>
-										</div>
-									) : null}
-									{location.website ? (
-										<div className="minimal-map-search__meta-item">
-											<Globe size={10} />
-											<span>{formatDisplayUrl(location.website)}</span>
+			{renderedResults.map(({ location, distanceLabel }) => {
+				const hasTags =
+					Array.isArray(location.tags) && location.tags.length > 0;
+				const showGoogleMapsButton =
+					googleMapsNavigation && hasLocationCoordinates(location);
+				const showFooter = hasTags || showGoogleMapsButton || Boolean(distanceLabel);
+
+				return (
+					<div
+						key={location.id}
+						id={`minimal-map-result-${location.id}`}
+						className={`minimal-map-search__result-item ${
+							selectedId === location.id ? 'is-selected' : ''
+						}`}
+					>
+						<button
+							type="button"
+							className="minimal-map-search__result-select"
+							onClick={() => handleSelect(location)}
+						>
+							<div className="minimal-map-search__result-layout">
+								<div className="minimal-map-search__result-content">
+									<div className="minimal-map-search__result-title">
+										{location.title}
+									</div>
+									<div className="minimal-map-search__result-address">
+										<MapPin size={12} />
+										<span>{formatLocationAddress(location)}</span>
+									</div>
+									{location.telephone || location.email || location.website ? (
+										<div className="minimal-map-search__result-meta">
+											{location.telephone ? (
+												<div className="minimal-map-search__meta-item">
+													<Phone size={10} />
+													<span>{location.telephone}</span>
+												</div>
+											) : null}
+											{location.email ? (
+												<div className="minimal-map-search__meta-item">
+													<Mail size={10} />
+													<span>{location.email}</span>
+												</div>
+											) : null}
+											{location.website ? (
+												<div className="minimal-map-search__meta-item">
+													<Globe size={10} />
+													<span>{formatDisplayUrl(location.website)}</span>
+												</div>
+											) : null}
 										</div>
 									) : null}
 								</div>
-							) : null}
-						</div>
-						{location.logo ? (
-							<div className="minimal-map-search__result-logo-column">
-								<SearchResultLogo logo={location.logo} />
+								{location.logo ? (
+									<div className="minimal-map-search__result-logo-column">
+										<SearchResultLogo logo={location.logo} />
+									</div>
+								) : null}
+							</div>
+						</button>
+						{showFooter ? (
+							<div className="minimal-map-search__result-footer">
+								<div className="minimal-map-search__result-footer-content">
+									{hasTags ? (
+										<div className="minimal-map-search__result-tags">
+											{location.tags?.map((tag) => (
+												<TagBadge key={tag.id} tag={tag} />
+											))}
+										</div>
+									) : null}
+									{showGoogleMapsButton ? (
+										<a
+											className="minimal-map-search__maps-link"
+											href={getGoogleMapsDirectionsUrl(location)}
+											target="_blank"
+											rel="noreferrer noopener"
+										>
+											{googleMapsButtonShowIcon ? (
+												<Navigation size={10} />
+											) : null}
+											<span>{__('Open in Google Maps', 'minimal-map')}</span>
+										</a>
+									) : null}
+								</div>
+								{distanceLabel ? (
+									<div className="minimal-map-search__result-distance">
+										{sprintf(__('%s away', 'minimal-map'), distanceLabel)}
+									</div>
+								) : null}
 							</div>
 						) : null}
 					</div>
-					{Array.isArray(location.tags) && location.tags.length > 0 ? (
-						<div className="minimal-map-search__result-footer">
-							<div className="minimal-map-search__result-tags">
-								{location.tags.map((tag) => (
-									<TagBadge key={tag.id} tag={tag} />
-								))}
-							</div>
-							{distanceLabel ? (
-								<div className="minimal-map-search__result-distance">
-									{sprintf(__('%s away', 'minimal-map'), distanceLabel)}
-								</div>
-							) : null}
-						</div>
-					) : distanceLabel ? (
-						<div className="minimal-map-search__result-footer minimal-map-search__result-footer--distance-only">
-							<div className="minimal-map-search__result-distance">
-								{sprintf(__('%s away', 'minimal-map'), distanceLabel)}
-							</div>
-						</div>
-					) : null}
-				</button>
-			))}
+				);
+			})}
 		</div>
 	);
 
@@ -509,6 +548,8 @@ export function createWordPressSearchControl(
 				doc={context.doc}
 				frontendGeocodePath={frontendGeocodePath}
 				geocodeSearch={geocodeSearch}
+				googleMapsNavigation={config.googleMapsNavigation}
+				googleMapsButtonShowIcon={config.googleMapsButtonShowIcon}
 				locations={config.locations}
 				onSelect={onSelect}
 				selectedId={selectedId}

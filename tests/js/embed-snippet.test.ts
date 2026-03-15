@@ -20,6 +20,7 @@ function createAttributes(overrides: Partial<MapBlockAttributes> = {}): MapBlock
 		styleThemeSlug: 'default',
 		showZoomControls: true,
 		allowSearch: true,
+		googleMapsNavigation: false,
 		scrollZoom: false,
 		mobileTwoFingerZoom: false,
 		zoomControlsPosition: 'top-right',
@@ -57,6 +58,16 @@ function createAttributes(overrides: Partial<MapBlockAttributes> = {}): MapBlock
 		searchPanelBorderRadiusCard: '2px',
 		searchPanelCardGap: '12px',
 		searchPanelWidth: '320px',
+		googleMapsButtonPadding: {
+			top: '5px',
+			right: '8px',
+			bottom: '5px',
+			left: '8px',
+		},
+		googleMapsButtonBackgroundColor: '#f0f0f1',
+		googleMapsButtonForegroundColor: '#1e1e1e',
+		googleMapsButtonBorderRadius: '18px',
+		googleMapsButtonShowIcon: true,
 		creditsPadding: {
 			top: '4px',
 			right: '8px',
@@ -93,7 +104,7 @@ describe('iframe embed snippet', () => {
 		);
 
 		expect(JSON.stringify(payload)).toBe(
-			'{"v":1,"attributes":{"centerLat":52.517,"centerLng":13.388,"zoom":12,"collectionId":0,"height":480,"heightUnit":"px","heightMobile":320,"heightMobileUnit":"px","stylePreset":"liberty","styleThemeSlug":"default","showZoomControls":true,"allowSearch":true,"scrollZoom":false,"mobileTwoFingerZoom":false,"zoomControlsPosition":"top-right","zoomControlsPadding":{"top":"8px","right":"8px","bottom":"8px","left":"8px"},"zoomControlsOuterMargin":{"top":"16px","right":"16px","bottom":"16px","left":"16px"},"zoomControlsBackgroundColor":"#ffffff","zoomControlsIconColor":"#1e1e1e","zoomControlsBorderRadius":"2px","zoomControlsBorderColor":"#dcdcde","zoomControlsBorderWidth":"1px","zoomControlsPlusIcon":"plus","zoomControlsMinusIcon":"line-solid","searchPanelBackgroundPrimary":"#ffffff","searchPanelBackgroundSecondary":"#f0f0f1","searchPanelBackgroundHover":"#f8f8f8","searchPanelForegroundPrimary":"#1e1e1e","searchPanelForegroundSecondary":"#1e1e1e","searchPanelOuterMargin":{"top":"24px","right":"24px","bottom":"24px","left":"24px"},"searchPanelBorderRadiusInput":"10px","searchPanelBorderRadiusCard":"2px","searchPanelCardGap":"12px","searchPanelWidth":"320px","creditsPadding":{"top":"4px","right":"8px","bottom":"4px","left":"8px"},"creditsOuterMargin":{"top":"16px","right":"16px","bottom":"16px","left":"16px"},"creditsBackgroundColor":"#ffffff","creditsForegroundColor":"#1e1e1e","creditsBorderRadius":"999px"}}'
+			'{"v":1,"attributes":{"centerLat":52.517,"centerLng":13.388,"zoom":12,"collectionId":0,"height":480,"heightUnit":"px","heightMobile":320,"heightMobileUnit":"px","stylePreset":"liberty","styleThemeSlug":"default","showZoomControls":true,"allowSearch":true,"googleMapsNavigation":false,"scrollZoom":false,"mobileTwoFingerZoom":false,"zoomControlsPosition":"top-right","zoomControlsPadding":{"top":"8px","right":"8px","bottom":"8px","left":"8px"},"zoomControlsOuterMargin":{"top":"16px","right":"16px","bottom":"16px","left":"16px"},"zoomControlsBackgroundColor":"#ffffff","zoomControlsIconColor":"#1e1e1e","zoomControlsBorderRadius":"2px","zoomControlsBorderColor":"#dcdcde","zoomControlsBorderWidth":"1px","zoomControlsPlusIcon":"plus","zoomControlsMinusIcon":"line-solid","searchPanelBackgroundPrimary":"#ffffff","searchPanelBackgroundSecondary":"#f0f0f1","searchPanelBackgroundHover":"#f8f8f8","searchPanelForegroundPrimary":"#1e1e1e","searchPanelForegroundSecondary":"#1e1e1e","searchPanelOuterMargin":{"top":"24px","right":"24px","bottom":"24px","left":"24px"},"searchPanelBorderRadiusInput":"10px","searchPanelBorderRadiusCard":"2px","searchPanelCardGap":"12px","searchPanelWidth":"320px","googleMapsButtonPadding":{"top":"5px","right":"8px","bottom":"5px","left":"8px"},"googleMapsButtonBackgroundColor":"#f0f0f1","googleMapsButtonForegroundColor":"#1e1e1e","googleMapsButtonBorderRadius":"18px","googleMapsButtonShowIcon":true,"creditsPadding":{"top":"4px","right":"8px","bottom":"4px","left":"8px"},"creditsOuterMargin":{"top":"16px","right":"16px","bottom":"16px","left":"16px"},"creditsBackgroundColor":"#ffffff","creditsForegroundColor":"#1e1e1e","creditsBorderRadius":"999px"}}'
 		);
 	});
 

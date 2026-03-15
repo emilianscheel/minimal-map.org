@@ -34,6 +34,7 @@ export interface MapDefaults {
 	styleThemeSlug: string;
 	showZoomControls: boolean;
 	allowSearch: boolean;
+	googleMapsNavigation: boolean;
 	scrollZoom: boolean;
 	mobileTwoFingerZoom: boolean;
 	zoomControlsPosition: ZoomControlsPosition;
@@ -56,6 +57,11 @@ export interface MapDefaults {
 	searchPanelBorderRadiusCard: string;
 	searchPanelCardGap: string;
 	searchPanelWidth: string;
+	googleMapsButtonPadding: BoxValue;
+	googleMapsButtonBackgroundColor: string;
+	googleMapsButtonForegroundColor: string;
+	googleMapsButtonBorderRadius: string;
+	googleMapsButtonShowIcon: boolean;
 	creditsPadding: BoxValue;
 	creditsOuterMargin: BoxValue;
 	creditsBackgroundColor: string;
@@ -135,6 +141,7 @@ export interface RawMapConfig {
 	styleThemeSlug?: string;
 	showZoomControls?: boolean;
 	allowSearch?: boolean;
+	googleMapsNavigation?: boolean;
 	scrollZoom?: boolean;
 	mobileTwoFingerZoom?: boolean;
 	zoomControlsPosition?: string;
@@ -157,6 +164,11 @@ export interface RawMapConfig {
 	searchPanelBorderRadiusCard?: string | BoxValue | null;
 	searchPanelCardGap?: string;
 	searchPanelWidth?: string;
+	googleMapsButtonPadding?: BoxValue | null;
+	googleMapsButtonBackgroundColor?: string;
+	googleMapsButtonForegroundColor?: string;
+	googleMapsButtonBorderRadius?: string | BoxValue | null;
+	googleMapsButtonShowIcon?: boolean;
 	creditsPadding?: BoxValue | null;
 	creditsOuterMargin?: BoxValue | null;
 	creditsBackgroundColor?: string;
@@ -200,6 +212,7 @@ export interface NormalizedMapConfig extends MapDefaults {
 	mobileTwoFingerZoom: boolean;
 	showAttribution: boolean;
 	allowSearch: boolean;
+	googleMapsNavigation: boolean;
 }
 
 export interface MinimalMapInstance {
@@ -341,6 +354,7 @@ export interface MapBlockAttributes {
 	styleThemeSlug: string;
 	showZoomControls: boolean;
 	allowSearch: boolean;
+	googleMapsNavigation: boolean;
 	scrollZoom: boolean;
 	mobileTwoFingerZoom: boolean;
 	zoomControlsPosition: ZoomControlsPosition;
@@ -363,6 +377,11 @@ export interface MapBlockAttributes {
 	searchPanelBorderRadiusCard: string;
 	searchPanelCardGap: string;
 	searchPanelWidth: string;
+	googleMapsButtonPadding: BoxValue;
+	googleMapsButtonBackgroundColor: string;
+	googleMapsButtonForegroundColor: string;
+	googleMapsButtonBorderRadius: string;
+	googleMapsButtonShowIcon: boolean;
 	creditsPadding: BoxValue;
 	creditsOuterMargin: BoxValue;
 	creditsBackgroundColor: string;

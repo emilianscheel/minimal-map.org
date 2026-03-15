@@ -184,6 +184,15 @@ describe('map defaults normalization', () => {
 
 		expect(config.searchPanelBorderRadiusInput).toBe('10px');
 		expect(config.searchPanelWidth).toBe('320px');
+		expect(config.googleMapsNavigation).toBe(false);
+		expect(config.googleMapsButtonShowIcon).toBe(true);
+		expect(config.googleMapsButtonBorderRadius).toBe('18px');
+		expect(config.googleMapsButtonPadding).toEqual({
+			top: '5px',
+			right: '8px',
+			bottom: '5px',
+			left: '8px',
+		});
 	});
 
 	test('falls back when search panel styling values are invalid', () => {
@@ -220,5 +229,57 @@ describe('map defaults normalization', () => {
 		expect(config.searchPanelBorderRadiusCard).toBe('2px');
 		expect(config.searchPanelCardGap).toBe('12px');
 		expect(config.searchPanelWidth).toBe('320px');
+	});
+
+	test('preserves valid Google Maps button styling values', () => {
+		const config = normalizeMapConfig({
+			googleMapsNavigation: true,
+			googleMapsButtonPadding: {
+				top: '6px',
+				right: '12px',
+				bottom: '8px',
+				left: '10px',
+			},
+			googleMapsButtonBackgroundColor: '#112233',
+			googleMapsButtonForegroundColor: '#fefefe',
+			googleMapsButtonBorderRadius: '12px 16px',
+			googleMapsButtonShowIcon: false,
+		});
+
+		expect(config.googleMapsNavigation).toBe(true);
+		expect(config.googleMapsButtonPadding).toEqual({
+			top: '6px',
+			right: '12px',
+			bottom: '8px',
+			left: '10px',
+		});
+		expect(config.googleMapsButtonBackgroundColor).toBe('#112233');
+		expect(config.googleMapsButtonForegroundColor).toBe('#fefefe');
+		expect(config.googleMapsButtonBorderRadius).toBe('12px 16px');
+		expect(config.googleMapsButtonShowIcon).toBe(false);
+	});
+
+	test('falls back when Google Maps button styling values are invalid', () => {
+		const config = normalizeMapConfig({
+			googleMapsButtonPadding: {
+				top: 'wide',
+				right: '',
+				bottom: '4pt',
+				left: '2px',
+			},
+			googleMapsButtonBackgroundColor: 'red',
+			googleMapsButtonForegroundColor: 'hsl(1, 1%, 1%)',
+			googleMapsButtonBorderRadius: 'oops nope',
+		});
+
+		expect(config.googleMapsButtonPadding).toEqual({
+			top: '5px',
+			right: '8px',
+			bottom: '5px',
+			left: '2px',
+		});
+		expect(config.googleMapsButtonBackgroundColor).toBe('#f0f0f1');
+		expect(config.googleMapsButtonForegroundColor).toBe('#1e1e1e');
+		expect(config.googleMapsButtonBorderRadius).toBe('18px');
 	});
 });

@@ -436,6 +436,40 @@ function SearchPanelColorSettings({
   );
 }
 
+function GoogleMapsButtonColorSettings({
+  backgroundColor,
+  foregroundColor,
+  defaultBackgroundColor,
+  defaultForegroundColor,
+  onChange,
+}: {
+  backgroundColor: string;
+  foregroundColor: string;
+  defaultBackgroundColor: string;
+  defaultForegroundColor: string;
+  onChange: (
+    key: "googleMapsButtonBackgroundColor" | "googleMapsButtonForegroundColor",
+    value: string,
+  ) => void;
+}) {
+  return (
+    <div style={{ display: "grid", gap: "8px", marginBottom: "16px" }}>
+      <CompactColorDropdown
+        label={__("Background", "minimal-map")}
+        value={backgroundColor}
+        defaultValue={defaultBackgroundColor}
+        onChange={(value) => onChange("googleMapsButtonBackgroundColor", value)}
+      />
+      <CompactColorDropdown
+        label={__("Foreground", "minimal-map")}
+        value={foregroundColor}
+        defaultValue={defaultForegroundColor}
+        onChange={(value) => onChange("googleMapsButtonForegroundColor", value)}
+      />
+    </div>
+  );
+}
+
 function CompactColorDropdown({
   label,
   value,
@@ -683,6 +717,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   const zoomControlsRadiusRef = useRef<HTMLDivElement | null>(null);
   const searchPanelInputRadiusRef = useRef<HTMLDivElement | null>(null);
   const searchPanelCardRadiusRef = useRef<HTMLDivElement | null>(null);
+  const googleMapsButtonRadiusRef = useRef<HTMLDivElement | null>(null);
   const creditsRadiusRef = useRef<HTMLDivElement | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
     "idle",
@@ -785,6 +820,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
       zoomControlsRadiusRef.current,
       searchPanelInputRadiusRef.current,
       searchPanelCardRadiusRef.current,
+      googleMapsButtonRadiusRef.current,
       creditsRadiusRef.current,
     ];
     const observers = targets
@@ -1026,6 +1062,13 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             label={__("Allow Search", "minimal-map")}
             checked={attributes.allowSearch}
             onChange={(value: boolean) => setAttributes({ allowSearch: value })}
+          />
+          <ToggleControl
+            label={__("Google Maps Navigation", "minimal-map")}
+            checked={attributes.googleMapsNavigation}
+            onChange={(value: boolean) =>
+              setAttributes({ googleMapsNavigation: value })
+            }
           />
         </PanelBody>
         <PanelBody
@@ -1326,6 +1369,65 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
               }}
             />
           </div>
+        </PanelBody>
+        <PanelBody
+          title={__("Google Maps Button", "minimal-map")}
+          initialOpen={false}
+        >
+          <GoogleMapsButtonColorSettings
+            backgroundColor={attributes.googleMapsButtonBackgroundColor}
+            foregroundColor={attributes.googleMapsButtonForegroundColor}
+            defaultBackgroundColor={
+              runtimeConfig.defaults?.googleMapsButtonBackgroundColor ??
+              runtimeConfig.defaults?.searchPanelBackgroundSecondary ??
+              "#f0f0f1"
+            }
+            defaultForegroundColor={
+              runtimeConfig.defaults?.googleMapsButtonForegroundColor ??
+              runtimeConfig.defaults?.searchPanelForegroundSecondary ??
+              "#1e1e1e"
+            }
+            onChange={(key, value) => setAttributes({ [key]: value })}
+          />
+          <div
+            ref={googleMapsButtonRadiusRef}
+            style={{ marginBottom: "8px" }}
+          >
+            <BorderRadiusControl
+              label={__("Border Radius", "minimal-map")}
+              onChange={(value: string | BorderRadiusValues) => {
+                setAttributes({
+                  googleMapsButtonBorderRadius:
+                    stringifyBorderRadiusValue(value),
+                });
+              }}
+              values={parseBorderRadiusValue(
+                attributes.googleMapsButtonBorderRadius,
+              )}
+            />
+          </div>
+          <div className="minimal-map-editor__box-control">
+            <BoxControl
+              __next40pxDefaultSize
+              label={__("Padding", "minimal-map")}
+              values={attributes.googleMapsButtonPadding}
+              units={HEIGHT_UNITS}
+              inputProps={BOX_CONTROL_INPUT_PROPS}
+              onChange={(value?: BoxValue) => {
+                setAttributes({
+                  googleMapsButtonPadding:
+                    value ?? attributes.googleMapsButtonPadding,
+                });
+              }}
+            />
+          </div>
+          <ToggleControl
+            label={__("Show icon", "minimal-map")}
+            checked={attributes.googleMapsButtonShowIcon}
+            onChange={(value: boolean) =>
+              setAttributes({ googleMapsButtonShowIcon: value })
+            }
+          />
         </PanelBody>
       </InspectorControls>
       <div {...blockProps}>

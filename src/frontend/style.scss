@@ -227,6 +227,17 @@
   --minimal-map-search-input-radius: 10px;
   --minimal-map-search-card-radius: 2px;
   --minimal-map-search-card-gap: 12px;
+  --minimal-map-google-maps-button-padding-top: 5px;
+  --minimal-map-google-maps-button-padding-right: 8px;
+  --minimal-map-google-maps-button-padding-bottom: 5px;
+  --minimal-map-google-maps-button-padding-left: 8px;
+  --minimal-map-google-maps-button-background: var(
+    --minimal-map-search-background-secondary
+  );
+  --minimal-map-google-maps-button-color: var(
+    --minimal-map-search-foreground-secondary
+  );
+  --minimal-map-google-maps-button-border-radius: 18px;
 }
 
 .minimal-map-search-backdrop {
@@ -384,7 +395,6 @@
   background: var(--minimal-map-search-background-primary);
   border: none;
   border-radius: var(--minimal-map-search-card-radius);
-  cursor: pointer;
   color: var(--minimal-map-search-foreground-primary);
   transition: background 0.1s ease-in-out;
   display: flex;
@@ -398,8 +408,26 @@
   --minimal-map-search-pill-border-radius: 18px;
 }
 
+.minimal-map-search__result-select {
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.minimal-map-search__result-select:focus {
+  outline: none;
+}
+
 .minimal-map-search__result-item:hover,
-.minimal-map-search__result-item:focus {
+.minimal-map-search__result-item:focus-within {
   background: var(--minimal-map-search-background-hover);
   outline: none;
 }
@@ -477,8 +505,13 @@
   width: 100%;
 }
 
-.minimal-map-search__result-footer--distance-only {
-  justify-content: flex-end;
+.minimal-map-search__result-footer-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .minimal-map-search__result-distance {
@@ -487,6 +520,36 @@
   line-height: 1.4;
   color: var(--minimal-map-search-foreground-secondary);
   white-space: nowrap;
+}
+
+.minimal-map-search__maps-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: var(--minimal-map-google-maps-button-padding-top)
+    var(--minimal-map-google-maps-button-padding-right)
+    var(--minimal-map-google-maps-button-padding-bottom)
+    var(--minimal-map-google-maps-button-padding-left);
+  background: var(--minimal-map-google-maps-button-background);
+  border-radius: var(--minimal-map-google-maps-button-border-radius);
+  color: var(--minimal-map-google-maps-button-color);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.minimal-map-search__maps-link:hover,
+.minimal-map-search__maps-link:focus {
+  color: var(--minimal-map-google-maps-button-color);
+  text-decoration: none;
+}
+
+.minimal-map-search__maps-link:focus-visible {
+  outline: 2px solid #3858e8;
+  outline-offset: 2px;
 }
 
 .minimal-map-search__result-logo-column {

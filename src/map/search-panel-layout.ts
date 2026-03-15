@@ -17,6 +17,10 @@ type SearchPanelConfig = Pick<
 	| 'searchPanelBorderRadiusCard'
 	| 'searchPanelCardGap'
 	| 'searchPanelWidth'
+	| 'googleMapsButtonPadding'
+	| 'googleMapsButtonBackgroundColor'
+	| 'googleMapsButtonForegroundColor'
+	| 'googleMapsButtonBorderRadius'
 >;
 
 function parsePixelValue(value: string): number {
@@ -81,6 +85,34 @@ export function applySearchPanelCssVariables(
 	target.style.setProperty(
 		'--minimal-map-search-card-gap',
 		config.searchPanelCardGap
+	);
+	target.style.setProperty(
+		'--minimal-map-google-maps-button-padding-top',
+		config.googleMapsButtonPadding.top ?? ''
+	);
+	target.style.setProperty(
+		'--minimal-map-google-maps-button-padding-right',
+		config.googleMapsButtonPadding.right ?? ''
+	);
+	target.style.setProperty(
+		'--minimal-map-google-maps-button-padding-bottom',
+		config.googleMapsButtonPadding.bottom ?? ''
+	);
+	target.style.setProperty(
+		'--minimal-map-google-maps-button-padding-left',
+		config.googleMapsButtonPadding.left ?? ''
+	);
+	target.style.setProperty(
+		'--minimal-map-google-maps-button-background',
+		config.googleMapsButtonBackgroundColor
+	);
+	target.style.setProperty(
+		'--minimal-map-google-maps-button-color',
+		config.googleMapsButtonForegroundColor
+	);
+	target.style.setProperty(
+		'--minimal-map-google-maps-button-border-radius',
+		config.googleMapsButtonBorderRadius
 	);
 }
 

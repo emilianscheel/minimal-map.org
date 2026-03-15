@@ -6,7 +6,7 @@ import { createAttributionPill } from '../../src/map/attribution-pill';
 import { createWordPressZoomControls } from '../../src/map/wp-controls';
 import { getSearchPanelDesktopPadding } from '../../src/map/search-panel-layout';
 import { normalizeMapConfig } from '../../src/map/defaults';
-import type { GeocodeResponse } from '../../src/types';
+import type { GeocodeResponse, MapLocationPoint } from '../../src/types';
 
 const originalGlobals = {
 	document: globalThis.document,
@@ -76,7 +76,12 @@ function submitSearchForm(host: HTMLDivElement, iframeDom: JSDOM): void {
 
 function createAddressSearchControl(
 	geocodeSearchFn: (query: string) => Promise<GeocodeResponse>,
-	onSelect: (location: { id?: number; title?: string }) => void = () => {},
+	options: {
+		googleMapsNavigation?: boolean;
+		googleMapsButtonShowIcon?: boolean;
+		locations?: MapLocationPoint[];
+		onSelect?: (location: { id?: number; title?: string }) => void;
+	} = {},
 ) {
 	const dom = new JSDOM('<!doctype html><div id="host"></div>');
 	setGlobalDom(dom);
@@ -96,28 +101,36 @@ function createAddressSearchControl(
 
 	const host = dom.window.document.getElementById('host') as HTMLDivElement;
 	const root = createRoot(host);
+	const {
+		googleMapsNavigation = false,
+		googleMapsButtonShowIcon = true,
+		locations = [
+			{
+				id: 1,
+				title: 'Berlin Studio',
+				lat: 52.52,
+				lng: 13.405,
+				city: 'Berlin',
+			},
+			{
+				id: 2,
+				title: 'Hamburg Office',
+				lat: 53.5511,
+				lng: 9.9937,
+				city: 'Hamburg',
+			},
+		],
+		onSelect = () => {},
+	} = options;
 
 	root.render(
 		createElement(MapSearchControl, {
 			doc: dom.window.document,
 			frontendGeocodePath: '/minimal-map/v1/frontend-geocode',
 			geocodeSearch: geocodeSearchFn,
-			locations: [
-				{
-					id: 1,
-					title: 'Berlin Studio',
-					lat: 52.52,
-					lng: 13.405,
-					city: 'Berlin',
-				},
-				{
-					id: 2,
-					title: 'Hamburg Office',
-					lat: 53.5511,
-					lng: 9.9937,
-					city: 'Hamburg',
-				},
-			],
+			googleMapsNavigation,
+			googleMapsButtonShowIcon,
+			locations,
 			onSelect,
 		}),
 	);
@@ -351,8 +364,10 @@ describe('map iframe document context', () => {
 				lat: 52.52,
 				lng: 13.405,
 			}),
-			(location) => {
-				selections.push(location.title ?? '');
+			{
+				onSelect: (location) => {
+					selections.push(location.title ?? '');
+				},
 			},
 		);
 
@@ -385,6 +400,249 @@ describe('map iframe document context', () => {
 			'Berlin Studio',
 		);
 		expect(selections).toEqual([ 'Berlin Studio' ]);
+
+		searchControl.destroy();
+	});
+
+	test('renders the Google Maps button only when navigation is enabled', async () => {
+		const disabledControl = createAddressSearchControl(async () => ({
+			success: true,
+			label: 'Berlin',
+			lat: 52.52,
+			lng: 13.405,
+		}));
+
+		await flushRender();
+		await flushRender();
+		let input = disabledControl.host.querySelector(
+			'.minimal-map-search__input',
+		) as HTMLInputElement;
+		focusInput(input, disabledControl.iframeDom);
+		setInputValue(input, disabledControl.iframeDom, '1600 Pennsylvania Avenue');
+		await flushRender();
+		submitSearchForm(disabledControl.host, disabledControl.iframeDom);
+		await flushRender();
+		await flushRender();
+		await flushRender();
+		await flushRender();
+
+		expect(disabledControl.host.querySelector('.minimal-map-search__maps-link')).toBeNull();
+		disabledControl.searchControl.destroy();
+
+		const enabledControl = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				googleMapsNavigation: true,
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+		input = enabledControl.host.querySelector(
+			'.minimal-map-search__input',
+		) as HTMLInputElement;
+		focusInput(input, enabledControl.iframeDom);
+		setInputValue(input, enabledControl.iframeDom, '1600 Pennsylvania Avenue');
+		await flushRender();
+		submitSearchForm(enabledControl.host, enabledControl.iframeDom);
+		await flushRender();
+		await flushRender();
+		await flushRender();
+		await flushRender();
+
+		expect(
+			enabledControl.host.querySelector('.minimal-map-search__maps-link'),
+		).not.toBeNull();
+
+		enabledControl.searchControl.destroy();
+	});
+
+	test('renders the Google Maps button for coordinate results even without tags', async () => {
+		const { host, iframeDom, searchControl } = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				googleMapsNavigation: true,
+				locations: [
+					{
+						id: 1,
+						title: 'Berlin Studio',
+						lat: 52.52,
+						lng: 13.405,
+						city: 'Berlin',
+					},
+				],
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+
+		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
+		focusInput(input, iframeDom);
+		setInputValue(input, iframeDom, '1600 Pennsylvania Avenue');
+		await flushRender();
+		submitSearchForm(host, iframeDom);
+		await flushRender();
+		await flushRender();
+		await flushRender();
+		await flushRender();
+
+		expect(host.querySelector('.minimal-map-search__result-tags')).toBeNull();
+		expect(host.querySelector('.minimal-map-search__maps-link')?.textContent).toContain(
+			'Open in Google Maps',
+		);
+
+		searchControl.destroy();
+	});
+
+	test('uses the Google Maps directions url and safe link attributes', async () => {
+		const { host, iframeDom, searchControl } = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				googleMapsNavigation: true,
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+
+		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
+		focusInput(input, iframeDom);
+		setInputValue(input, iframeDom, '1600 Pennsylvania Avenue');
+		await flushRender();
+		submitSearchForm(host, iframeDom);
+		await flushRender();
+		await flushRender();
+		await flushRender();
+		await flushRender();
+
+		const link = host.querySelector('.minimal-map-search__maps-link') as HTMLAnchorElement;
+
+		expect(link.href).toBe(
+			'https://www.google.com/maps/dir/?api=1&destination=52.52%2C13.405',
+		);
+		expect(link.target).toBe('_blank');
+		expect(link.rel).toBe('noreferrer noopener');
+
+		searchControl.destroy();
+	});
+
+	test('toggles the Google Maps icon independently from the button label', async () => {
+		const hiddenIconControl = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				googleMapsNavigation: true,
+				googleMapsButtonShowIcon: false,
+			},
+		);
+		await flushRender();
+		await flushRender();
+		let input = hiddenIconControl.host.querySelector(
+			'.minimal-map-search__input',
+		) as HTMLInputElement;
+		focusInput(input, hiddenIconControl.iframeDom);
+		setInputValue(input, hiddenIconControl.iframeDom, '1600 Pennsylvania Avenue');
+		await flushRender();
+		submitSearchForm(hiddenIconControl.host, hiddenIconControl.iframeDom);
+		await flushRender();
+		await flushRender();
+		await flushRender();
+		await flushRender();
+
+		expect(
+			hiddenIconControl.host.querySelector('.minimal-map-search__maps-link svg'),
+		).toBeNull();
+		hiddenIconControl.searchControl.destroy();
+
+		const visibleIconControl = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				googleMapsNavigation: true,
+				googleMapsButtonShowIcon: true,
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+		input = visibleIconControl.host.querySelector(
+			'.minimal-map-search__input',
+		) as HTMLInputElement;
+		focusInput(input, visibleIconControl.iframeDom);
+		setInputValue(input, visibleIconControl.iframeDom, '1600 Pennsylvania Avenue');
+		await flushRender();
+		submitSearchForm(visibleIconControl.host, visibleIconControl.iframeDom);
+		await flushRender();
+		await flushRender();
+		await flushRender();
+		await flushRender();
+
+		expect(
+			visibleIconControl.host.querySelector('.minimal-map-search__maps-link svg'),
+		).not.toBeNull();
+
+		visibleIconControl.searchControl.destroy();
+	});
+
+	test('keeps the distance label separate from the footer action cluster', async () => {
+		const { host, iframeDom, searchControl } = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				googleMapsNavigation: true,
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+
+		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
+		focusInput(input, iframeDom);
+		setInputValue(input, iframeDom, '1600 Pennsylvania Avenue');
+		await flushRender();
+		submitSearchForm(host, iframeDom);
+		await flushRender();
+		await flushRender();
+		await flushRender();
+		await flushRender();
+
+		const footer = host.querySelector('.minimal-map-search__result-footer');
+		const footerContent = host.querySelector(
+			'.minimal-map-search__result-footer-content',
+		);
+		const distance = host.querySelector('.minimal-map-search__result-distance');
+
+		expect(footerContent?.querySelector('.minimal-map-search__maps-link')).not.toBeNull();
+		expect(footerContent?.querySelector('.minimal-map-search__result-distance')).toBeNull();
+		expect(footer?.contains(distance as Node)).toBe(true);
 
 		searchControl.destroy();
 	});
