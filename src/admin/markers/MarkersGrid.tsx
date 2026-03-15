@@ -35,8 +35,10 @@ export default function MarkersGrid({ controller }: { controller: MarkersControl
 			{
 				id: 'download',
 				label: __('Download', 'minimal-map'),
-				isPrimary: true,
 				icon: <Download size={18} />,
+				context: 'single',
+				supportsBulk: false,
+				disabled: controller.isRowActionPending || controller.isSubmitting,
 				callback: (items) => {
 					if (items.length === 1) {
 						controller.onDownloadMarker(items[0]);
@@ -46,26 +48,28 @@ export default function MarkersGrid({ controller }: { controller: MarkersControl
 			{
 				id: 'edit',
 				label: __('Edit', 'minimal-map'),
-				isPrimary: false,
 				icon: <Pencil size={18} />,
+				context: 'single',
+				supportsBulk: false,
+				disabled: controller.isRowActionPending || controller.isSubmitting,
 				callback: (items) => {
 					if (items.length === 1) {
 						controller.onEditMarker(items[0]);
 					}
 				},
-				isEligible: () => !controller.isRowActionPending && !controller.isSubmitting,
 			},
 			{
 				id: 'delete',
 				label: __('Delete', 'minimal-map'),
-				isPrimary: false,
 				icon: <Trash2 size={18} />,
+				context: 'single',
+				supportsBulk: false,
+				disabled: controller.isRowActionPending || controller.isSubmitting,
 				callback: (items) => {
 					if (items.length === 1) {
 						void controller.onDeleteMarker(items[0]);
 					}
 				},
-				isEligible: () => !controller.isRowActionPending && !controller.isSubmitting,
 			},
 		],
 		[controller]

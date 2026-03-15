@@ -247,6 +247,26 @@ export function useLogosController(
 		resetEditDialogState,
 	]);
 
+	const onDownloadLogo = useCallback((logo: LogoRecord): void => {
+		const isDataUrl = logo.content.startsWith('data:');
+		const href = isDataUrl
+			? logo.content
+			: URL.createObjectURL(new Blob([logo.content], { type: 'image/svg+xml' }));
+		const link = document.createElement('a');
+		const hasKnownExtension = /\.(png|svg)$/i.test(logo.title);
+		const inferredExtension = isDataUrl ? '.png' : '.svg';
+
+		link.href = href;
+		link.download = hasKnownExtension ? logo.title : `${logo.title}${inferredExtension}`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+
+		if (!isDataUrl) {
+			URL.revokeObjectURL(href);
+		}
+	}, []);
+
 	const onUploadLogos = useCallback(
 		async (files: FileList | File[]): Promise<void> => {
 			const fileList = Array.from(files).filter(
@@ -346,6 +366,7 @@ export function useLogosController(
 		onCloseDeleteModal,
 		onConfirmDeleteLogo,
 		onConfirmEditLogo,
+		onDownloadLogo,
 		onEditLogo,
 		onOpenDeleteModal,
 		onUploadLogos,

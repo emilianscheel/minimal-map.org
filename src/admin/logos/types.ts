@@ -28,6 +28,7 @@ export interface LogosController {
 	onCloseDeleteModal: () => void;
 	onConfirmDeleteLogo: () => Promise<void>;
 	onConfirmEditLogo: () => Promise<void>;
+	onDownloadLogo: (logo: LogoRecord) => void;
 	onEditLogo: (logo: LogoRecord) => void;
 	onOpenDeleteModal: (logo: LogoRecord) => void;
 	onUploadLogos: (files: FileList | File[]) => Promise<void>;
