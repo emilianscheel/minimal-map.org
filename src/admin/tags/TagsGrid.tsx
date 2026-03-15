@@ -58,7 +58,7 @@ export default function TagsGrid({ controller }: { controller: TagsController })
 				isDestructive: true,
 				callback: (items) => {
 					if (items.length === 1) {
-						void controller.onDeleteTag(items[0]);
+						controller.onOpenDeleteModal(items[0]);
 					}
 				},
 				isEligible: () => !controller.isRowActionPending,

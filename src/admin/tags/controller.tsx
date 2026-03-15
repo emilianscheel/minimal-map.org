@@ -31,9 +31,11 @@ export function useTagsController(
 	const [editingTag, setEditingTag] = useState<TagRecord | null>(null);
 	const [form, setForm] = useState<TagFormState>(DEFAULT_FORM_STATE);
 	const [formMode, setFormMode] = useState<TagsController['formMode']>('create');
+	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [isLoading, setLoading] = useState(enabled);
 	const [isRowActionPending, setRowActionPending] = useState(false);
+	const [selectedTag, setSelectedTag] = useState<TagRecord | null>(null);
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [loadError, setLoadError] = useState<string | null>(null);
 	const [submitError, setSubmitError] = useState<string | null>(null);
@@ -99,6 +101,20 @@ export function useTagsController(
 
 		setDialogOpen(false);
 	}, [isSubmitting]);
+
+	const onCloseDeleteModal = useCallback((): void => {
+		if (isRowActionPending) {
+			return;
+		}
+
+		setDeleteModalOpen(false);
+		setSelectedTag(null);
+	}, [isRowActionPending]);
+
+	const onOpenDeleteModal = useCallback((tag: TagRecord): void => {
+		setSelectedTag(tag);
+		setDeleteModalOpen(true);
+	}, []);
 
 	const onChangeFormValue = useCallback(
 		(key: keyof TagFormState, value: string): void => {
@@ -179,6 +195,20 @@ export function useTagsController(
 		[config, loadTags]
 	);
 
+	const onConfirmDeleteTag = useCallback(async (): Promise<void> => {
+		if (!selectedTag) {
+			return;
+		}
+
+		try {
+			await onDeleteTag(selectedTag);
+			setDeleteModalOpen(false);
+			setSelectedTag(null);
+		} catch (error) {
+			return;
+		}
+	}, [onDeleteTag, selectedTag]);
+
 	const paginatedTags = useMemo(() => {
 		const filtered = tags.filter((tag) => {
 			if (!view.search) {
@@ -212,6 +242,7 @@ export function useTagsController(
 				</Button>
 			</div>
 		) : null,
+		isDeleteModalOpen,
 		isLoading,
 		isRowActionPending,
 		isSubmitting,
@@ -221,11 +252,15 @@ export function useTagsController(
 		form,
 		formMode,
 		modalTitle: formMode === 'edit' ? __('Edit tag', 'minimal-map') : __('Add tag', 'minimal-map'),
+		selectedTag,
 		submitLabel: formMode === 'edit' ? __('Save changes', 'minimal-map') : __('Add tag', 'minimal-map'),
 		submitError,
 		onAddTag,
+		onCloseDeleteModal,
+		onConfirmDeleteTag,
 		onDeleteTag,
 		onEditTag,
+		onOpenDeleteModal,
 		onConfirm,
 		onCancel,
 		onChangeFormValue,

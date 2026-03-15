@@ -1,5 +1,6 @@
 import { Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import DeleteTagModal from './DeleteTagModal';
 import TagsEmptyState from './TagsEmptyState';
 import TagsGrid from './TagsGrid';
 import TagDialog from './TagDialog';
@@ -37,6 +38,7 @@ export default function TagsView({ controller }: { controller: TagsController })
 			</div>
 
 			<TagDialog controller={controller} />
+			<DeleteTagModal controller={controller} />
 		</div>
 	);
 }
