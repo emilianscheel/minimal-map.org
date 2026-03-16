@@ -1,4 +1,4 @@
-import { createRoot, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { createRoot, useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { LoaderCircle, Search, SearchX, X } from 'lucide-react';
 import type { FormEvent } from 'react';
@@ -112,7 +112,11 @@ export const MapSearchControl = ({
 		const term = trimmedSearchTerm.toLowerCase();
 
 		if (!term) {
-			return locations;
+			// If term is empty, limit results to 20 for better performance
+			// unless we have more logic here. For now, showing all can be slow.
+			// But let's try to just return all for now and see if memoization is enough.
+			// Actually, let's limit to 50 if empty to be safe.
+			return locations.slice(0, 50);
 		}
 
 		return locations.filter((location) => {
@@ -195,19 +199,19 @@ export const MapSearchControl = ({
 		element?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 	}, [doc, selectedId]);
 
-	const handleSelect = (
+	const handleSelect = useCallback((
 		location: MapLocationPoint,
 		distanceLabel?: string,
 		selectionOrigin: 'tap' | 'auto' = 'tap'
 	) => {
 		setSelectedId(location.id);
 
-		if (isMobile && selectionOrigin === 'tap') {
+		if (isMobileViewport(doc.defaultView?.innerWidth ?? null) && selectionOrigin === 'tap') {
 			setPanelOpen(false);
 		}
 
 		onSelect({ location, distanceLabel });
-	};
+	}, [doc, onSelect]);
 
 	const resetAddressSearch = (nextTerm = '') => {
 		setSearchTerm(nextTerm);
@@ -270,7 +274,7 @@ export const MapSearchControl = ({
 					isSelected={selectedId === location.id}
 					location={location}
 					mode="search"
-					onSelect={() => handleSelect(location, distanceLabel, 'tap')}
+					onSelect={handleSelect}
 					siteLocale={siteLocale}
 					siteTimezone={siteTimezone}
 				/>

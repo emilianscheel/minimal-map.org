@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { memo, useMemo, useState } from '@wordpress/element';
 import { ChevronDown, Clock3, Globe, Mail, MapPin, Navigation, Phone } from 'lucide-react';
 import TagBadge from '../components/TagBadge';
 import { isOpeningHoursConfigured } from '../lib/locations/openingHours';
@@ -17,7 +17,7 @@ export interface LocationResultCardProps {
 	isSelected?: boolean;
 	location: MapLocationPoint;
 	mode: 'search' | 'in-map';
-	onSelect?: () => void;
+	onSelect?: (location: MapLocationPoint, distanceLabel?: string) => void;
 	siteLocale: string;
 	siteTimezone: string;
 }
@@ -121,7 +121,7 @@ function LocationContactMeta({ location }: { location: MapLocationPoint }) {
 	);
 }
 
-export function LocationResultCard({
+export const LocationResultCard = memo(({
 	distanceLabel,
 	googleMapsButtonShowIcon,
 	googleMapsNavigation,
@@ -132,25 +132,36 @@ export function LocationResultCard({
 	onSelect,
 	siteLocale,
 	siteTimezone,
-}: LocationResultCardProps) {
+}: LocationResultCardProps) => {
 	const [isOpeningHoursExpanded, setOpeningHoursExpanded] = useState(false);
 	const isSearchCard = mode === 'search';
 	const hasTags = Array.isArray(location.tags) && location.tags.length > 0;
 	const showGoogleMapsButton = googleMapsNavigation && hasLocationCoordinates(location);
 	const showFooter = hasTags || showGoogleMapsButton || Boolean(distanceLabel);
-	const showOpeningHours =
-		(location.opening_hours && isOpeningHoursConfigured(location.opening_hours)) ||
-		Boolean(location.opening_hours_notes?.trim());
-	const hasStructuredOpeningHours =
-		location.opening_hours && isOpeningHoursConfigured(location.opening_hours);
-	const openingHoursStatus =
-		hasStructuredOpeningHours && location.opening_hours
+
+	const {
+		showOpeningHours,
+		hasStructuredOpeningHours,
+		openingHoursStatus,
+		openingHoursLines,
+	} = useMemo(() => {
+		const isConfigured = location.opening_hours && isOpeningHoursConfigured(location.opening_hours);
+		const hasNotes = Boolean(location.opening_hours_notes?.trim());
+		const status = isConfigured && location.opening_hours
 			? getOpeningHoursStatus(location.opening_hours, siteLocale, siteTimezone)
 			: null;
-	const openingHoursLines =
-		hasStructuredOpeningHours && location.opening_hours
+		const lines = isConfigured && location.opening_hours
 			? getOpeningHoursDisplayLines(location.opening_hours, siteLocale)
 			: [];
+
+		return {
+			showOpeningHours: isConfigured || hasNotes,
+			hasStructuredOpeningHours: isConfigured,
+			openingHoursStatus: status,
+			openingHoursLines: lines,
+		};
+	}, [location.opening_hours, location.opening_hours_notes, siteLocale, siteTimezone]);
+
 	const layout = (
 		<div className="minimal-map-search__result-layout">
 			<div className="minimal-map-search__result-content">
@@ -248,7 +259,7 @@ export function LocationResultCard({
 				<button
 					type="button"
 					className="minimal-map-search__result-select"
-					onClick={onSelect}
+					onClick={() => onSelect(location, distanceLabel)}
 				>
 					{layout}
 				</button>
@@ -288,4 +299,4 @@ export function LocationResultCard({
 			) : null}
 		</div>
 	);
-}
+});

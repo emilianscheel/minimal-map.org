@@ -77,12 +77,29 @@ function parseTimezoneOffsetMinutes(timeZone: string): number | null {
 	return sign * (hours * 60 + minutes);
 }
 
+const dateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
+
+function getCachedDateTimeFormat(
+	locale: string,
+	options: Intl.DateTimeFormatOptions
+): Intl.DateTimeFormat {
+	const cacheKey = JSON.stringify({ locale, options });
+	let formatter = dateTimeFormatCache.get(cacheKey);
+
+	if (!formatter) {
+		formatter = new Intl.DateTimeFormat(locale, options);
+		dateTimeFormatCache.set(cacheKey, formatter);
+	}
+
+	return formatter;
+}
+
 function getCurrentOpeningHoursContext(
 	now: Date,
 	timeZone: string
 ): CurrentOpeningHoursContext {
 	try {
-		const formatter = new Intl.DateTimeFormat('en-US', {
+		const formatter = getCachedDateTimeFormat('en-US', {
 			timeZone: normalizeTimeZone(timeZone),
 			weekday: 'long',
 			hour: '2-digit',
@@ -135,7 +152,7 @@ function formatDisplayTime(value: string, locale: string): string {
 		return value;
 	}
 
-	const formatter = new Intl.DateTimeFormat(normalizeLocale(locale), {
+	const formatter = getCachedDateTimeFormat(normalizeLocale(locale), {
 		hour: 'numeric',
 		minute: '2-digit',
 		timeZone: 'UTC',
