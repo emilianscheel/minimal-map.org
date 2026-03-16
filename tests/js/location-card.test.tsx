@@ -201,4 +201,64 @@ describe('location result card', () => {
 
 		root.unmount();
 	});
+
+	test('renders opening_hours_notes as a fallback when structured opening hours are missing', async () => {
+		const dom = new JSDOM('<!doctype html><div id="host"></div>');
+		setGlobalDom(dom);
+		const host = dom.window.document.getElementById('host') as HTMLDivElement;
+		const root = createRoot(host);
+
+		// Test search mode
+		root.render(
+			createElement(LocationResultCard, {
+				googleMapsButtonShowIcon: true,
+				googleMapsNavigation: true,
+				location: {
+					id: 3,
+					title: 'Only Notes',
+					lat: 52.52,
+					lng: 13.405,
+					opening_hours_notes: 'Open by appointment only.',
+				},
+				mode: 'search',
+				onSelect() {},
+				siteLocale: 'en-US',
+				siteTimezone: 'Europe/Berlin',
+			})
+		);
+
+		await flushRender();
+
+		const triggerSearch = host.querySelector('.minimal-map-search__result-opening-hours-trigger');
+		expect(triggerSearch).not.toBeNull();
+		expect(triggerSearch?.textContent).toContain('Open by appointment only.');
+		// Should be static (no chevron) in this fallback mode since it is a div, not a button with panel
+		expect(host.querySelector('.minimal-map-search__result-opening-hours-chevron')).toBeNull();
+
+		// Test in-map mode
+		root.render(
+			createElement(LocationResultCard, {
+				googleMapsButtonShowIcon: true,
+				googleMapsNavigation: true,
+				location: {
+					id: 4,
+					title: 'Only Notes In Map',
+					lat: 52.52,
+					lng: 13.405,
+					opening_hours_notes: 'Check website for hours.',
+				},
+				mode: 'in-map',
+				siteLocale: 'en-US',
+				siteTimezone: 'Europe/Berlin',
+			})
+		);
+
+		await flushRender();
+
+		const triggerInMap = host.querySelector('.minimal-map-search__result-opening-hours-trigger');
+		expect(triggerInMap).not.toBeNull();
+		expect(triggerInMap?.textContent).toContain('Check website for hours.');
+
+		root.unmount();
+	});
 });
