@@ -30,6 +30,25 @@
   height: 100%;
 }
 
+.minimal-map-runtime .maplibregl-cooperative-gesture-screen,
+.minimal-map-surface .maplibregl-cooperative-gesture-screen {
+  background: transparent;
+  color: transparent;
+  opacity: 0;
+}
+
+.minimal-map-runtime .maplibregl-cooperative-gesture-screen.maplibregl-show,
+.minimal-map-surface .maplibregl-cooperative-gesture-screen.maplibregl-show {
+  opacity: 0;
+}
+
+.minimal-map-runtime .maplibregl-cooperative-gesture-screen .maplibregl-desktop-message,
+.minimal-map-runtime .maplibregl-cooperative-gesture-screen .maplibregl-mobile-message,
+.minimal-map-surface .maplibregl-cooperative-gesture-screen .maplibregl-desktop-message,
+.minimal-map-surface .maplibregl-cooperative-gesture-screen .maplibregl-mobile-message {
+  display: none;
+}
+
 .minimal-map-runtime__viewport,
 .minimal-map-surface .maplibregl-canvas,
 .minimal-map-surface .maplibregl-canvas-container,
