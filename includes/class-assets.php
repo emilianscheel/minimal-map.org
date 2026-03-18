@@ -40,8 +40,6 @@ class Assets {
 		$this->register_style( 'minimal-map-editor-style', 'index.css', array( 'wp-edit-blocks', 'wp-components' ) );
 		$this->register_style( 'minimal-map-style', 'style-frontend.css', array( 'wp-components' ) );
 		$this->register_style( 'minimal-map-admin-style', 'style-admin.css', array( 'wp-components', 'minimal-map-style' ) );
-
-		$this->attach_inline_data();
 	}
 
 	/**
@@ -55,8 +53,18 @@ class Assets {
 			return;
 		}
 
+		$this->attach_inline_data();
 		wp_enqueue_script( 'minimal-map-admin' );
 		wp_enqueue_style( 'minimal-map-admin-style' );
+	}
+
+	/**
+	 * Enqueue frontend assets.
+	 *
+	 * @return void
+	 */
+	public function enqueue_frontend_assets() {
+		$this->attach_inline_data();
 	}
 
 	/**
@@ -148,18 +156,18 @@ class Assets {
 	 * @return void
 	 */
 	private function attach_inline_data() {
-		if ( wp_script_is( 'minimal-map-block-editor', 'registered' ) ) {
+		if ( is_admin() && wp_script_is( 'minimal-map-block-editor', 'registered' ) ) {
 			wp_add_inline_script(
 				'minimal-map-block-editor',
-				'window.MinimalMapBlockConfig = ' . wp_json_encode( $this->config->get_client_config() ) . ';',
+				'window.MinimalMapBlockConfig = ' . wp_json_encode( $this->config->get_client_config( true ) ) . ';',
 				'before'
 			);
 		}
 
-		if ( wp_script_is( 'minimal-map-frontend', 'registered' ) ) {
+		if ( ! is_admin() && wp_script_is( 'minimal-map-frontend', 'registered' ) ) {
 			wp_add_inline_script(
 				'minimal-map-frontend',
-				'window.MinimalMapFrontConfig = ' . wp_json_encode( $this->config->get_client_config() ) . ';',
+				'window.MinimalMapFrontConfig = ' . wp_json_encode( $this->config->get_client_config( false ) ) . ';',
 				'before'
 			);
 		}

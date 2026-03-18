@@ -20,5 +20,6 @@ require_once MINIMAL_MAP_PATH . 'includes/markers/class-marker-post-type.php';
 require_once MINIMAL_MAP_PATH . 'includes/tags/class-tag-taxonomy.php';
 require_once MINIMAL_MAP_PATH . 'includes/rest/class-frontend-geocode-route.php';
 require_once MINIMAL_MAP_PATH . 'includes/rest/class-geocode-route.php';
+require_once MINIMAL_MAP_PATH . 'includes/rest/class-locations-route.php';
 require_once MINIMAL_MAP_PATH . 'includes/rest/class-styles-route.php';
 require_once MINIMAL_MAP_PATH . 'includes/class-plugin.php';

@@ -14,6 +14,7 @@ use MinimalMap\Markers\Marker_Post_Type;
 use MinimalMap\Tags\Tag_Taxonomy;
 use MinimalMap\Rest\Frontend_Geocode_Route;
 use MinimalMap\Rest\Geocode_Route;
+use MinimalMap\Rest\Locations_Route;
 use MinimalMap\Rest\Styles_Route;
 use WP_Post;
 
@@ -148,9 +149,10 @@ class Config {
 	 * Normalize incoming block attributes.
 	 *
 	 * @param array<string, mixed> $attributes Raw attributes.
+	 * @param bool                 $include_locations Whether to include the resolved locations in the result.
 	 * @return array<string, mixed>
 	 */
-	public function normalize_block_attributes( $attributes ) {
+	public function normalize_block_attributes( $attributes, $include_locations = true ) {
 		$attributes = wp_parse_args( $attributes, $this->get_default_block_attributes() );
 		$presets    = $this->get_style_presets();
 		$preset     = isset( $attributes['stylePreset'] ) ? sanitize_key( (string) $attributes['stylePreset'] ) : self::DEFAULT_STYLE_PRESET;
@@ -175,9 +177,13 @@ class Config {
 		$height_mobile_css_value = null !== $height_mobile
 			? $this->format_dimension_value( $height_mobile, $height_mobile_unit )
 			: $height_css_value;
-		$locations    = $collection_id > 0
-			? $this->get_map_locations( $this->get_collection_location_ids( $collection_id ) )
-			: $this->get_map_locations();
+
+		$locations = array();
+		if ( $include_locations ) {
+			$locations = $collection_id > 0
+				? $this->get_map_locations( $this->get_collection_location_ids( $collection_id ) )
+				: $this->get_map_locations();
+		}
 
 		$style_theme_slug = isset( $attributes['styleThemeSlug'] ) ? sanitize_key( (string) $attributes['styleThemeSlug'] ) : 'default';
 		$style_theme      = array();
@@ -252,19 +258,20 @@ class Config {
 	/**
 	 * Build client configuration for block scripts.
 	 *
+	 * @param bool $include_all_locations Whether to include the full locations and collections list.
 	 * @return array<string, mixed>
 	 */
-	public function get_client_config() {
+	public function get_client_config( $include_all_locations = true ) {
 		$styles_route = new Styles_Route();
 
-		return array(
+		$config = array(
 			'defaults'      => $this->get_default_block_attributes(),
 			'heightUnits'   => self::HEIGHT_UNITS,
 			'stylePresets'  => $this->get_style_presets(),
 			'styleThemes'   => array_values( $styles_route->get_themes() ),
-			'locations'     => $this->get_map_locations(),
-			'collections'   => $this->get_map_collections(),
 			'frontendGeocodePath' => Frontend_Geocode_Route::get_rest_path(),
+			'locationsPath' => Locations_Route::get_rest_path(),
+			'locationsUrl' => get_rest_url( null, Locations_Route::REST_NAMESPACE . Locations_Route::REST_ROUTE ),
 			'siteTimezone' => $this->get_site_timezone_string(),
 			'siteLocale' => str_replace( '_', '-', get_locale() ),
 			'messages'      => array(
@@ -272,6 +279,69 @@ class Config {
 			),
 			'embedBaseUrl' => $this->get_embed_base_url(),
 			'previewImageUrl' => plugins_url( 'assets/preview.png', MINIMAL_MAP_FILE ),
+		);
+
+		if ( $include_all_locations ) {
+			$config['locations']   = $this->get_map_locations();
+			$config['collections'] = $this->get_map_collections();
+		} else {
+			$config['locations']   = array();
+			$config['collections'] = array();
+		}
+
+		return $config;
+	}
+
+	/**
+	 * Get optimized map data with deduplicated markers and logos.
+	 *
+	 * @param int|null $collection_id Optional collection filter.
+	 * @return array<string, mixed>
+	 */
+	public function get_optimized_map_data( $collection_id = null ) {
+		$location_ids = null;
+		if ( $collection_id > 0 ) {
+			$location_ids = $this->get_collection_location_ids( $collection_id );
+		}
+
+		$locations = $this->get_map_locations_indexed();
+		if ( is_array( $location_ids ) ) {
+			$locations_list = $this->filter_locations_by_ids( $locations, $location_ids );
+		} else {
+			$locations_list = array_values( $locations );
+		}
+
+		$markers = array();
+		$logos   = array();
+
+		foreach ( $locations_list as &$location ) {
+			if ( isset( $location['markerContent'] ) ) {
+				$content = $location['markerContent'];
+				$hash    = md5( $content );
+				$markers[ $hash ] = $content;
+				$location['markerId'] = $hash;
+				unset( $location['markerContent'] );
+			}
+
+			if ( isset( $location['logo'] ) && is_array( $location['logo'] ) ) {
+				$logo = $location['logo'];
+				if ( isset( $logo['content'] ) ) {
+					$content = $logo['content'];
+					$hash    = md5( $content );
+					$logos[ $hash ] = $content;
+					$location['logo'] = array(
+						'id'     => $logo['id'],
+						'title'  => $logo['title'],
+						'logoId' => $hash,
+					);
+				}
+			}
+		}
+
+		return array(
+			'locations' => $locations_list,
+			'markers'   => $markers,
+			'logos'     => $logos,
 		);
 	}
 
@@ -320,7 +390,7 @@ class Config {
 			);
 		}
 
-		return $this->normalize_block_attributes( $decoded_payload['attributes'] );
+		return $this->normalize_block_attributes( $decoded_payload['attributes'], false );
 	}
 
 	/**
@@ -416,7 +486,7 @@ class Config {
 			}
 
 			$location = array(
-				'id'           => $post->ID,
+				'id'           => (int) $post->ID,
 				'title'        => get_the_title( $post ),
 				'lat'          => $normalized['lat'],
 				'lng'          => $normalized['lng'],
@@ -549,7 +619,7 @@ class Config {
 	 */
 	public function get_admin_app_config() {
 		$sections = array();
-		$map_config = $this->get_client_config();
+		$map_config = $this->get_client_config( true );
 		$map_config['defaults']['mobileTwoFingerZoom'] = true;
 		$map_config['defaults']['cooperativeGestures'] = true;
 

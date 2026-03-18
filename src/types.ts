@@ -89,6 +89,7 @@ export interface MapLocationLogo {
 	id: number;
 	title: string;
 	content: string;
+	logoId?: string;
 }
 
 export interface MapLocationPoint {
@@ -97,6 +98,7 @@ export interface MapLocationPoint {
 	lat: number;
 	lng: number;
 	markerContent?: string;
+	markerId?: string;
 	tags?: MapLocationTag[];
 	logo?: MapLocationLogo | null;
 	telephone?: string;
@@ -136,6 +138,8 @@ export interface MapRuntimeConfig {
 	locations?: MapLocationPoint[];
 	collections?: MapCollectionOption[];
 	frontendGeocodePath?: string;
+	locationsPath?: string;
+	locationsUrl?: string;
 	messages?: MapMessages;
 	embedBaseUrl?: string;
 	previewImageUrl?: string;

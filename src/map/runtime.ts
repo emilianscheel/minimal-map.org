@@ -278,6 +278,51 @@ export function syncViewport(
 	);
 }
 
+async function fetchOptimizedLocations(
+	urlStr: string,
+	collectionId?: number
+): Promise<{ locations: MapLocationPoint[]; markers: Record<string, string>; logos: Record<string, string> }> {
+	const url = new URL(urlStr);
+	if (collectionId) {
+		url.searchParams.set('collection_id', collectionId.toString());
+	}
+
+	const response = await fetch(url.toString());
+	if (!response.ok) {
+		throw new Error('Failed to fetch map locations.');
+	}
+
+	return response.json();
+}
+
+function rehydrateLocations(
+	locations: MapLocationPoint[],
+	markers: Record<string, string>,
+	logos: Record<string, string>
+): MapLocationPoint[] {
+	return locations.map((location) => {
+		const rehydrated: MapLocationPoint = {
+			...location,
+			id: typeof location.id === 'number' ? location.id : (location.id ? Number(location.id) : undefined),
+			lat: typeof location.lat === 'number' ? location.lat : Number(location.lat),
+			lng: typeof location.lng === 'number' ? location.lng : Number(location.lng),
+		};
+
+		if (location.markerId && markers[location.markerId]) {
+			rehydrated.markerContent = markers[location.markerId];
+		}
+
+		if (location.logo?.logoId && logos[location.logo.logoId]) {
+			rehydrated.logo = {
+				...location.logo,
+				content: logos[location.logo.logoId],
+			};
+		}
+
+		return rehydrated;
+	});
+}
+
 export function createMinimalMap(
 	host: HTMLElement,
 	initialConfig: RawMapConfig = {},
@@ -297,6 +342,43 @@ export function createMinimalMap(
 		searchControl: null,
 		selectedLocation: null,
 	};
+
+	let isFetching = false;
+	let destroyed = false;
+
+	async function maybeFetchLocations(config: NormalizedMapConfig): Promise<void> {
+		if (
+			isFetching ||
+			config.locations.length > 0 ||
+			!runtimeConfig.locationsUrl ||
+			config._isPreview
+		) {
+			return;
+		}
+
+		isFetching = true;
+
+		try {
+			const { locations, markers, logos } = await fetchOptimizedLocations(
+				runtimeConfig.locationsUrl,
+				config.collectionId
+			);
+
+			if (destroyed) {
+				return;
+			}
+
+			const rehydrated = rehydrateLocations(locations, markers, logos);
+			
+			// Use the current state config if available, otherwise fallback to the one passed in
+			const activeConfig = state.config ?? config;
+			update({ ...activeConfig, locations: rehydrated });
+		} catch (error) {
+			console.error('Failed to fetch map locations', error);
+		} finally {
+			isFetching = false;
+		}
+	}
 
 	function applyResponsiveHostHeight(config: NormalizedMapConfig): void {
 		const nextHeightCssValue = getActiveHeightCssValue(config, context.win.innerWidth);
@@ -615,9 +697,12 @@ export function createMinimalMap(
 		syncLocationCardPreview(config, null);
 		syncAttribution(config);
 		setupUserInteractionListeners(map);
+
+		void maybeFetchLocations(config);
 	}
 
 	function destroy(): void {
+		destroyed = true;
 		state.attribution?.destroy();
 		state.attribution = null;
 
@@ -739,6 +824,8 @@ export function createMinimalMap(
 
 		state.config = nextConfig;
 		state.map.resize();
+
+		void maybeFetchLocations(nextConfig);
 	}
 
 	build(initialConfig);

@@ -34,7 +34,7 @@ class Map_View {
 	 * @return string
 	 */
 	public function render( $attributes ) {
-		$config            = $this->config->normalize_block_attributes( $attributes );
+		$config            = $this->config->normalize_block_attributes( $attributes, false );
 		$map_surface_markup = $this->render_surface( $config );
 
 		ob_start();

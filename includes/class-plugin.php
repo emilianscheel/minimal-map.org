@@ -16,6 +16,7 @@ use MinimalMap\Markers\Marker_Post_Type;
 use MinimalMap\Tags\Tag_Taxonomy;
 use MinimalMap\Rest\Frontend_Geocode_Route;
 use MinimalMap\Rest\Geocode_Route;
+use MinimalMap\Rest\Locations_Route;
 use MinimalMap\Rest\Styles_Route;
 
 /**
@@ -107,6 +108,13 @@ final class Plugin {
 	private $geocode_route;
 
 	/**
+	 * Public locations REST route service.
+	 *
+	 * @var Locations_Route
+	 */
+	private $locations_route;
+
+	/**
 	 * Styles REST route service.
 	 *
 	 * @var Styles_Route
@@ -143,6 +151,7 @@ final class Plugin {
 		$this->tag_taxonomy       = new Tag_Taxonomy();
 		$this->frontend_geocode_route = new Frontend_Geocode_Route();
 		$this->geocode_route      = new Geocode_Route();
+		$this->locations_route    = new Locations_Route( $config );
 		$this->styles_route       = new Styles_Route();
 
 		$this->register_hooks();
@@ -165,8 +174,11 @@ final class Plugin {
 		add_action( 'template_redirect', array( $this->iframe_endpoint, 'maybe_render' ) );
 		add_action( 'admin_menu', array( $this->admin_menu, 'register' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue_admin_assets' ) );
+		add_action( 'wp_enqueue_scripts', array( $this->assets, 'enqueue_frontend_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this->assets, 'enqueue_frontend_assets' ) );
 		add_action( 'rest_api_init', array( $this->frontend_geocode_route, 'register' ) );
 		add_action( 'rest_api_init', array( $this->geocode_route, 'register' ) );
+		add_action( 'rest_api_init', array( $this->locations_route, 'register' ) );
 		add_action( 'rest_api_init', array( $this->styles_route, 'register' ) );
 	}
 
