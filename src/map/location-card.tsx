@@ -169,7 +169,7 @@ export const LocationResultCard = memo(({
 				<div className="minimal-map-search__result-address">
 					<MapPin size={12} />
 					<div className="minimal-map-search__result-address-content">
-						<span>{formatLocationStreet(location)},</span>
+						<span>{formatLocationStreet(location)},</span>{' '}
 						<span>{formatLocationLocality(location)}</span>
 					</div>
 				</div>

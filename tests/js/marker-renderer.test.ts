@@ -15,6 +15,7 @@ function createMockMap() {
 	const layers = new Map<string, Record<string, unknown>>();
 	const sources = new Map<string, { data: unknown; setData: (data: unknown) => void }>();
 	let features: Array<{ properties?: Record<string, unknown> }> = [];
+	let styleLoaded = true;
 
 	return {
 		images,
@@ -48,7 +49,7 @@ function createMockMap() {
 				return images.has(id);
 			},
 			isStyleLoaded() {
-				return true;
+				return styleLoaded;
 			},
 			queryRenderedFeatures() {
 				return features;
@@ -69,8 +70,17 @@ function createMockMap() {
 		setFeatures(nextFeatures: Array<{ properties?: Record<string, unknown> }>) {
 			features = nextFeatures;
 		},
+		setStyleLoaded(nextValue: boolean) {
+			styleLoaded = nextValue;
+		},
 		sources,
 	};
+}
+
+function waitFor(ms: number): Promise<void> {
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
 }
 
 describe('marker renderer', () => {
@@ -158,5 +168,46 @@ describe('marker renderer', () => {
 		mockMap.setFeatures([{ properties: { locationId: 7 } }]);
 		expect(renderer.handleClick({ point: { x: 10, y: 20 } } as never)).toBe(true);
 		expect(selectedLocationId).toBe(7);
+	});
+
+	test('retries marker sync after a transient style-not-ready window during image registration', async () => {
+		const { host } = createHost();
+		const mockMap = createMockMap();
+		let rasterizeCalls = 0;
+		const renderer = createMarkerRenderer({
+			host,
+			map: mockMap.map as never,
+			rasterizeSvgToImage: async (_svgMarkup, size) => {
+				rasterizeCalls += 1;
+				mockMap.setStyleLoaded(false);
+
+				return {
+					width: size.width,
+					height: size.height,
+					data: new Uint8ClampedArray(size.width * size.height * 4),
+				};
+			},
+		});
+
+		await renderer.update({
+			markerContent: null,
+			markerOffsetY: 0,
+			markerScale: 1,
+			points: [{ id: 11, lat: 52.5, lng: 13.4 }],
+		});
+
+		expect(mockMap.images.size).toBe(0);
+		expect(mockMap.sources.size).toBe(0);
+
+		mockMap.setStyleLoaded(true);
+		await waitFor(60);
+
+		expect(rasterizeCalls).toBe(1);
+		expect(mockMap.images.size).toBe(1);
+		expect(mockMap.layers.size).toBe(1);
+		expect(mockMap.sources.size).toBe(1);
+
+		const source = Array.from(mockMap.sources.values())[0];
+		expect((source.data as GeoJSON.FeatureCollection).features).toHaveLength(1);
 	});
 });

@@ -300,7 +300,7 @@ describe('map iframe document context', () => {
 		await flushRender();
 		await flushRender();
 
-		const address = host.querySelector('.minimal-map-search__result-address span');
+		const address = host.querySelector('.minimal-map-search__result-address-content');
 		expect(address?.textContent).toContain('Unter den Linden 7, 10117 Berlin');
 
 		searchControl.destroy();

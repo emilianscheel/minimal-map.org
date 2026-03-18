@@ -345,6 +345,7 @@ export function createMinimalMap(
 
 	let isFetching = false;
 	let destroyed = false;
+	let styleRebuildTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	async function maybeFetchLocations(config: NormalizedMapConfig): Promise<void> {
 		if (
@@ -630,22 +631,40 @@ export function createMinimalMap(
 				}
 			}
 
-			void state.markerRenderer?.rebuild();
+			if (state.markerRenderer) {
+				void state.markerRenderer.rebuild();
+			}
 		});
 
-		map.on('style.load', () => {
-			const activeConfig = state.config ?? config;
-
-			if (activeConfig.styleTheme) {
-				try {
-					applyStyleTheme(map, activeConfig.styleTheme, activeConfig.stylePreset);
-				} catch (error) {
-					console.warn('Style theme re-application failed', error);
-				}
+		const onStyleData = () => {
+			if (styleRebuildTimeout) {
+				clearTimeout(styleRebuildTimeout);
 			}
 
-			void state.markerRenderer?.rebuild();
-		});
+			styleRebuildTimeout = setTimeout(() => {
+				styleRebuildTimeout = null;
+				if (!state.map || !state.map.isStyleLoaded()) {
+					return;
+				}
+
+				const activeConfig = state.config ?? config;
+
+				if (activeConfig.styleTheme) {
+					try {
+						applyStyleTheme(state.map, activeConfig.styleTheme, activeConfig.stylePreset);
+					} catch (error) {
+						console.warn('Style theme re-application failed', error);
+					}
+				}
+
+				if (state.markerRenderer) {
+					void state.markerRenderer.rebuild();
+				}
+			}, 100);
+		};
+
+		map.on('style.load', onStyleData);
+		map.on('styledata', onStyleData);
 
 		map.on('click', (event) => {
 			if (state.markerRenderer?.handleClick(event)) {
@@ -703,6 +722,12 @@ export function createMinimalMap(
 
 	function destroy(): void {
 		destroyed = true;
+
+		if (styleRebuildTimeout) {
+			clearTimeout(styleRebuildTimeout);
+			styleRebuildTimeout = null;
+		}
+
 		state.attribution?.destroy();
 		state.attribution = null;
 

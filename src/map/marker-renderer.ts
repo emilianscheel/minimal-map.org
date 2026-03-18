@@ -13,6 +13,7 @@ const DEFAULT_MARKER_ICON_SIZE = {
 };
 
 const DEFAULT_MARKER_OFFSET_Y = -14;
+const MARKER_SYNC_RETRY_DELAY_MS = 32;
 const EMPTY_FEATURE_COLLECTION = {
 	type: 'FeatureCollection',
 	features: [],
@@ -278,6 +279,7 @@ export function createMarkerRenderer({
 	let revision = 0;
 	let activeIcons = new Map<string, MarkerIconSpec>();
 	const rasterizedImages = new Map<string, Promise<RasterizedMarkerImage>>();
+	let pendingRetryTimeout: number | null = null;
 
 	function getSource(): GeoJSONSource | null {
 		return (map.getSource(sourceId) as GeoJSONSource | undefined) ?? null;
@@ -338,6 +340,31 @@ export function createMarkerRenderer({
 		rasterizedImages.clear();
 	}
 
+	function clearPendingRetry(): void {
+		if (pendingRetryTimeout === null) {
+			return;
+		}
+
+		context.win.clearTimeout(pendingRetryTimeout);
+		pendingRetryTimeout = null;
+	}
+
+	function scheduleRetry(currentRevision: number): void {
+		if (destroyed || currentRevision !== revision || pendingRetryTimeout !== null) {
+			return;
+		}
+
+		pendingRetryTimeout = context.win.setTimeout(() => {
+			pendingRetryTimeout = null;
+
+			if (destroyed || currentRevision !== revision) {
+				return;
+			}
+
+			void sync(currentConfig, currentRevision);
+		}, MARKER_SYNC_RETRY_DELAY_MS);
+	}
+
 	function pruneUnusedIcons(nextIcons: Map<string, MarkerIconSpec>): void {
 		activeIcons.forEach((iconSpec, key) => {
 			if (nextIcons.has(key)) {
@@ -384,7 +411,9 @@ export function createMarkerRenderer({
 	async function ensureImages(
 		icons: Map<string, MarkerIconSpec>,
 		currentRevision: number
-	): Promise<void> {
+	): Promise<boolean> {
+		let allImagesAvailable = true;
+
 		await Promise.all(
 			Array.from(icons.values()).map(async (iconSpec) => {
 				if (destroyed || currentRevision !== revision) {
@@ -393,51 +422,114 @@ export function createMarkerRenderer({
 
 				activeIcons.set(iconSpec.key, iconSpec);
 
-				if (map.hasImage(iconSpec.id)) {
-					return;
+				try {
+					if (map.hasImage(iconSpec.id)) {
+						return;
+					}
+
+					const image = await resolveIconImage(iconSpec);
+
+					if (destroyed || currentRevision !== revision) {
+						return;
+					}
+
+					if (map.hasImage(iconSpec.id)) {
+						return;
+					}
+
+					if (!map.isStyleLoaded()) {
+						allImagesAvailable = false;
+						return;
+					}
+
+					map.addImage(iconSpec.id, image);
+				} catch (error) {
+					allImagesAvailable = false;
+
+					// Silently fail if map is not ready or image already exists
+					// The next sync or rebuild will try again
+					if (process.env.NODE_ENV === 'development') {
+						console.warn('Failed to add map marker image', iconSpec.id, error);
+					}
 				}
-
-				const image = await resolveIconImage(iconSpec);
-
-				if (destroyed || currentRevision !== revision || map.hasImage(iconSpec.id)) {
-					return;
-				}
-
-				map.addImage(iconSpec.id, image);
 			})
+		);
+
+		if (destroyed || currentRevision !== revision) {
+			return false;
+		}
+
+		return (
+			allImagesAvailable &&
+			Array.from(icons.values()).every((iconSpec) => map.hasImage(iconSpec.id))
 		);
 	}
 
 	async function sync(nextConfig: MarkerRendererConfig, currentRevision: number): Promise<void> {
 		currentConfig = nextConfig;
+		clearPendingRetry();
 
 		if (!map.isStyleLoaded()) {
+			scheduleRetry(currentRevision);
 			return;
 		}
 
 		if (nextConfig.points.length === 0) {
-			clearSourceAndLayer();
-			pruneUnusedIcons(new Map());
+			try {
+				clearSourceAndLayer();
+				pruneUnusedIcons(new Map());
+			} catch {
+				// Style might have changed
+			}
 			return;
 		}
 
 		const renderData = buildMarkerRenderData(nextConfig);
-		pruneUnusedIcons(renderData.icons);
-		await ensureImages(renderData.icons, currentRevision);
+		try {
+			pruneUnusedIcons(renderData.icons);
+		} catch {
+			// Style might have changed
+		}
 
-		if (destroyed || currentRevision !== revision || !map.isStyleLoaded()) {
+		try {
+			const imagesReady = await ensureImages(renderData.icons, currentRevision);
+
+			if (!imagesReady) {
+				scheduleRetry(currentRevision);
+				return;
+			}
+		} catch (error) {
+			if (process.env.NODE_ENV === 'development') {
+				console.error('Failed to ensure map marker images', error);
+			}
+
+			scheduleRetry(currentRevision);
 			return;
 		}
 
-		const source = ensureSource();
-		ensureLayer();
-		source.setData(renderData.featureCollection);
+		if (destroyed || currentRevision !== revision || !map.isStyleLoaded()) {
+			scheduleRetry(currentRevision);
+			return;
+		}
+
+		try {
+			const source = ensureSource();
+			ensureLayer();
+			source.setData(renderData.featureCollection);
+		} catch (error) {
+			if (process.env.NODE_ENV === 'development') {
+				console.error('Failed to sync map marker source/layer', error);
+			}
+
+			scheduleRetry(currentRevision);
+		}
 	}
 
 	return {
 		destroy() {
 			destroyed = true;
 			revision += 1;
+			clearPendingRetry();
 			clearSourceAndLayer();
 			clearImages();
 		},
