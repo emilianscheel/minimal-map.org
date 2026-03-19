@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Minimal Map 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/minimal-map\n"
-"POT-Creation-Date: 2026-03-19T19:15:33+00:00\n"
+"POT-Creation-Date: 2026-03-19T19:18:58+00:00\n"
 "PO-Revision-Date: 2026-03-19 18:15+0100\n"
 "Last-Translator: Emilian Scheel\n"
 "Language-Team: German\n"
@@ -289,7 +289,13 @@ msgid_plural "%d locations updated with new tags."
 msgstr[0] "%d Standort gelöscht."
 msgstr[1] "%d Standorte gelöscht."
 
-#: src/admin/logos/controller.tsx:310
+#: src/admin/logos/controller.tsx:252
+msgid "%d logo deleted."
+msgid_plural "%d logos deleted."
+msgstr[0] "%d Logo gelöscht."
+msgstr[1] "%d Logos gelöscht."
+
+#: src/admin/logos/controller.tsx:372
 msgid "%d logo uploaded."
 msgid_plural "%d logos uploaded."
 msgstr[0] "%d Logo hochgeladen."
@@ -424,6 +430,17 @@ msgstr[0] ""
 "nicht rückgängig gemacht werden."
 msgstr[1] ""
 "Bist du sicher, dass du %d Standorte löschen möchtest? Diese Aktion kann "
+"nicht rückgängig gemacht werden."
+
+#: src/admin/logos/DeleteAllLogosModal.tsx:61
+msgid "Are you sure you want to delete %d logo? This action cannot be undone."
+msgid_plural ""
+"Are you sure you want to delete %d logos? This action cannot be undone."
+msgstr[0] ""
+"Bist du sicher, dass du %d Logo löschen möchtest? Diese Aktion kann "
+"nicht rückgängig gemacht werden."
+msgstr[1] ""
+"Bist du sicher, dass du %d Logos löschen möchtest? Diese Aktion kann "
 "nicht rückgängig gemacht werden."
 
 #: src/admin/tags/DeleteAllTagsModal.tsx:61
@@ -617,6 +634,7 @@ msgstr "Gebäude"
 #: src/admin/locations/RemoveCollectionAssignmentModal.tsx:61
 #: src/admin/locations/RemoveMarkerConfirmationModal.tsx:68
 #: src/admin/locations/RemoveTagsConfirmationModal.tsx:68
+#: src/admin/logos/DeleteAllLogosModal.tsx:77
 #: src/admin/logos/DeleteLogoModal.tsx:51 src/admin/logos/EditLogoDialog.tsx:64
 #: src/admin/markers/EditMarkerDialog.tsx:64
 #: src/admin/styles/CreateThemeModal.tsx:53
@@ -876,6 +894,12 @@ msgstr "Alle Sammlungen löschen"
 msgid "Delete all locations"
 msgstr "Alle Standorte löschen"
 
+#: src/admin/logos/DeleteAllLogosModal.tsx:47
+#: src/admin/logos/DeleteAllLogosModal.tsx:89
+#: src/admin/logos/controller.tsx:417
+msgid "Delete all logos"
+msgstr "Alle Logos löschen"
+
 #: src/admin/tags/DeleteAllTagsModal.tsx:47
 #: src/admin/tags/DeleteAllTagsModal.tsx:89 src/admin/tags/controller.tsx:290
 msgid "Delete all tags"
@@ -972,7 +996,7 @@ msgstr ""
 msgid "Drop SVG files here to upload"
 msgstr "SVG-Dateien hier zum Hochladen ablegen"
 
-#: src/admin/logos/index.tsx:35
+#: src/admin/logos/index.tsx:36
 msgid "Drop SVG or PNG files here to upload"
 msgstr "SVG- oder PNG-Dateien hier zum Hochladen ablegen"
 
@@ -1082,7 +1106,7 @@ msgstr "Weitere Elemente"
 msgid "Filename"
 msgstr "Dateiname"
 
-#: src/admin/logos/controller.tsx:213 src/admin/markers/controller.tsx:174
+#: src/admin/logos/controller.tsx:275 src/admin/markers/controller.tsx:174
 msgid "Filename is required."
 msgstr "Ein Schlagwortname ist erforderlich."
 
@@ -1202,11 +1226,11 @@ msgstr "Importierter Standort"
 msgid "Invalid JSON file."
 msgstr "Ungültige JSON-Datei."
 
-#: src/admin/logos/controller.tsx:26
+#: src/admin/logos/controller.tsx:28
 msgid "Invalid PNG file."
 msgstr "Ungültige PNG-Datei."
 
-#: src/admin/logos/controller.tsx:38 src/admin/markers/controller.tsx:228
+#: src/admin/logos/controller.tsx:40 src/admin/markers/controller.tsx:228
 msgid "Invalid SVG file."
 msgstr "Ungültige SVG-Datei."
 
@@ -1290,15 +1314,15 @@ msgstr "Standorte konnten nicht gelöscht werden."
 msgid "Logo assigned to location."
 msgstr "Standort der Sammlung zugewiesen."
 
-#: src/admin/logos/controller.tsx:200
+#: src/admin/logos/controller.tsx:223
 msgid "Logo could not be deleted."
 msgstr "Logo konnte nicht gelöscht werden."
 
-#: src/admin/logos/controller.tsx:236
+#: src/admin/logos/controller.tsx:298
 msgid "Logo could not be updated."
 msgstr "Schlagwort konnte nicht aktualisiert werden."
 
-#: src/admin/logos/controller.tsx:192
+#: src/admin/logos/controller.tsx:215
 msgid "Logo deleted."
 msgstr "Logo gelöscht."
 
@@ -1306,15 +1330,19 @@ msgstr "Logo gelöscht."
 msgid "Logo removed from location."
 msgstr "Logo vom Standort entfernt."
 
-#: src/admin/logos/controller.tsx:232
+#: src/admin/logos/controller.tsx:294
 msgid "Logo updated."
 msgstr "Logo hochgeladen."
 
-#: src/admin/logos/controller.tsx:308
+#: src/admin/logos/controller.tsx:370
 msgid "Logo uploaded."
 msgstr "Logo hochgeladen."
 
-#: src/admin/logos/controller.tsx:94
+#: src/admin/logos/controller.tsx:260
+msgid "Logos could not be deleted."
+msgstr "Logos konnten nicht gelöscht werden."
+
+#: src/admin/logos/controller.tsx:98
 msgid "Logos could not be loaded."
 msgstr "Logos konnten nicht geladen werden."
 
@@ -1322,7 +1350,7 @@ msgstr "Logos konnten nicht geladen werden."
 msgid "Logos could not be removed from the selected locations."
 msgstr "Logo konnte vom Standort nicht entfernt werden."
 
-#: src/admin/logos/controller.tsx:318
+#: src/admin/logos/controller.tsx:380
 msgid "Logos could not be uploaded."
 msgstr "Logos konnten nicht hochgeladen werden."
 
@@ -1647,7 +1675,7 @@ msgstr "Plus"
 msgid "Plus circle"
 msgstr "Plus-Kreis"
 
-#: src/admin/logos/controller.tsx:29
+#: src/admin/logos/controller.tsx:31
 msgid "PNG file could not be read."
 msgstr "PNG-Datei konnte nicht gelesen werden."
 

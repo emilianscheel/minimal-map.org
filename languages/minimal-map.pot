@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-19T19:15:33+00:00\n"
+"POT-Creation-Date: 2026-03-19T19:18:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: minimal-map\n"
@@ -263,7 +263,13 @@ msgid_plural "%d locations updated with new tags."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/admin/logos/controller.tsx:310
+#: src/admin/logos/controller.tsx:252
+msgid "%d logo deleted."
+msgid_plural "%d logos deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/admin/logos/controller.tsx:372
 msgid "%d logo uploaded."
 msgid_plural "%d logos uploaded."
 msgstr[0] ""
@@ -384,6 +390,13 @@ msgid ""
 "Are you sure you want to delete %d location? This action cannot be undone."
 msgid_plural ""
 "Are you sure you want to delete %d locations? This action cannot be undone."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/admin/logos/DeleteAllLogosModal.tsx:61
+msgid "Are you sure you want to delete %d logo? This action cannot be undone."
+msgid_plural ""
+"Are you sure you want to delete %d logos? This action cannot be undone."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -572,6 +585,7 @@ msgstr ""
 #: src/admin/locations/RemoveCollectionAssignmentModal.tsx:61
 #: src/admin/locations/RemoveMarkerConfirmationModal.tsx:68
 #: src/admin/locations/RemoveTagsConfirmationModal.tsx:68
+#: src/admin/logos/DeleteAllLogosModal.tsx:77
 #: src/admin/logos/DeleteLogoModal.tsx:51 src/admin/logos/EditLogoDialog.tsx:64
 #: src/admin/markers/EditMarkerDialog.tsx:64
 #: src/admin/styles/CreateThemeModal.tsx:53
@@ -819,6 +833,12 @@ msgstr ""
 msgid "Delete all locations"
 msgstr ""
 
+#: src/admin/logos/DeleteAllLogosModal.tsx:47
+#: src/admin/logos/DeleteAllLogosModal.tsx:89
+#: src/admin/logos/controller.tsx:417
+msgid "Delete all logos"
+msgstr ""
+
 #: src/admin/tags/DeleteAllTagsModal.tsx:47
 #: src/admin/tags/DeleteAllTagsModal.tsx:89 src/admin/tags/controller.tsx:290
 msgid "Delete all tags"
@@ -906,7 +926,7 @@ msgstr ""
 msgid "Drop SVG files here to upload"
 msgstr ""
 
-#: src/admin/logos/index.tsx:35
+#: src/admin/logos/index.tsx:36
 msgid "Drop SVG or PNG files here to upload"
 msgstr ""
 
@@ -1015,7 +1035,7 @@ msgstr ""
 msgid "Filename"
 msgstr ""
 
-#: src/admin/logos/controller.tsx:213 src/admin/markers/controller.tsx:174
+#: src/admin/logos/controller.tsx:275 src/admin/markers/controller.tsx:174
 msgid "Filename is required."
 msgstr ""
 
@@ -1131,11 +1151,11 @@ msgstr ""
 msgid "Invalid JSON file."
 msgstr ""
 
-#: src/admin/logos/controller.tsx:26
+#: src/admin/logos/controller.tsx:28
 msgid "Invalid PNG file."
 msgstr ""
 
-#: src/admin/logos/controller.tsx:38 src/admin/markers/controller.tsx:228
+#: src/admin/logos/controller.tsx:40 src/admin/markers/controller.tsx:228
 msgid "Invalid SVG file."
 msgstr ""
 
@@ -1219,15 +1239,15 @@ msgstr ""
 msgid "Logo assigned to location."
 msgstr ""
 
-#: src/admin/logos/controller.tsx:200
+#: src/admin/logos/controller.tsx:223
 msgid "Logo could not be deleted."
 msgstr ""
 
-#: src/admin/logos/controller.tsx:236
+#: src/admin/logos/controller.tsx:298
 msgid "Logo could not be updated."
 msgstr ""
 
-#: src/admin/logos/controller.tsx:192
+#: src/admin/logos/controller.tsx:215
 msgid "Logo deleted."
 msgstr ""
 
@@ -1235,15 +1255,19 @@ msgstr ""
 msgid "Logo removed from location."
 msgstr ""
 
-#: src/admin/logos/controller.tsx:232
+#: src/admin/logos/controller.tsx:294
 msgid "Logo updated."
 msgstr ""
 
-#: src/admin/logos/controller.tsx:308
+#: src/admin/logos/controller.tsx:370
 msgid "Logo uploaded."
 msgstr ""
 
-#: src/admin/logos/controller.tsx:94
+#: src/admin/logos/controller.tsx:260
+msgid "Logos could not be deleted."
+msgstr ""
+
+#: src/admin/logos/controller.tsx:98
 msgid "Logos could not be loaded."
 msgstr ""
 
@@ -1251,7 +1275,7 @@ msgstr ""
 msgid "Logos could not be removed from the selected locations."
 msgstr ""
 
-#: src/admin/logos/controller.tsx:318
+#: src/admin/logos/controller.tsx:380
 msgid "Logos could not be uploaded."
 msgstr ""
 
@@ -1573,7 +1597,7 @@ msgstr ""
 msgid "Plus circle"
 msgstr ""
 
-#: src/admin/logos/controller.tsx:29
+#: src/admin/logos/controller.tsx:31
 msgid "PNG file could not be read."
 msgstr ""
 

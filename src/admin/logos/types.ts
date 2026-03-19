@@ -14,6 +14,8 @@ export interface LogosController {
 	editFilenameExtension: string;
 	editingLogo: LogoRecord | null;
 	headerAction: ReactNode;
+	isDeleteAllLogosModalOpen: boolean;
+	isDeletingAllLogos: boolean;
 	isDeleteModalOpen: boolean;
 	isEditDialogOpen: boolean;
 	isLoading: boolean;
@@ -25,11 +27,14 @@ export interface LogosController {
 	onChangeView: (nextView: ViewGrid) => void;
 	onCancelEditLogo: () => void;
 	onChangeEditFilename: (value: string) => void;
+	onCloseDeleteAllLogosModal: () => void;
 	onCloseDeleteModal: () => void;
+	onDeleteAllLogos: () => Promise<void>;
 	onConfirmDeleteLogo: () => Promise<void>;
 	onConfirmEditLogo: () => Promise<void>;
 	onDownloadLogo: (logo: LogoRecord) => void;
 	onEditLogo: (logo: LogoRecord) => void;
+	onOpenDeleteAllLogosModal: () => void;
 	onOpenDeleteModal: (logo: LogoRecord) => void;
 	onUploadLogos: (files: FileList | File[]) => Promise<void>;
 	paginatedLogos: LogoRecord[];

@@ -1,7 +1,9 @@
 import apiFetch from '@wordpress/api-fetch';
+import { Button } from '@wordpress/components';
 import type { ViewGrid } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { BrushCleaning } from 'lucide-react';
 import { configureApiFetch } from '../../lib/locations/configureApiFetch';
 import { createLocationFormStateFromRecord } from '../../lib/locations/createLocationFormStateFromRecord';
 import { formatFilename, hasFilenameBasename, parseFilenameParts } from '../../lib/filenames';
@@ -66,6 +68,8 @@ export function useLogosController(
 	const [editFilenameBasename, setEditFilenameBasename] = useState('');
 	const [editFilenameExtension, setEditFilenameExtension] = useState('');
 	const [editingLogo, setEditingLogo] = useState<LogoRecord | null>(null);
+	const [isDeleteAllLogosModalOpen, setDeleteAllLogosModalOpen] = useState(false);
+	const [isDeletingAllLogos, setDeletingAllLogos] = useState(false);
 	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [isEditDialogOpen, setEditDialogOpen] = useState(false);
 	const [isLoading, setLoading] = useState(enabled);
@@ -155,22 +159,26 @@ export function useLogosController(
 		setSelectedLogo(null);
 	}, [isRowActionPending]);
 
+	const onCloseDeleteAllLogosModal = useCallback((): void => {
+		if (isDeletingAllLogos || isRowActionPending) {
+			return;
+		}
+
+		setDeleteAllLogosModalOpen(false);
+	}, [isDeletingAllLogos, isRowActionPending]);
+
+	const onOpenDeleteAllLogosModal = useCallback((): void => {
+		setDeleteAllLogosModalOpen(true);
+	}, []);
+
 	const onOpenDeleteModal = useCallback((logo: LogoRecord): void => {
 		setSelectedLogo(logo);
 		setDeleteModalOpen(true);
 	}, []);
 
-	const onConfirmDeleteLogo = useCallback(async (): Promise<void> => {
-		if (!selectedLogo) {
-			return;
-		}
-
-		setRowActionPending(true);
-		setActionNotice(null);
-
-		try {
-			const locations = await fetchAllLocations(locationsConfig);
-			const assignedLocations = locations.filter((location) => location.logo_id === selectedLogo.id);
+	const deleteLogoWithAssignments = useCallback(
+		async (logo: LogoRecord, locations: LocationRecord[]): Promise<void> => {
+			const assignedLocations = locations.filter((location) => location.logo_id === logo.id);
 
 			await Promise.all(
 				assignedLocations.map((location: LocationRecord) =>
@@ -182,9 +190,24 @@ export function useLogosController(
 			);
 
 			await apiFetch({
-				path: `${config.restPath}/${selectedLogo.id}`,
+				path: `${config.restPath}/${logo.id}`,
 				method: 'DELETE',
 			});
+		},
+		[config.restPath, locationsConfig]
+	);
+
+	const onConfirmDeleteLogo = useCallback(async (): Promise<void> => {
+		if (!selectedLogo) {
+			return;
+		}
+
+		setRowActionPending(true);
+		setActionNotice(null);
+
+		try {
+			const locations = await fetchAllLocations(locationsConfig);
+			await deleteLogoWithAssignments(selectedLogo, locations);
 
 			await loadLogos();
 			setActionNotice({
@@ -202,7 +225,46 @@ export function useLogosController(
 		} finally {
 			setRowActionPending(false);
 		}
-	}, [config.restPath, loadLogos, locationsConfig, selectedLogo]);
+	}, [deleteLogoWithAssignments, loadLogos, locationsConfig, selectedLogo]);
+
+	const onDeleteAllLogos = useCallback(async (): Promise<void> => {
+		if (logos.length === 0) {
+			setDeleteAllLogosModalOpen(false);
+			return;
+		}
+
+		setDeletingAllLogos(true);
+		setRowActionPending(true);
+		setActionNotice(null);
+
+		try {
+			const locations = await fetchAllLocations(locationsConfig);
+
+			for (const logo of logos) {
+				await deleteLogoWithAssignments(logo, locations);
+			}
+
+			await loadLogos();
+			setDeleteAllLogosModalOpen(false);
+			setActionNotice({
+				status: 'success',
+				message: sprintf(
+					_n('%d logo deleted.', '%d logos deleted.', logos.length, 'minimal-map'),
+					logos.length
+				),
+			});
+		} catch (error) {
+			setActionNotice({
+				status: 'error',
+				message:
+					error instanceof Error ? error.message : __('Logos could not be deleted.', 'minimal-map'),
+			});
+			throw error;
+		} finally {
+			setDeletingAllLogos(false);
+			setRowActionPending(false);
+		}
+	}, [deleteLogoWithAssignments, loadLogos, locationsConfig, logos]);
 
 	const onConfirmEditLogo = useCallback(async (): Promise<void> => {
 		if (!editingLogo) {
@@ -349,9 +411,19 @@ export function useLogosController(
 		editingLogo,
 		headerAction: enabled ? (
 			<div className="minimal-map-admin__header-actions-group">
+				<Button
+					variant="tertiary"
+					icon={<BrushCleaning size={18} strokeWidth={2} />}
+					label={__('Delete all logos', 'minimal-map')}
+					onClick={onOpenDeleteAllLogosModal}
+					disabled={logos.length === 0 || isDeletingAllLogos || isRowActionPending || isUploading}
+					__next40pxDefaultSize
+				/>
 				<UploadLogoButton onUpload={(files) => void onUploadLogos(files)} isUploading={isUploading} />
 			</div>
 		) : null,
+		isDeleteAllLogosModalOpen,
+		isDeletingAllLogos,
 		isDeleteModalOpen,
 		isEditDialogOpen,
 		isLoading,
@@ -363,11 +435,14 @@ export function useLogosController(
 		onChangeView: (nextView: ViewGrid) => setView(nextView),
 		onCancelEditLogo,
 		onChangeEditFilename,
+		onCloseDeleteAllLogosModal,
 		onCloseDeleteModal,
+		onDeleteAllLogos,
 		onConfirmDeleteLogo,
 		onConfirmEditLogo,
 		onDownloadLogo,
 		onEditLogo,
+		onOpenDeleteAllLogosModal,
 		onOpenDeleteModal,
 		onUploadLogos,
 		paginatedLogos,

@@ -1,5 +1,6 @@
 import { DropZone, Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import DeleteAllLogosModal from './DeleteAllLogosModal';
 import DeleteLogoModal from './DeleteLogoModal';
 import EditLogoDialog from './EditLogoDialog';
 import LogosEmptyState from './LogosEmptyState';
@@ -45,6 +46,7 @@ export default function LogosView({ controller }: { controller: LogosController 
 				)}
 			</div>
 
+			<DeleteAllLogosModal controller={controller} />
 			<DeleteLogoModal controller={controller} />
 			<EditLogoDialog controller={controller} />
 		</div>
