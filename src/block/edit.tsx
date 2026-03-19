@@ -835,7 +835,10 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
     }
 
     const syncPreviewHeight = (): void => {
-      const nextHeightCssValue = getActiveHeightCssValue(config, window.innerWidth);
+      const nextHeightCssValue = getActiveHeightCssValue(
+        config,
+        window.innerWidth,
+      );
 
       setPreviewHeightCssValue((currentValue) =>
         currentValue === nextHeightCssValue ? currentValue : nextHeightCssValue,
@@ -1040,7 +1043,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   return (
     <>
       <InspectorControls group="settings">
-        <PanelBody title={__("Map Settings", "minimal-map")} initialOpen>
+        <PanelBody title={__("Settings", "minimal-map")} initialOpen={false}>
           <CollectionDropdown
             options={runtimeConfig.collections ?? []}
             selectedId={attributes.collectionId}
@@ -1102,7 +1105,8 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             onChange={(value: boolean) =>
               setAttributes({ cooperativeGestures: value })
             }
-          />          <ToggleControl
+          />{" "}
+          <ToggleControl
             label={__("Allow Search", "minimal-map")}
             checked={attributes.allowSearch}
             onChange={(value: boolean) => setAttributes({ allowSearch: value })}
@@ -1122,10 +1126,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             }
           />
         </PanelBody>
-        <PanelBody
-          title={__("Embed via Iframe", "minimal-map")}
-          initialOpen={false}
-        >
+        <PanelBody title={__("Embed", "minimal-map")} initialOpen={false}>
           <TextareaControl
             label={__("Iframe Snippet", "minimal-map")}
             value={iframeSnippet}
@@ -1440,10 +1441,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             }
             onChange={(key, value) => setAttributes({ [key]: value })}
           />
-          <div
-            ref={googleMapsButtonRadiusRef}
-            style={{ marginBottom: "8px" }}
-          >
+          <div ref={googleMapsButtonRadiusRef} style={{ marginBottom: "8px" }}>
             <BorderRadiusControl
               label={__("Border Radius", "minimal-map")}
               onChange={(value: string | BorderRadiusValues) => {

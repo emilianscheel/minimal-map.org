@@ -1264,8 +1264,8 @@ msgid "Map preview"
 msgstr "Kartenvorschau"
 
 #: src/block/edit.tsx:1043
-msgid "Map Settings"
-msgstr "Karteneinstellungen"
+msgid "Settings"
+msgstr "Einstellungen"
 
 #: src/admin/locations/controller.tsx:759
 msgid "Marker assigned to location."

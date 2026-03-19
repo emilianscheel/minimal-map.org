@@ -1211,7 +1211,7 @@ msgid "Map preview"
 msgstr ""
 
 #: src/block/edit.tsx:1043
-msgid "Map Settings"
+msgid "Settings"
 msgstr ""
 
 #: src/admin/locations/controller.tsx:759
