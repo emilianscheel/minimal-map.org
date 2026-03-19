@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Minimal Map 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/minimal-map\n"
 "POT-Creation-Date: 2026-03-19T17:07:13+00:00\n"
-"PO-Revision-Date: 2026-03-12 16:00+0100\n"
+"PO-Revision-Date: 2026-03-19 18:15+0100\n"
 "Last-Translator: Emilian Scheel\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -1644,7 +1644,7 @@ msgstr "Dieses Logo vom ausgewählten Standort entfernen?"
 
 #: src/block/edit.tsx:1105
 msgid "Require Two Fingers to Move"
-msgstr "Zwei-Finger-Zoom erlauben"
+msgstr "Zwei Finger zum Bewegen erforderlich"
 
 #: src/admin/styles/constants.ts:7
 msgid "Residential Areas"
@@ -2075,15 +2075,16 @@ msgstr "Mittwoch"
 #: src/block/edit.tsx:1096
 msgid "When enabled, one can zoom the map using two fingers on mobile devices."
 msgstr ""
+"Wenn aktiviert, kann die Karte auf Mobilgeräten mit zwei Fingern gezoomt "
+"werden."
 
 #: src/block/edit.tsx:1106
-#, fuzzy
 msgid ""
 "When enabled, one finger scrolls the page, while two fingers are required to "
 "move the map."
 msgstr ""
-"Wenn aktiviert, scrollt ein Finger die Seite, während zwei Finger zum "
-"Bewegen oder Zoomen der Karte erforderlich sind."
+"Wenn aktiviert, scrollt ein Finger die Seite, während zwei Finger "
+"erforderlich sind, um die Karte zu bewegen."
 
 #: src/lib/locations/importLocations.ts:171
 msgid "Zip code"
