@@ -5,7 +5,9 @@ import type { MapBlockAttributes, MapRuntimeConfig } from '../types';
 export const EMBED_PAYLOAD_VERSION = 1;
 export const EMBED_QUERY_PARAM = 'minimal-map-config';
 
-type EmbedAttributes = Omit<MapBlockAttributes, '_isPreview'>;
+type EmbedAttributes = Omit<MapBlockAttributes, '_isPreview' | 'style'> & {
+	borderRadius: string;
+};
 
 const EMBED_ATTRIBUTE_KEYS: Array<keyof EmbedAttributes> = [
 	'centerLat',
@@ -19,6 +21,7 @@ const EMBED_ATTRIBUTE_KEYS: Array<keyof EmbedAttributes> = [
 	'stylePreset',
 	'styleThemeSlug',
 	'fontFamily',
+	'borderRadius',
 	'showZoomControls',
 	'allowSearch',
 	'googleMapsNavigation',
@@ -79,10 +82,55 @@ function escapeHtmlAttribute(value: string): string {
 		.replace(/>/g, '&gt;');
 }
 
+function normalizeEmbedBorderRadius(
+	value: MapBlockAttributes['style'] extends { border?: { radius?: infer TValue } }
+		? TValue
+		: unknown
+): string {
+	if (!value) {
+		return '';
+	}
+
+	if (typeof value === 'string') {
+		return value.trim();
+	}
+
+	if (typeof value !== 'object') {
+		return '';
+	}
+
+	const radius = value as {
+		top?: string;
+		right?: string;
+		bottom?: string;
+		left?: string;
+		topLeft?: string;
+		topRight?: string;
+		bottomRight?: string;
+		bottomLeft?: string;
+	};
+	const topLeft = radius.topLeft ?? radius.top ?? '';
+	const topRight = radius.topRight ?? radius.right ?? '';
+	const bottomRight = radius.bottomRight ?? radius.bottom ?? '';
+	const bottomLeft = radius.bottomLeft ?? radius.left ?? '';
+	const parts = [topLeft, topRight, bottomRight, bottomLeft]
+		.map((part) => part.trim())
+		.filter(Boolean);
+
+	return parts.length > 0 ? parts.join(' ') : '';
+}
+
 export function createCanonicalEmbedAttributes(attributes: MapBlockAttributes): EmbedAttributes {
 	const canonical = {} as EmbedAttributes;
 
 	EMBED_ATTRIBUTE_KEYS.forEach((key) => {
+		if (key === 'borderRadius') {
+			(canonical as Record<string, unknown>)[key] = normalizeEmbedBorderRadius(
+				attributes.style?.border?.radius
+			);
+			return;
+		}
+
 		(canonical as Record<string, unknown>)[key] = attributes[key];
 	});
 

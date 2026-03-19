@@ -39,6 +39,7 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 	stylePreset: 'liberty',
 	styleThemeSlug: 'default',
 	fontFamily: '',
+	borderRadius: '',
 	showZoomControls: true,
 	allowSearch: true,
 	googleMapsNavigation: false,
@@ -200,10 +201,19 @@ function normalizeBorderRadiusValue(value: string | BoxValue | null | undefined,
 		return normalizedParts.join(' ');
 	}
 
-	const topLeft = normalizeCssLength(value.top, fallback);
-	const topRight = normalizeCssLength(value.right, fallback);
-	const bottomRight = normalizeCssLength(value.bottom, fallback);
-	const bottomLeft = normalizeCssLength(value.left, fallback);
+	const objectValue = value as BoxValue & {
+		topLeft?: string;
+		topRight?: string;
+		bottomRight?: string;
+		bottomLeft?: string;
+	};
+	const topLeft = normalizeCssLength(objectValue.topLeft ?? objectValue.top, fallback);
+	const topRight = normalizeCssLength(objectValue.topRight ?? objectValue.right, fallback);
+	const bottomRight = normalizeCssLength(
+		objectValue.bottomRight ?? objectValue.bottom,
+		fallback
+	);
+	const bottomLeft = normalizeCssLength(objectValue.bottomLeft ?? objectValue.left, fallback);
 
 	return `${topLeft} ${topRight} ${bottomRight} ${bottomLeft}`;
 }
@@ -225,6 +235,10 @@ function getDefaults(runtimeConfig: MapRuntimeConfig): MapDefaults {
 		fontFamily: normalizeFontFamily(
 			runtimeConfig.defaults?.fontFamily,
 			DEFAULT_MAP_DEFAULTS.fontFamily
+		),
+		borderRadius: normalizeBorderRadiusValue(
+			runtimeConfig.defaults?.borderRadius,
+			DEFAULT_MAP_DEFAULTS.borderRadius
 		),
 		showZoomControls: runtimeConfig.defaults?.showZoomControls ?? DEFAULT_MAP_DEFAULTS.showZoomControls,
 		allowSearch: runtimeConfig.defaults?.allowSearch ?? DEFAULT_MAP_DEFAULTS.allowSearch,
@@ -390,6 +404,10 @@ export function normalizeMapConfig(
 		'https://tiles.openfreemap.org/styles/liberty';
 	const styleThemeSlug = `${rawConfig.styleThemeSlug ?? defaults.styleThemeSlug}`;
 	const fontFamily = normalizeFontFamily(rawConfig.fontFamily, defaults.fontFamily);
+	const borderRadius = normalizeBorderRadiusValue(
+		rawConfig.borderRadius ?? defaults.borderRadius,
+		defaults.borderRadius
+	);
 	const centerLat = clampNumber(rawConfig.centerLat ?? defaults.centerLat, -90, 90);
 	const centerLng = clampNumber(rawConfig.centerLng ?? defaults.centerLng, -180, 180);
 	const zoom = clampNumber(rawConfig.zoom ?? defaults.zoom, 0, 22);
@@ -570,6 +588,7 @@ export function normalizeMapConfig(
 		styleTheme,
 		styleThemeSlug,
 		fontFamily,
+		borderRadius,
 		showZoomControls: Boolean(rawConfig.showZoomControls ?? defaults.showZoomControls),
 		allowSearch: Boolean(rawConfig.allowSearch ?? defaults.allowSearch),
 		googleMapsNavigation: Boolean(

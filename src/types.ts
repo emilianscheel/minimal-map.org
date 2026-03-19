@@ -9,6 +9,13 @@ export interface BoxValue {
 	left?: string;
 }
 
+export interface BorderRadiusValue extends BoxValue {
+	topLeft?: string;
+	topRight?: string;
+	bottomRight?: string;
+	bottomLeft?: string;
+}
+
 export interface StylePresetDefinition {
 	label: string;
 	style_url: string;
@@ -33,6 +40,7 @@ export interface MapDefaults {
 	stylePreset: string;
 	styleThemeSlug: string;
 	fontFamily: string;
+	borderRadius: string;
 	showZoomControls: boolean;
 	allowSearch: boolean;
 	googleMapsNavigation: boolean;
@@ -163,6 +171,7 @@ export interface RawMapConfig {
 	styleTheme?: Partial<StyleThemeColors>;
 	styleThemeSlug?: string;
 	fontFamily?: string;
+	borderRadius?: string | BorderRadiusValue | null;
 	showZoomControls?: boolean;
 	allowSearch?: boolean;
 	googleMapsNavigation?: boolean;
@@ -426,6 +435,11 @@ export interface MapBlockAttributes {
 	creditsBackgroundColor: string;
 	creditsForegroundColor: string;
 	creditsBorderRadius: string;
+	style?: {
+		border?: {
+			radius?: string | BorderRadiusValue | null;
+		};
+	};
 	_isPreview: boolean;
 }
 

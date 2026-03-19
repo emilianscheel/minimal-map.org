@@ -76,6 +76,7 @@ class Config {
 			'heightUnit'       => 'px',
 			'stylePreset'      => self::DEFAULT_STYLE_PRESET,
 			'fontFamily'       => $font_family,
+			'borderRadius'     => '',
 			'showZoomControls' => true,
 			'allowSearch'      => true,
 			'googleMapsNavigation' => false,
@@ -203,6 +204,10 @@ class Config {
 		}
 
 		$font_family = $this->sanitize_font_family( $attributes['fontFamily'] ?? '', $defaults['fontFamily'] );
+		$border_radius = $this->sanitize_border_radius_value(
+			$attributes['borderRadius'] ?? $attributes['style']['border']['radius'] ?? '',
+			$defaults['borderRadius']
+		);
 
 		return array(
 			'centerLat'        => max( -90, min( 90, $center_lat ) ),
@@ -220,6 +225,7 @@ class Config {
 			'styleTheme'       => $style_theme,
 			'styleThemeSlug'   => $style_theme_slug,
 			'fontFamily'       => $font_family,
+			'borderRadius'     => $border_radius,
 			'showZoomControls' => ! empty( $attributes['showZoomControls'] ),
 			'allowSearch'      => ! empty( $attributes['allowSearch'] ),
 			'googleMapsNavigation' => ! empty( $attributes['googleMapsNavigation'] ),
@@ -939,6 +945,27 @@ class Config {
 	 * @return string
 	 */
 	private function sanitize_border_radius_value( $value, $fallback ) {
+		if ( is_array( $value ) ) {
+			$top_left = $this->sanitize_dimension_value( $value['topLeft'] ?? $value['top'] ?? '', '' );
+			$top_right = $this->sanitize_dimension_value( $value['topRight'] ?? $value['right'] ?? '', '' );
+			$bottom_right = $this->sanitize_dimension_value( $value['bottomRight'] ?? $value['bottom'] ?? '', '' );
+			$bottom_left = $this->sanitize_dimension_value( $value['bottomLeft'] ?? $value['left'] ?? '', '' );
+
+			if ( '' === $top_left || '' === $top_right || '' === $bottom_right || '' === $bottom_left ) {
+				return $fallback;
+			}
+
+			return implode(
+				' ',
+				array(
+					$top_left,
+					$top_right,
+					$bottom_right,
+					$bottom_left,
+				)
+			);
+		}
+
 		$value = is_string( $value ) ? trim( $value ) : '';
 
 		if ( '' === $value ) {

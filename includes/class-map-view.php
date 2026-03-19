@@ -55,6 +55,10 @@ class Map_View {
 			$surface_style .= ' --minimal-map-font-family: ' . $config['fontFamily'] . ';';
 		}
 
+		if ( ! empty( $config['borderRadius'] ) ) {
+			$surface_style .= ' border-radius: ' . $config['borderRadius'] . ';';
+		}
+
 		$surface_attributes = array(
 			'class'                   => 'minimal-map-surface',
 			'style'                   => $surface_style,

@@ -74,6 +74,14 @@ describe('map defaults normalization', () => {
 		);
 	});
 
+	test('preserves an explicit border radius override', () => {
+		const config = normalizeMapConfig({
+			borderRadius: '16px 24px 32px 40px',
+		});
+
+		expect(config.borderRadius).toBe('16px 24px 32px 40px');
+	});
+
 	test('falls back to the desktop height when no mobile height override is set', () => {
 		const config = normalizeMapConfig({
 			height: 480,
