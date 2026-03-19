@@ -20,6 +20,10 @@ import {
 	collectLocationTags,
 	filterLocationsByCategoryTagIds,
 } from './category-filter';
+import {
+	buildLocationSearchIndex,
+	searchIndexedLocations,
+} from './location-search';
 import { applySearchPanelCssVariables } from './search-panel-layout';
 import { isMobileViewport } from './responsive';
 
@@ -111,6 +115,10 @@ export const MapSearchControl = ({
 				: locations,
 		[activeCategoryTagIds, enableCategoryFilter, locations]
 	);
+	const indexedLocations = useMemo(
+		() => buildLocationSearchIndex(categoryFilteredLocations),
+		[categoryFilteredLocations]
+	);
 
 	useEffect(() => {
 		searchTermRef.current = searchTerm;
@@ -162,34 +170,12 @@ export const MapSearchControl = ({
 			return [];
 		}
 
-		const term = trimmedSearchTerm.toLowerCase();
-
-		if (!term) {
-			// If term is empty, limit results to 20 for better performance
-			// unless we have more logic here. For now, showing all can be slow.
-			// But let's try to just return all for now and see if memoization is enough.
-			// Actually, let's limit to 50 if empty to be safe.
+		if (!trimmedSearchTerm) {
 			return categoryFilteredLocations.slice(0, 50);
 		}
 
-		return categoryFilteredLocations.filter((location) => {
-			const searchableValues = [
-				location.title,
-				location.city,
-				location.street,
-				location.house_number,
-				location.postal_code,
-				location.state,
-				location.country,
-				location.telephone,
-				location.email,
-				location.website,
-				...(Array.isArray(location.tags) ? location.tags.map((tag) => tag.name) : []),
-			];
-
-			return searchableValues.some((value) => value?.toLowerCase().includes(term));
-		});
-	}, [categoryFilteredLocations, isOpen, trimmedSearchTerm]);
+		return searchIndexedLocations(indexedLocations, trimmedSearchTerm);
+	}, [categoryFilteredLocations, indexedLocations, isOpen, trimmedSearchTerm]);
 
 	useEffect(() => {
 		setAddressSearchMode('idle');

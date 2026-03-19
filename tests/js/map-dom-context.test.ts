@@ -318,6 +318,238 @@ describe('map iframe document context', () => {
 		searchControl.destroy();
 	});
 
+	test('finds local results for street, house number, zip code, and city queries without geocoding', async () => {
+		const geocodeCalls: string[] = [];
+		const { host, iframeDom, searchControl } = createAddressSearchControl(
+			async (query) => {
+				geocodeCalls.push(query);
+
+				return {
+					success: true,
+					label: 'Berlin',
+					lat: 52.52,
+					lng: 13.405,
+				};
+			},
+			{
+				locations: [
+					{
+						id: 1,
+						title: 'Berlin Studio',
+						lat: 52.52,
+						lng: 13.405,
+						street: 'Moosdorfstraße',
+						house_number: '10',
+						postal_code: '12345',
+						city: 'Berlin',
+						tags: [
+							{ id: 10, name: 'Studio', background_color: '#000', foreground_color: '#fff' },
+						],
+					},
+					{
+						id: 2,
+						title: 'Hamburg Office',
+						lat: 53.5511,
+						lng: 9.9937,
+						street: 'Fleetinsel',
+						house_number: '4',
+						postal_code: '20457',
+						city: 'Hamburg',
+					},
+				],
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+
+		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
+		focusInput(input, iframeDom);
+		setInputValue(input, iframeDom, 'Moosdorfstraße 10 12345 Berlin');
+		await flushRender();
+		await flushRender();
+
+		const titles = Array.from(host.querySelectorAll('.minimal-map-search__result-title')).map(
+			(element) => element.textContent,
+		);
+
+		expect(titles).toEqual([ 'Berlin Studio' ]);
+		expect(host.textContent).not.toContain('Press');
+
+		submitSearchForm(host, iframeDom);
+		await flushRender();
+		await flushRender();
+
+		expect(geocodeCalls).toEqual([]);
+
+		searchControl.destroy();
+	});
+
+	test('keeps category filters applied while searching full addresses', async () => {
+		const { host, iframeDom, searchControl } = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				enableCategoryFilter: true,
+				activeCategoryTagIds: [20],
+				locations: [
+					{
+						id: 1,
+						title: 'Berlin Studio',
+						lat: 52.52,
+						lng: 13.405,
+						street: 'Moosdorfstraße',
+						house_number: '10',
+						postal_code: '12345',
+						city: 'Berlin',
+						tags: [
+							{ id: 10, name: 'Studio', background_color: '#000', foreground_color: '#fff' },
+						],
+					},
+					{
+						id: 2,
+						title: 'Berlin Office',
+						lat: 52.5205,
+						lng: 13.4055,
+						street: 'Moosdorfstraße',
+						house_number: '10',
+						postal_code: '12345',
+						city: 'Berlin',
+						tags: [
+							{ id: 20, name: 'Office', background_color: '#000', foreground_color: '#fff' },
+						],
+					},
+				],
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+
+		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
+		focusInput(input, iframeDom);
+		setInputValue(input, iframeDom, 'Moosdorfstraße 10');
+		await flushRender();
+		await flushRender();
+
+		const titles = Array.from(host.querySelectorAll('.minimal-map-search__result-title')).map(
+			(element) => element.textContent,
+		);
+
+		expect(titles).toEqual([ 'Berlin Office' ]);
+
+		searchControl.destroy();
+	});
+
+	test('ranks exact address matches ahead of fuzzy address matches', async () => {
+		const { host, iframeDom, searchControl } = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				locations: [
+					{
+						id: 1,
+						title: 'Berlin Studio',
+						lat: 52.52,
+						lng: 13.405,
+						street: 'Moosdorfstraße',
+						house_number: '10',
+						postal_code: '12345',
+						city: 'Berlin',
+					},
+					{
+						id: 2,
+						title: 'Berlin Studio Annex',
+						lat: 52.5205,
+						lng: 13.4055,
+						street: 'Moosdorffstraße',
+						house_number: '10',
+						postal_code: '12345',
+						city: 'Berlin',
+					},
+				],
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+
+		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
+		focusInput(input, iframeDom);
+		setInputValue(input, iframeDom, 'Moosdorfstraße 10');
+		await flushRender();
+		await flushRender();
+
+		const titles = Array.from(host.querySelectorAll('.minimal-map-search__result-title')).map(
+			(element) => element.textContent,
+		);
+
+		expect(titles).toEqual([ 'Berlin Studio', 'Berlin Studio Annex' ]);
+
+		searchControl.destroy();
+	});
+
+	test('shows unfinished fuzzy street matches while typing', async () => {
+		const { host, iframeDom, searchControl } = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				locations: [
+					{
+						id: 1,
+						title: 'Berlin Studio',
+						lat: 52.52,
+						lng: 13.405,
+						street: 'Moosdorfstraße',
+						house_number: '10',
+						postal_code: '12345',
+						city: 'Berlin',
+					},
+					{
+						id: 2,
+						title: 'Berlin Studio Annex',
+						lat: 52.5205,
+						lng: 13.4055,
+						street: 'Moosdorffstraße',
+						house_number: '10',
+						postal_code: '12345',
+						city: 'Berlin',
+					},
+				],
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+
+		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
+		focusInput(input, iframeDom);
+		setInputValue(input, iframeDom, 'Moosdorff');
+		await flushRender();
+		await flushRender();
+
+		const titles = Array.from(host.querySelectorAll('.minimal-map-search__result-title')).map(
+			(element) => element.textContent,
+		);
+
+		expect(titles).toEqual([ 'Berlin Studio Annex', 'Berlin Studio' ]);
+		expect(host.textContent).not.toContain('Press');
+
+		searchControl.destroy();
+	});
+
 	test('renders unique category pills from the current map tags in name order', async () => {
 		const { host, searchControl } = createAddressSearchControl(async () => ({
 			success: true,

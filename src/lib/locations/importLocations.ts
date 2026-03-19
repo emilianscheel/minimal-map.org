@@ -3,6 +3,7 @@ import type {
 	CollectionsAdminConfig,
 	LocationFormState,
 	LocationsAdminConfig,
+	OpeningHoursDayKey,
 } from '../../types';
 import {
 	buildImportedOpeningHours,
