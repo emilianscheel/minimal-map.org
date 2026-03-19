@@ -92,6 +92,7 @@ function createAddressSearchControl(
 		googleMapsButtonShowIcon?: boolean;
 		locations?: MapLocationPoint[];
 		activeCategoryTagIds?: number[];
+		onEscape?: () => void;
 		onSelect?: (selection: MapLocationSelection) => void;
 		selectedId?: number;
 		viewportWidth?: number;
@@ -139,6 +140,7 @@ function createAddressSearchControl(
 			},
 		],
 		onSelect = () => {},
+		onEscape = () => {},
 		activeCategoryTagIds = [],
 		selectedId,
 	} = options;
@@ -156,6 +158,7 @@ function createAddressSearchControl(
 			googleMapsButtonShowIcon,
 			locations,
 			onCategoryFilterChange: setActiveTags,
+			onEscape,
 			onSelect,
 			selectedId: harnessSelectedId,
 			siteLocale: 'en-US',
@@ -825,6 +828,7 @@ describe('map iframe document context', () => {
 	});
 
 	test('closes the focused search panel and blurs the input on Escape even with a desktop selection', async () => {
+		let escapeCalls = 0;
 		const { host, iframeDom, searchControl } = createAddressSearchControl(
 			async () => ({
 				success: true,
@@ -833,6 +837,9 @@ describe('map iframe document context', () => {
 				lng: 13.405,
 			}),
 			{
+				onEscape: () => {
+					escapeCalls += 1;
+				},
 				selectedId: 1,
 				viewportWidth: 1024,
 			},
@@ -856,6 +863,7 @@ describe('map iframe document context', () => {
 		expect(host.querySelector('.minimal-map-search-backdrop')).toBeNull();
 		expect(host.querySelector('.minimal-map-search__results-container')).toBeNull();
 		expect(host.ownerDocument.activeElement).not.toBe(input);
+		expect(escapeCalls).toBe(1);
 
 		searchControl.destroy();
 	});

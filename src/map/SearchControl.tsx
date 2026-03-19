@@ -52,6 +52,7 @@ interface SearchControlProps {
 	locations: MapLocationPoint[];
 	activeCategoryTagIds: number[];
 	onCategoryFilterChange: (tagIds: number[]) => void;
+	onEscape?: () => void;
 	onSelect: (selection: MapLocationSelection) => void;
 	selectedId?: number;
 	siteLocale: string;
@@ -68,6 +69,7 @@ export const MapSearchControl = ({
 	locations,
 	activeCategoryTagIds,
 	onCategoryFilterChange,
+	onEscape,
 	onSelect,
 	selectedId: selectedIdProp,
 	siteLocale,
@@ -357,6 +359,13 @@ export const MapSearchControl = ({
 		setPanelOpen(true);
 	};
 
+	const dismissSearchPanel = () => {
+		setPanelOpen(false);
+		setPanelDismissed(true);
+		inputRef.current?.blur();
+		onEscape?.();
+	};
+
 	const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
 		if (event.key !== 'Escape') {
 			return;
@@ -364,9 +373,7 @@ export const MapSearchControl = ({
 
 		event.preventDefault();
 		event.stopPropagation();
-		setPanelOpen(false);
-		setPanelDismissed(true);
-		inputRef.current?.blur();
+		dismissSearchPanel();
 	};
 
 	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -485,6 +492,7 @@ export function createWordPressSearchControl(
 	geocodeSearchFn?: GeocodeSearchFn,
 	initialActiveCategoryTagIds: number[] = [],
 	onCategoryFilterChange?: (tagIds: number[]) => void,
+	onEscape?: () => void,
 ): WordPressSearchControl {
 	const context = getMapDomContext(host);
 	const container = context.doc.createElement('div');
@@ -535,6 +543,7 @@ export function createWordPressSearchControl(
 				googleMapsButtonShowIcon={config.googleMapsButtonShowIcon}
 				locations={config.locations}
 				onCategoryFilterChange={onCategoryFilterChange ?? (() => {})}
+				onEscape={onEscape}
 				onSelect={onSelect}
 				selectedId={selectedId}
 				siteLocale={config.siteLocale}

@@ -34,6 +34,7 @@ interface MinimalMapState {
 	attribution: WordPressAttributionControl | null;
 	config: NormalizedMapConfig | null;
 	controls: WordPressZoomControls | null;
+	keydownHandler: ((event: KeyboardEvent) => void) | null;
 	locationCardPreview: LocationCardPreviewController | null;
 	map: MapLibreMap | null;
 	markerRenderer: MarkerRenderer | null;
@@ -407,6 +408,7 @@ export function createMinimalMap(
 		attribution: null,
 		config: null,
 		controls: null,
+		keydownHandler: null,
 		locationCardPreview: null,
 		map: null,
 		markerRenderer: null,
@@ -477,6 +479,43 @@ export function createMinimalMap(
 		state.selectedLocation = null;
 		state.searchControl?.update(config, undefined, state.activeCategoryTagIds);
 		state.locationCardPreview?.hide();
+	}
+
+	function clearSelectionAndRestoreViewport(config: NormalizedMapConfig): void {
+		if (!state.map) {
+			return;
+		}
+
+		clearSelection(config);
+		syncViewport(
+			state.map,
+			config,
+			context.win.innerWidth,
+			false,
+			state.activeCategoryTagIds
+		);
+	}
+
+	function syncEscapeKeyHandler(): void {
+		if (state.keydownHandler) {
+			context.doc.removeEventListener('keydown', state.keydownHandler);
+			state.keydownHandler = null;
+		}
+
+		state.keydownHandler = (event: KeyboardEvent) => {
+			if (
+				event.key !== 'Escape' ||
+				event.defaultPrevented ||
+				!state.config ||
+				!state.selectedLocation
+			) {
+				return;
+			}
+
+			clearSelectionAndRestoreViewport(state.config);
+		};
+
+		context.doc.addEventListener('keydown', state.keydownHandler);
 	}
 
 	function syncLocationCardPreview(
@@ -663,6 +702,11 @@ export function createMinimalMap(
 							false,
 							state.activeCategoryTagIds
 						);
+					},
+					() => {
+						if (state.config && state.selectedLocation) {
+							clearSelectionAndRestoreViewport(state.config);
+						}
 					}
 				);
 			} else {
@@ -850,6 +894,7 @@ export function createMinimalMap(
 		syncMarkers(config);
 		syncControls(config);
 		syncSearch(config);
+		syncEscapeKeyHandler();
 		syncLocationCardPreview(config, null);
 		syncAttribution(config);
 		setupUserInteractionListeners(map);
@@ -871,6 +916,11 @@ export function createMinimalMap(
 
 		state.controls?.destroy();
 		state.controls = null;
+
+		if (state.keydownHandler) {
+			context.doc.removeEventListener('keydown', state.keydownHandler);
+			state.keydownHandler = null;
+		}
 
 		state.searchControl?.destroy();
 		state.searchControl = null;
