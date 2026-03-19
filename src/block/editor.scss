@@ -1,3 +1,13 @@
+.editor-styles-wrapper .wp-block-minimal-map-map.minimal-map-editor {
+  // Gutenberg renders the selection frame on the block wrapper via ::after.
+  // Keep clipping on the inner canvas so the wrapper outline can stay visible.
+  overflow: visible;
+
+  &::after {
+    border-radius: inherit;
+  }
+}
+
 .wp-block-minimal-map-map {
   overflow: hidden;
 
