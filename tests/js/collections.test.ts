@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { filterLocationsForAssignment } from '../../src/lib/collections/filterLocationsForAssignment';
 import {
+	getDeleteAllCollectionsLocationPlan,
 	getCollectionsWithoutDeletedLocationIds,
 	getDeleteCollectionLocationPlan,
 } from '../../src/lib/collections/deleteCollectionLocations';
@@ -205,6 +206,20 @@ describe('collection helpers', () => {
 		).toEqual({
 			deletedLocationIds: [],
 			sharedLocationIds: [],
+		});
+	});
+
+	test('getDeleteAllCollectionsLocationPlan deletes all assigned ids when shared locations are not skipped', () => {
+		expect(getDeleteAllCollectionsLocationPlan(COLLECTIONS, false)).toEqual({
+			deletedLocationIds: [1, 2, 3, 4, 5],
+			sharedLocationIds: [2],
+		});
+	});
+
+	test('getDeleteAllCollectionsLocationPlan deletes only exclusive ids when shared locations are skipped', () => {
+		expect(getDeleteAllCollectionsLocationPlan(COLLECTIONS, true)).toEqual({
+			deletedLocationIds: [1, 3, 4, 5],
+			sharedLocationIds: [2],
 		});
 	});
 

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-19T18:59:06+00:00\n"
+"POT-Creation-Date: 2026-03-19T19:08:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: minimal-map\n"
@@ -173,6 +173,18 @@ msgstr ""
 msgid "Tag"
 msgstr ""
 
+#: src/admin/collections/controller.tsx:126
+msgid "%1$d collection deleted. %2$s."
+msgid_plural "%1$d collections deleted. %2$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/admin/collections/controller.tsx:120
+msgid "%1$d collection deleted. %2$s. Shared locations kept: %3$d."
+msgid_plural "%1$d collections deleted. %2$s. Shared locations kept: %3$d."
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/map/location-opening-hours.ts:310
 msgid "%1$s-%2$s"
 msgstr ""
@@ -181,9 +193,16 @@ msgstr ""
 msgid "%1$s, Lunch %2$s-%3$s"
 msgstr ""
 
-#: src/admin/collections/controller.tsx:63
+#: src/admin/collections/controller.tsx:109
+#: src/admin/collections/controller.tsx:64
 msgid "%d assigned location deleted"
 msgid_plural "%d assigned locations deleted"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/admin/collections/controller.tsx:98
+msgid "%d collection deleted."
+msgid_plural "%d collections deleted."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -212,7 +231,7 @@ msgid_plural "%d locations deleted."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/admin/collections/controller.tsx:604
+#: src/admin/collections/controller.tsx:754
 #: src/admin/locations/controller.tsx:1697
 #: src/admin/locations/controller.tsx:1764
 msgid "%d location imported and assigned to a new collection."
@@ -269,9 +288,9 @@ msgid "A title is required."
 msgstr ""
 
 #: src/admin/collections/CollectionsEmptyState.tsx:13
-#: src/admin/collections/controller.tsx:666
-#: src/admin/collections/controller.tsx:689
-#: src/admin/collections/controller.tsx:696
+#: src/admin/collections/controller.tsx:831
+#: src/admin/collections/controller.tsx:856
+#: src/admin/collections/controller.tsx:863
 msgid "Add collection"
 msgstr ""
 
@@ -286,8 +305,8 @@ msgid ""
 msgstr ""
 
 #: src/admin/locations/LocationsEmptyState.tsx:13
-#: src/admin/locations/controller.tsx:1933
-#: src/admin/locations/controller.tsx:1964
+#: src/admin/locations/controller.tsx:1932
+#: src/admin/locations/controller.tsx:1963
 msgid "Add location"
 msgstr ""
 
@@ -344,6 +363,14 @@ msgstr ""
 #: src/block/edit.tsx:1200
 msgid "Appearance"
 msgstr ""
+
+#: src/admin/collections/DeleteAllCollectionsModal.tsx:75
+msgid ""
+"Are you sure you want to delete %d collection? This action cannot be undone."
+msgid_plural ""
+"Are you sure you want to delete %d collections? This action cannot be undone."
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/admin/locations/DeleteAllLocationsModal.tsx:61
 #: src/admin/locations/DeleteLocationActionModal.tsx:85
@@ -515,6 +542,7 @@ msgstr ""
 
 #: src/admin/collections/CollectionAssignmentModal.tsx:111
 #: src/admin/collections/CollectionDialog.tsx:59
+#: src/admin/collections/DeleteAllCollectionsModal.tsx:117
 #: src/admin/collections/DeleteCollectionActionModal.tsx:129
 #: src/admin/collections/MergeCollectionsModal.tsx:152
 #: src/admin/locations/AssignLogoModal.tsx:118
@@ -594,12 +622,12 @@ msgstr ""
 msgid "Closed - opens %s"
 msgstr ""
 
-#: src/admin/collections/controller.tsx:296
+#: src/admin/collections/controller.tsx:351
 msgid "Collection could not be created."
 msgstr ""
 
 #: src/admin/collections/DeleteCollectionActionModal.tsx:51
-#: src/admin/collections/controller.tsx:365
+#: src/admin/collections/controller.tsx:420
 msgid "Collection could not be deleted."
 msgstr ""
 
@@ -607,31 +635,31 @@ msgstr ""
 msgid "Collection could not be removed from the location."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:295
+#: src/admin/collections/controller.tsx:350
 msgid "Collection could not be updated."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:288
+#: src/admin/collections/controller.tsx:343
 msgid "Collection created."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:59
+#: src/admin/collections/controller.tsx:60
 msgid "Collection deleted."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:80
+#: src/admin/collections/controller.tsx:81
 msgid "Collection deleted. %1$s. Shared locations kept: %2$d."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:74
+#: src/admin/collections/controller.tsx:75
 msgid "Collection deleted. %s."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:447
+#: src/admin/collections/controller.tsx:589
 msgid "Collection locations could not be saved."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:439
+#: src/admin/collections/controller.tsx:581
 msgid "Collection locations saved."
 msgstr ""
 
@@ -639,8 +667,8 @@ msgstr ""
 msgid "Collection removed from location."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:260
-#: src/admin/collections/controller.tsx:488
+#: src/admin/collections/controller.tsx:315
+#: src/admin/collections/controller.tsx:638
 msgid "Collection title is required."
 msgstr ""
 
@@ -648,19 +676,23 @@ msgstr ""
 msgid "Collection unavailable"
 msgstr ""
 
-#: src/admin/collections/controller.tsx:287
+#: src/admin/collections/controller.tsx:342
 msgid "Collection updated."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:158
+#: src/admin/collections/controller.tsx:493
+msgid "Collections could not be deleted."
+msgstr ""
+
+#: src/admin/collections/controller.tsx:213
 msgid "Collections could not be loaded."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:538
+#: src/admin/collections/controller.tsx:688
 msgid "Collections could not be merged."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:532
+#: src/admin/collections/controller.tsx:682
 msgid "Collections merged successfully."
 msgstr ""
 
@@ -761,6 +793,12 @@ msgid_plural "Delete %d locations"
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/admin/collections/DeleteAllCollectionsModal.tsx:129
+#: src/admin/collections/DeleteAllCollectionsModal.tsx:41
+#: src/admin/collections/controller.tsx:795
+msgid "Delete all collections"
+msgstr ""
+
 #: src/admin/locations/DeleteAllLocationsModal.tsx:47
 #: src/admin/locations/DeleteAllLocationsModal.tsx:89
 #: src/admin/locations/controller.tsx:1912
@@ -780,6 +818,7 @@ msgstr ""
 msgid "Delete location"
 msgstr ""
 
+#: src/admin/collections/DeleteAllCollectionsModal.tsx:87
 #: src/admin/collections/DeleteCollectionActionModal.tsx:94
 msgid "Delete locations"
 msgstr ""
@@ -836,7 +875,7 @@ msgstr ""
 msgid "Download Theme Config"
 msgstr ""
 
-#: src/admin/collections/index.tsx:38 src/admin/locations/index.tsx:47
+#: src/admin/collections/index.tsx:39 src/admin/locations/index.tsx:47
 msgid "Drop CSV file here to import locations"
 msgstr ""
 
@@ -862,11 +901,11 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: src/admin/collections/controller.tsx:688
+#: src/admin/collections/controller.tsx:855
 msgid "Edit collection"
 msgstr ""
 
-#: src/admin/locations/controller.tsx:1963
+#: src/admin/locations/controller.tsx:1962
 msgid "Edit location"
 msgstr ""
 
@@ -934,7 +973,7 @@ msgstr ""
 msgid "Export Options"
 msgstr ""
 
-#: src/admin/collections/controller.tsx:619
+#: src/admin/collections/controller.tsx:769
 #: src/admin/locations/controller.tsx:1720
 #: src/admin/locations/controller.tsx:1781
 msgid "Failed to import locations."
@@ -966,7 +1005,7 @@ msgid "Filled plus circle"
 msgstr ""
 
 #: src/admin/collections/MergeCollectionsModal.tsx:170
-#: src/admin/locations/controller.tsx:2051
+#: src/admin/locations/controller.tsx:2050
 msgid "Finish"
 msgstr ""
 
@@ -1280,7 +1319,7 @@ msgid "Markers could not be uploaded."
 msgstr ""
 
 #: src/admin/collections/MergeCollectionsModal.tsx:48
-#: src/admin/collections/controller.tsx:657
+#: src/admin/collections/controller.tsx:822
 msgid "Merge collections"
 msgstr ""
 
@@ -1651,8 +1690,8 @@ msgstr ""
 msgid "Saturday"
 msgstr ""
 
-#: src/admin/collections/controller.tsx:695
-#: src/admin/locations/controller.tsx:2050
+#: src/admin/collections/controller.tsx:862
+#: src/admin/locations/controller.tsx:2049
 #: src/admin/logos/EditLogoDialog.tsx:74
 #: src/admin/markers/EditMarkerDialog.tsx:74 src/admin/tags/controller.tsx:256
 msgid "Save changes"
@@ -1703,7 +1742,7 @@ msgstr ""
 msgid "Select at least two collections to merge into a new one."
 msgstr ""
 
-#: src/admin/collections/controller.tsx:476
+#: src/admin/collections/controller.tsx:626
 msgid "Select at least two collections to merge."
 msgstr ""
 
@@ -1749,6 +1788,7 @@ msgstr ""
 msgid "Show Zoom Controls"
 msgstr ""
 
+#: src/admin/collections/DeleteAllCollectionsModal.tsx:102
 #: src/admin/collections/DeleteCollectionActionModal.tsx:109
 msgid "Skip shared locations"
 msgstr ""

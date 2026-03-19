@@ -47,6 +47,37 @@ export function getDeleteCollectionLocationPlan(
 	};
 }
 
+export function getDeleteAllCollectionsLocationPlan(
+	collections: CollectionRecord[],
+	skipSharedLocations: boolean
+): DeleteCollectionLocationPlan {
+	const locationIdUsage = new Map<number, number>();
+
+	collections.forEach((collection) => {
+		getUniquePositiveIds(collection.location_ids).forEach((locationId) => {
+			locationIdUsage.set(locationId, (locationIdUsage.get(locationId) ?? 0) + 1);
+		});
+	});
+
+	if (locationIdUsage.size === 0) {
+		return {
+			deletedLocationIds: [],
+			sharedLocationIds: [],
+		};
+	}
+
+	const sharedLocationIds = Array.from(locationIdUsage.entries())
+		.filter(([, usageCount]) => usageCount > 1)
+		.map(([locationId]) => locationId);
+
+	return {
+		deletedLocationIds: Array.from(locationIdUsage.keys()).filter((locationId) =>
+			skipSharedLocations ? !sharedLocationIds.includes(locationId) : true
+		),
+		sharedLocationIds,
+	};
+}
+
 export function getCollectionsWithoutDeletedLocationIds(
 	collections: CollectionRecord[],
 	deletedLocationIds: number[],

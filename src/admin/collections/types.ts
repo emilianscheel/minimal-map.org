@@ -33,6 +33,8 @@ export interface CollectionsController {
 	headerAction: ReactNode;
 	isAssignmentModalOpen: boolean;
 	isAssignmentSaving: boolean;
+	isDeleteAllCollectionsModalOpen: boolean;
+	isDeletingAllCollections: boolean;
 	isDialogOpen: boolean;
 	isLoading: boolean;
 	isRowActionPending: boolean;
@@ -61,12 +63,15 @@ export interface CollectionsController {
 	onChangeFormValue: (key: keyof CollectionFormState, value: string) => void;
 	onChangeView: (nextView: ViewGrid) => void;
 	onCloseAssignmentModal: () => void;
+	onCloseDeleteAllCollectionsModal: () => void;
 	onConfirm: () => Promise<void>;
+	onDeleteAllCollections: (options: DeleteCollectionOptions) => Promise<void>;
 	onDeleteCollection: (
 		collection: CollectionRecord,
 		options: DeleteCollectionOptions
 	) => Promise<void>;
 	onEditCollection: (collection: CollectionRecord) => void;
+	onOpenDeleteAllCollectionsModal: () => void;
 	onOpenAssignmentModal: (collection: CollectionRecord) => void;
 	onSaveAssignments: () => Promise<void>;
 	onImportLocations: (file: File) => Promise<void>;

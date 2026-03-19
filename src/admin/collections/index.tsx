@@ -1,6 +1,7 @@
 import { DropZone, Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import CollectionAssignmentModal from './CollectionAssignmentModal';
+import DeleteAllCollectionsModal from './DeleteAllCollectionsModal';
 import MergeCollectionsModal from './MergeCollectionsModal';
 import CollectionDialog from './CollectionDialog';
 import CollectionsEmptyState from './CollectionsEmptyState';
@@ -49,6 +50,7 @@ export default function CollectionsView({ controller }: { controller: Collection
 			</div>
 			<CollectionDialog controller={controller} />
 			<CollectionAssignmentModal controller={controller} />
+			<DeleteAllCollectionsModal controller={controller} />
 			<MergeCollectionsModal controller={controller} />
 		</div>
 	);
