@@ -46,10 +46,18 @@
   opacity: 0;
 }
 
-.minimal-map-runtime .maplibregl-cooperative-gesture-screen .maplibregl-desktop-message,
-.minimal-map-runtime .maplibregl-cooperative-gesture-screen .maplibregl-mobile-message,
-.minimal-map-surface .maplibregl-cooperative-gesture-screen .maplibregl-desktop-message,
-.minimal-map-surface .maplibregl-cooperative-gesture-screen .maplibregl-mobile-message {
+.minimal-map-runtime
+  .maplibregl-cooperative-gesture-screen
+  .maplibregl-desktop-message,
+.minimal-map-runtime
+  .maplibregl-cooperative-gesture-screen
+  .maplibregl-mobile-message,
+.minimal-map-surface
+  .maplibregl-cooperative-gesture-screen
+  .maplibregl-desktop-message,
+.minimal-map-surface
+  .maplibregl-cooperative-gesture-screen
+  .maplibregl-mobile-message {
   display: none;
 }
 
@@ -245,7 +253,9 @@
   --minimal-map-search-margin-bottom: 24px;
   --minimal-map-search-margin-left: 24px;
   --minimal-map-search-gap: 24px;
-  --minimal-map-search-category-gap: calc(var(--minimal-map-search-margin-top) / 2);
+  --minimal-map-search-category-gap: calc(
+    var(--minimal-map-search-margin-top) / 2
+  );
   --minimal-map-search-input-radius: 10px;
   --minimal-map-search-card-radius: 2px;
   --minimal-map-search-card-gap: 12px;
@@ -275,7 +285,6 @@
   );
   background: var(--minimal-map-search-background-primary);
   z-index: 9;
-  animation: minimal-map-fade-in 0.3s ease-out forwards;
   pointer-events: auto;
 }
 
@@ -286,6 +295,13 @@
   to {
     opacity: 1;
   }
+}
+
+.minimal-map-search-backdrop,
+.minimal-map-search,
+.minimal-map-search.is-focused,
+.minimal-map-search.is-focused .minimal-map-search__input-wrapper {
+  animation: minimal-map-fade-in 0.3s ease-in-out forwards !important;
 }
 
 .minimal-map-search {
@@ -313,10 +329,6 @@
   pointer-events: none;
 }
 
-.minimal-map-search.is-focused {
-  background: var(--minimal-map-search-background-primary) !important;
-}
-
 .minimal-map-search > * {
   pointer-events: auto;
 }
@@ -341,7 +353,9 @@
   flex-wrap: wrap;
   gap: 8px;
   align-items: flex-start;
-  margin-top: calc(var(--minimal-map-search-category-gap) - var(--minimal-map-search-gap));
+  margin-top: calc(
+    var(--minimal-map-search-category-gap) - var(--minimal-map-search-gap)
+  );
 }
 
 .minimal-map-search__category-pill {
