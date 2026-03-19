@@ -1,7 +1,7 @@
 import { createRoot, useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { LoaderCircle, Search, SearchX, X } from 'lucide-react';
-import type { FormEvent } from 'react';
+import type { FormEvent, KeyboardEvent } from 'react';
 import Kbd from '../components/Kbd';
 import type {
 	GeocodeResponse,
@@ -75,6 +75,7 @@ export const MapSearchControl = ({
 }: SearchControlProps) => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [isPanelOpen, setPanelOpen] = useState(false);
+	const [isPanelDismissed, setPanelDismissed] = useState(false);
 	const [addressSearchMode, setAddressSearchMode] = useState<
 		'idle' | 'loading' | 'results' | 'empty'
 	>('idle');
@@ -82,9 +83,11 @@ export const MapSearchControl = ({
 	const [selectedId, setSelectedId] = useState<number | undefined>(selectedIdProp);
 	const [viewportWidth, setViewportWidth] = useState<number | null>(doc.defaultView?.innerWidth ?? null);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
 	const searchTermRef = useRef(searchTerm);
 	const isMobile = isMobileViewport(viewportWidth);
-	const isOpen = isPanelOpen || (!isMobile && typeof selectedId === 'number');
+	const isOpen =
+		!isPanelDismissed && (isPanelOpen || (!isMobile && typeof selectedId === 'number'));
 	const trimmedSearchTerm = searchTerm.trim();
 	const availableTags = useMemo(
 		() => collectLocationTags(locations),
@@ -104,6 +107,7 @@ export const MapSearchControl = ({
 
 	useEffect(() => {
 		setSelectedId(selectedIdProp);
+		setPanelDismissed(false);
 	}, [selectedIdProp]);
 
 	useEffect(() => {
@@ -348,6 +352,23 @@ export const MapSearchControl = ({
 		resetAddressSearch(nextValue);
 	};
 
+	const handleSearchFocus = () => {
+		setPanelDismissed(false);
+		setPanelOpen(true);
+	};
+
+	const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+		if (event.key !== 'Escape') {
+			return;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+		setPanelOpen(false);
+		setPanelDismissed(true);
+		inputRef.current?.blur();
+	};
+
 	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		void handleAddressSearch();
@@ -373,6 +394,7 @@ export const MapSearchControl = ({
 						<Search size={18} />
 					</div>
 					<input
+						ref={inputRef}
 						type="search"
 						className="minimal-map-search__input"
 						value={searchTerm}
@@ -382,7 +404,8 @@ export const MapSearchControl = ({
 								(event.target as HTMLInputElement | null)?.value ?? '',
 							)
 						}
-						onFocus={() => setPanelOpen(true)}
+						onFocus={handleSearchFocus}
+						onKeyDown={handleSearchKeyDown}
 						enterKeyHint="search"
 						placeholder={__('Search locations...', 'minimal-map')}
 						aria-label={__('Search locations', 'minimal-map')}

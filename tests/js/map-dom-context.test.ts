@@ -57,6 +57,16 @@ function focusInput(input: HTMLInputElement, iframeDom: JSDOM): void {
 	input.dispatchEvent(new iframeDom.window.FocusEvent('focus', { bubbles: true }));
 }
 
+function pressEscape(input: HTMLInputElement, iframeDom: JSDOM): void {
+	input.dispatchEvent(
+		new iframeDom.window.KeyboardEvent('keydown', {
+			bubbles: true,
+			cancelable: true,
+			key: 'Escape',
+		})
+	);
+}
+
 function setInputValue(input: HTMLInputElement, iframeDom: JSDOM, value: string): void {
 	const descriptor = Object.getOwnPropertyDescriptor(
 		iframeDom.window.HTMLInputElement.prototype,
@@ -810,6 +820,42 @@ describe('map iframe document context', () => {
 
 		expect(host.querySelector('.minimal-map-search-backdrop')).toBeNull();
 		expect(host.querySelector('.minimal-map-search__results-container')).toBeNull();
+
+		searchControl.destroy();
+	});
+
+	test('closes the focused search panel and blurs the input on Escape even with a desktop selection', async () => {
+		const { host, iframeDom, searchControl } = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				selectedId: 1,
+				viewportWidth: 1024,
+			},
+		);
+
+		await flushRender();
+		await flushRender();
+
+		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
+		focusInput(input, iframeDom);
+		await flushRender();
+		await flushRender();
+
+		expect(host.querySelector('.minimal-map-search__results-container')).not.toBeNull();
+		expect(host.ownerDocument.activeElement).toBe(input);
+
+		pressEscape(input, iframeDom);
+		await flushRender();
+		await flushRender();
+
+		expect(host.querySelector('.minimal-map-search-backdrop')).toBeNull();
+		expect(host.querySelector('.minimal-map-search__results-container')).toBeNull();
+		expect(host.ownerDocument.activeElement).not.toBe(input);
 
 		searchControl.destroy();
 	});
