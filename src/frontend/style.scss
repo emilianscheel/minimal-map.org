@@ -633,9 +633,12 @@
   font-family: inherit;
   font-size: 13px;
   opacity: 0.8;
-  cursor: pointer;
   text-align: left;
   outline: none;
+}
+
+.minimal-map-search__result-opening-hours-trigger--expandable {
+  cursor: pointer;
 }
 
 .minimal-map-location-card--in-map
@@ -645,8 +648,8 @@
   opacity: 0.8;
 }
 
-.minimal-map-search__result-opening-hours-trigger:hover,
-.minimal-map-search__result-opening-hours-trigger:focus-visible {
+.minimal-map-search__result-opening-hours-trigger--expandable:hover,
+.minimal-map-search__result-opening-hours-trigger--expandable:focus-visible {
   opacity: 1;
 }
 
@@ -664,7 +667,12 @@
 }
 
 .minimal-map-search__result-opening-hours-trigger--static {
-  cursor: default;
+  cursor: text;
+}
+
+.minimal-map-search__result-opening-hours-trigger--static:hover,
+.minimal-map-search__result-opening-hours-trigger--static:focus-visible {
+  opacity: 0.8;
 }
 
 .minimal-map-search__result-opening-hours-chevron {

@@ -136,6 +136,16 @@ describe('location result card', () => {
 		expect(
 			host.querySelector('.minimal-map-search__result-opening-hours-trigger')?.textContent
 		).toContain('Open - closes 11:59 pm');
+		expect(
+			host.querySelector('.minimal-map-search__result-opening-hours-trigger')?.tagName
+		).toBe('BUTTON');
+		expect(
+			host
+				.querySelector('.minimal-map-search__result-opening-hours-trigger')
+				?.classList.contains(
+					'minimal-map-search__result-opening-hours-trigger--expandable'
+				)
+		).toBe(true);
 
 		(
 			host.querySelector(
@@ -232,7 +242,12 @@ describe('location result card', () => {
 		const triggerSearch = host.querySelector('.minimal-map-search__result-opening-hours-trigger');
 		expect(triggerSearch).not.toBeNull();
 		expect(triggerSearch?.textContent).toContain('Open by appointment only.');
-		// Should be static (no chevron) in this fallback mode since it is a div, not a button with panel
+		expect(triggerSearch?.tagName).toBe('DIV');
+		expect(
+			triggerSearch?.classList.contains(
+				'minimal-map-search__result-opening-hours-trigger--static'
+			)
+		).toBe(true);
 		expect(host.querySelector('.minimal-map-search__result-opening-hours-chevron')).toBeNull();
 
 		// Test in-map mode
@@ -258,6 +273,94 @@ describe('location result card', () => {
 		const triggerInMap = host.querySelector('.minimal-map-search__result-opening-hours-trigger');
 		expect(triggerInMap).not.toBeNull();
 		expect(triggerInMap?.textContent).toContain('Check website for hours.');
+		expect(triggerInMap?.tagName).toBe('DIV');
+		expect(
+			triggerInMap?.classList.contains(
+				'minimal-map-search__result-opening-hours-trigger--static'
+			)
+		).toBe(true);
+
+		root.unmount();
+	});
+
+	test('renders structured opening hours as static text in the in-map preview', async () => {
+		const dom = new JSDOM('<!doctype html><div id="host"></div>');
+		setGlobalDom(dom);
+		const host = dom.window.document.getElementById('host') as HTMLDivElement;
+		const root = createRoot(host);
+
+		root.render(
+			createElement(LocationResultCard, {
+				googleMapsButtonShowIcon: true,
+				googleMapsNavigation: true,
+				location: {
+					id: 5,
+					title: 'Preview Hours',
+					lat: 52.52,
+					lng: 13.405,
+					opening_hours: {
+						monday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						tuesday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						wednesday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						thursday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						friday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						saturday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+						sunday: {
+							open: '00:00',
+							close: '23:59',
+							lunch_start: '',
+							lunch_duration_minutes: 0,
+						},
+					},
+				},
+				mode: 'in-map',
+				siteLocale: 'en-US',
+				siteTimezone: 'Europe/Berlin',
+			})
+		);
+
+		await flushRender();
+
+		const trigger = host.querySelector('.minimal-map-search__result-opening-hours-trigger');
+		expect(trigger).not.toBeNull();
+		expect(trigger?.tagName).toBe('DIV');
+		expect(
+			trigger?.classList.contains(
+				'minimal-map-search__result-opening-hours-trigger--static'
+			)
+		).toBe(true);
+		expect(host.querySelector('.minimal-map-search__result-opening-hours-panel')).toBeNull();
+		expect(host.querySelector('.minimal-map-search__result-opening-hours-chevron')).toBeNull();
 
 		root.unmount();
 	});

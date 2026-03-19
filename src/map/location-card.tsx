@@ -161,6 +161,7 @@ export const LocationResultCard = memo(({
 			openingHoursLines: lines,
 		};
 	}, [location.opening_hours, location.opening_hours_notes, siteLocale, siteTimezone]);
+	const isOpeningHoursExpandable = hasStructuredOpeningHours && isSearchCard;
 
 	const layout = (
 		<div className="minimal-map-search__result-layout">
@@ -185,11 +186,11 @@ export const LocationResultCard = memo(({
 		showOpeningHours ? (
 			<div className="minimal-map-search__result-opening-hours">
 				{hasStructuredOpeningHours && openingHoursStatus ? (
-					isSearchCard ? (
+					isOpeningHoursExpandable ? (
 						<>
 							<button
 								type="button"
-								className={`minimal-map-search__result-opening-hours-trigger is-${openingHoursStatus.state}`}
+								className={`minimal-map-search__result-opening-hours-trigger minimal-map-search__result-opening-hours-trigger--expandable is-${openingHoursStatus.state}`}
 								aria-expanded={isOpeningHoursExpanded}
 								onClick={() => setOpeningHoursExpanded((current) => !current)}
 							>
