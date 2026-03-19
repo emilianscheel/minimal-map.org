@@ -1,7 +1,7 @@
 import { Button, FormFileUpload } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { Upload } from 'lucide-react';
+import { BrushCleaning, Upload } from 'lucide-react';
 import type { ViewGrid } from '@wordpress/dataviews';
 import apiFetch from '@wordpress/api-fetch';
 import type {
@@ -46,6 +46,8 @@ export function useMarkersController(
 	const [editFilenameBasename, setEditFilenameBasename] = useState('');
 	const [editFilenameExtension, setEditFilenameExtension] = useState('');
 	const [editingMarker, setEditingMarker] = useState<MarkerRecord | null>(null);
+	const [isDeleteAllMarkersModalOpen, setDeleteAllMarkersModalOpen] = useState(false);
+	const [isDeletingAllMarkers, setDeletingAllMarkers] = useState(false);
 	const [isEditDialogOpen, setEditDialogOpen] = useState(false);
 	const [markers, setMarkers] = useState<MarkerRecord[]>([]);
 	const [isLoading, setLoading] = useState(enabled);
@@ -122,6 +124,18 @@ export function useMarkersController(
 		setSubmitError(null);
 	}, []);
 
+	const onCloseDeleteAllMarkersModal = useCallback((): void => {
+		if (isDeletingAllMarkers || isRowActionPending) {
+			return;
+		}
+
+		setDeleteAllMarkersModalOpen(false);
+	}, [isDeletingAllMarkers, isRowActionPending]);
+
+	const onOpenDeleteAllMarkersModal = useCallback((): void => {
+		setDeleteAllMarkersModalOpen(true);
+	}, []);
+
 	const onDeleteMarker = useCallback(
 		async (marker: MarkerRecord): Promise<void> => {
 			setRowActionPending(true);
@@ -152,6 +166,48 @@ export function useMarkersController(
 		},
 		[config.restPath, loadMarkers]
 	);
+
+	const onDeleteAllMarkers = useCallback(async (): Promise<void> => {
+		if (markers.length === 0) {
+			setDeleteAllMarkersModalOpen(false);
+			return;
+		}
+
+		setDeletingAllMarkers(true);
+		setRowActionPending(true);
+		setActionNotice(null);
+
+		try {
+			for (const marker of markers) {
+				await apiFetch({
+					path: `${config.restPath}/${marker.id}`,
+					method: 'DELETE',
+				});
+			}
+
+			await loadMarkers();
+			setDeleteAllMarkersModalOpen(false);
+			setActionNotice({
+				status: 'success',
+				message: sprintf(
+					_n('%d marker deleted.', '%d markers deleted.', markers.length, 'minimal-map'),
+					markers.length
+				),
+			});
+		} catch (error) {
+			setActionNotice({
+				status: 'error',
+				message:
+					error instanceof Error
+						? error.message
+						: __('Markers could not be deleted.', 'minimal-map'),
+			});
+			throw error;
+		} finally {
+			setDeletingAllMarkers(false);
+			setRowActionPending(false);
+		}
+	}, [config.restPath, loadMarkers, markers]);
 
 	const onDownloadMarker = useCallback((marker: MarkerRecord): void => {
 		const blob = new Blob([marker.content], { type: 'image/svg+xml' });
@@ -291,6 +347,14 @@ export function useMarkersController(
 		editingMarker,
 		headerAction: enabled ? (
 			<div className="minimal-map-admin__header-actions-group">
+				<Button
+					variant="tertiary"
+					icon={<BrushCleaning size={18} strokeWidth={2} />}
+					label={__('Delete all markers', 'minimal-map')}
+					onClick={onOpenDeleteAllMarkersModal}
+					disabled={markers.length === 0 || isDeletingAllMarkers || isRowActionPending || isUploading}
+					__next40pxDefaultSize
+				/>
 				<ThemeSelector
 					activeTheme={themeData.activeTheme}
 					themes={themeData.themes}
@@ -299,6 +363,8 @@ export function useMarkersController(
 				<UploadMarkerButton onUpload={onUploadMarkers} isUploading={isUploading} />
 			</div>
 		) : null,
+		isDeleteAllMarkersModalOpen,
+		isDeletingAllMarkers,
 		isEditDialogOpen,
 		isLoading,
 		isRowActionPending,
@@ -308,10 +374,13 @@ export function useMarkersController(
 		markers,
 		onCancelEditMarker,
 		onChangeEditFilename,
+		onCloseDeleteAllMarkersModal,
+		onDeleteAllMarkers,
 		onDeleteMarker,
 		onDownloadMarker,
 		onConfirmEditMarker,
 		onEditMarker,
+		onOpenDeleteAllMarkersModal,
 		onUploadMarkers,
 		onChangeView: (nextView: ViewGrid) => setView(nextView),
 		paginatedMarkers,

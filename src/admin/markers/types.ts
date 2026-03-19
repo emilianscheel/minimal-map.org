@@ -15,6 +15,8 @@ export interface MarkersController {
 	editFilenameExtension: string;
 	editingMarker: MarkerRecord | null;
 	headerAction: ReactNode;
+	isDeleteAllMarkersModalOpen: boolean;
+	isDeletingAllMarkers: boolean;
 	isEditDialogOpen: boolean;
 	isLoading: boolean;
 	isRowActionPending: boolean;
@@ -24,10 +26,13 @@ export interface MarkersController {
 	markers: MarkerRecord[];
 	onCancelEditMarker: () => void;
 	onChangeEditFilename: (value: string) => void;
+	onCloseDeleteAllMarkersModal: () => void;
+	onDeleteAllMarkers: () => Promise<void>;
 	onDeleteMarker: (marker: MarkerRecord) => Promise<void>;
 	onDownloadMarker: (marker: MarkerRecord) => void;
 	onConfirmEditMarker: () => Promise<void>;
 	onEditMarker: (marker: MarkerRecord) => void;
+	onOpenDeleteAllMarkersModal: () => void;
 	onUploadMarkers: (files: FileList) => Promise<void>;
 	onChangeView: (nextView: ViewGrid) => void;
 	paginatedMarkers: MarkerRecord[];

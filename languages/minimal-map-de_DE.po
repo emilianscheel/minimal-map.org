@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Minimal Map 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/minimal-map\n"
-"POT-Creation-Date: 2026-03-19T19:18:58+00:00\n"
+"POT-Creation-Date: 2026-03-19T19:21:44+00:00\n"
 "PO-Revision-Date: 2026-03-19 18:15+0100\n"
 "Last-Translator: Emilian Scheel\n"
 "Language-Team: German\n"
@@ -301,7 +301,13 @@ msgid_plural "%d logos uploaded."
 msgstr[0] "%d Logo hochgeladen."
 msgstr[1] "%d Logos hochgeladen."
 
-#: src/admin/markers/controller.tsx:249
+#: src/admin/markers/controller.tsx:193
+msgid "%d marker deleted."
+msgid_plural "%d markers deleted."
+msgstr[0] "%d Marker gelöscht."
+msgstr[1] "%d Marker gelöscht."
+
+#: src/admin/markers/controller.tsx:305
 msgid "%d marker uploaded."
 msgid_plural "%d markers uploaded."
 msgstr[0] "%d Marker hochgeladen."
@@ -437,10 +443,22 @@ msgid "Are you sure you want to delete %d logo? This action cannot be undone."
 msgid_plural ""
 "Are you sure you want to delete %d logos? This action cannot be undone."
 msgstr[0] ""
-"Bist du sicher, dass du %d Logo löschen möchtest? Diese Aktion kann "
+"Bist du sicher, dass du %d Logo löschen möchtest? Diese Aktion kann nicht "
+"rückgängig gemacht werden."
+msgstr[1] ""
+"Bist du sicher, dass du %d Logos löschen möchtest? Diese Aktion kann nicht "
+"rückgängig gemacht werden."
+
+#: src/admin/markers/DeleteAllMarkersModal.tsx:61
+msgid ""
+"Are you sure you want to delete %d marker? This action cannot be undone."
+msgid_plural ""
+"Are you sure you want to delete %d markers? This action cannot be undone."
+msgstr[0] ""
+"Bist du sicher, dass du %d Marker löschen möchtest? Diese Aktion kann "
 "nicht rückgängig gemacht werden."
 msgstr[1] ""
-"Bist du sicher, dass du %d Logos löschen möchtest? Diese Aktion kann "
+"Bist du sicher, dass du %d Marker löschen möchtest? Diese Aktion kann "
 "nicht rückgängig gemacht werden."
 
 #: src/admin/tags/DeleteAllTagsModal.tsx:61
@@ -636,6 +654,7 @@ msgstr "Gebäude"
 #: src/admin/locations/RemoveTagsConfirmationModal.tsx:68
 #: src/admin/logos/DeleteAllLogosModal.tsx:77
 #: src/admin/logos/DeleteLogoModal.tsx:51 src/admin/logos/EditLogoDialog.tsx:64
+#: src/admin/markers/DeleteAllMarkersModal.tsx:77
 #: src/admin/markers/EditMarkerDialog.tsx:64
 #: src/admin/styles/CreateThemeModal.tsx:53
 #: src/admin/styles/DeleteThemeModal.tsx:50
@@ -900,6 +919,12 @@ msgstr "Alle Standorte löschen"
 msgid "Delete all logos"
 msgstr "Alle Logos löschen"
 
+#: src/admin/markers/DeleteAllMarkersModal.tsx:47
+#: src/admin/markers/DeleteAllMarkersModal.tsx:89
+#: src/admin/markers/controller.tsx:353
+msgid "Delete all markers"
+msgstr "Alle Marker löschen"
+
 #: src/admin/tags/DeleteAllTagsModal.tsx:47
 #: src/admin/tags/DeleteAllTagsModal.tsx:89 src/admin/tags/controller.tsx:290
 msgid "Delete all tags"
@@ -992,7 +1017,7 @@ msgid "Drop Minimal Map or MapLibre JSON theme files here to upload"
 msgstr ""
 "Minimal-Map- oder MapLibre-JSON-Theme-Dateien hier zum Hochladen ablegen"
 
-#: src/admin/markers/index.tsx:34
+#: src/admin/markers/index.tsx:35
 msgid "Drop SVG files here to upload"
 msgstr "SVG-Dateien hier zum Hochladen ablegen"
 
@@ -1106,7 +1131,7 @@ msgstr "Weitere Elemente"
 msgid "Filename"
 msgstr "Dateiname"
 
-#: src/admin/logos/controller.tsx:275 src/admin/markers/controller.tsx:174
+#: src/admin/logos/controller.tsx:275 src/admin/markers/controller.tsx:230
 msgid "Filename is required."
 msgstr "Ein Schlagwortname ist erforderlich."
 
@@ -1230,7 +1255,7 @@ msgstr "Ungültige JSON-Datei."
 msgid "Invalid PNG file."
 msgstr "Ungültige PNG-Datei."
 
-#: src/admin/logos/controller.tsx:40 src/admin/markers/controller.tsx:228
+#: src/admin/logos/controller.tsx:40 src/admin/markers/controller.tsx:284
 msgid "Invalid SVG file."
 msgstr "Ungültige SVG-Datei."
 
@@ -1402,15 +1427,15 @@ msgstr "Kartenvorschau"
 msgid "Marker assigned to location."
 msgstr "Standort der Sammlung zugewiesen."
 
-#: src/admin/markers/controller.tsx:146
+#: src/admin/markers/controller.tsx:160
 msgid "Marker could not be deleted."
 msgstr "Marker konnte nicht gelöscht werden."
 
-#: src/admin/markers/controller.tsx:197
+#: src/admin/markers/controller.tsx:253
 msgid "Marker could not be updated."
 msgstr "Marker konnten nicht hochgeladen werden."
 
-#: src/admin/markers/controller.tsx:138
+#: src/admin/markers/controller.tsx:152
 msgid "Marker deleted."
 msgstr "Marker gelöscht."
 
@@ -1418,15 +1443,19 @@ msgstr "Marker gelöscht."
 msgid "Marker removed from location."
 msgstr "Logo vom Standort entfernt."
 
-#: src/admin/markers/controller.tsx:193
+#: src/admin/markers/controller.tsx:249
 msgid "Marker updated."
 msgstr "Marker hochgeladen."
 
-#: src/admin/markers/controller.tsx:247
+#: src/admin/markers/controller.tsx:303
 msgid "Marker uploaded."
 msgstr "Marker hochgeladen."
 
-#: src/admin/markers/controller.tsx:73 src/lib/markers/fetchAllMarkers.ts:18
+#: src/admin/markers/controller.tsx:203
+msgid "Markers could not be deleted."
+msgstr "Marker konnten nicht gelöscht werden."
+
+#: src/admin/markers/controller.tsx:75 src/lib/markers/fetchAllMarkers.ts:18
 msgid "Markers could not be loaded."
 msgstr "Marker konnten nicht geladen werden."
 
@@ -1434,7 +1463,7 @@ msgstr "Marker konnten nicht geladen werden."
 msgid "Markers could not be removed from the selected locations."
 msgstr "Logo konnte vom Standort nicht entfernt werden."
 
-#: src/admin/markers/controller.tsx:259
+#: src/admin/markers/controller.tsx:315
 msgid "Markers could not be uploaded."
 msgstr "Marker konnten nicht hochgeladen werden."
 
