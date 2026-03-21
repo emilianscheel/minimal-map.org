@@ -431,6 +431,26 @@ export function getOpeningHoursStatus(
 	};
 }
 
+export function isLocationOpenNow(
+	openingHours: LocationOpeningHours,
+	siteTimezone: string,
+	now: Date = new Date()
+): boolean {
+	const hasAnyOpeningInterval = OPENING_HOURS_DAY_ORDER.some((dayKey) =>
+		hasOpeningHoursForDay(openingHours[dayKey])
+	);
+
+	if (!hasAnyOpeningInterval) {
+		return false;
+	}
+
+	const { currentDayKey, currentMinutes } = getCurrentOpeningHoursContext(now, siteTimezone);
+	const today = openingHours[currentDayKey];
+	const todayTransition = getCurrentDayTransition(today, currentMinutes);
+
+	return todayTransition.isOpen;
+}
+
 export function formatOpeningHoursDisplayLine(
 	day: LocationOpeningHoursDay,
 	siteLocale: string

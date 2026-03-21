@@ -25,6 +25,8 @@ import {
 	collectLocationTags,
 	filterLocationsByCategoryTagIds,
 } from './category-filter';
+import { isOpeningHoursConfigured } from '../lib/locations/openingHours';
+import { isLocationOpenNow } from './location-opening-hours';
 import {
 	buildLocationSearchIndex,
 	normalizeSearchValue,
@@ -64,6 +66,13 @@ const FALLBACK_LIVE_LOCATION_OPTIONS: GeolocationRequestOptions = {
 	maximumAge: 300000,
 	timeout: 15000,
 };
+
+function getDelayUntilNextMinute(now: Date): number {
+	return Math.max(
+		1000,
+		(60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 50
+	);
+}
 
 function isTransientLiveLocationError(error?: GeolocationPositionError): boolean {
 	if (!error) {
@@ -153,7 +162,9 @@ export const MapSearchControl = ({
 		'idle' | 'loading' | 'results' | 'empty'
 	>('idle');
 	const [addressResults, setAddressResults] = useState<DistanceSearchResult[]>([]);
+	const [isOpenedOnly, setOpenedOnly] = useState(false);
 	const [selectedId, setSelectedId] = useState<number | undefined>(selectedIdProp);
+	const [filterNow, setFilterNow] = useState(() => Date.now());
 	const [viewportWidth, setViewportWidth] = useState<number | null>(
 		Math.ceil(responsiveHost.getBoundingClientRect().width) ||
 			doc.defaultView?.innerWidth ||
@@ -171,20 +182,48 @@ export const MapSearchControl = ({
 		[trimmedSearchTerm]
 	);
 	const liveLocationLabel = __('My location', 'minimal-map');
+	const hasOpenedQuickFilter = useMemo(
+		() =>
+			locations.some(
+				(location) =>
+					location.opening_hours &&
+					isOpeningHoursConfigured(location.opening_hours)
+			),
+		[locations]
+	);
 	const availableTags = useMemo(
 		() => collectLocationTags(locations),
 		[locations]
 	);
-	const categoryFilteredLocations = useMemo(
-		() =>
+	const tagFilteredLocations = useMemo(
+		() => (
 			enableCategoryFilter
 				? filterLocationsByCategoryTagIds(locations, activeCategoryTagIds)
-				: locations,
+				: locations
+		),
 		[activeCategoryTagIds, enableCategoryFilter, locations]
 	);
+	const quickFilteredLocations = useMemo(
+		() => {
+			if (!isOpenedOnly) {
+				return tagFilteredLocations;
+			}
+
+			return tagFilteredLocations.filter(
+				(location) =>
+					location.opening_hours &&
+					isLocationOpenNow(
+						location.opening_hours,
+						siteTimezone,
+						new Date(filterNow)
+					)
+			);
+		},
+		[filterNow, isOpenedOnly, siteTimezone, tagFilteredLocations]
+	);
 	const indexedLocations = useMemo(
-		() => buildLocationSearchIndex(categoryFilteredLocations),
-		[categoryFilteredLocations]
+		() => buildLocationSearchIndex(quickFilteredLocations),
+		[quickFilteredLocations]
 	);
 	const liveLocationAliases = useMemo(
 		() => Array.from(
@@ -251,22 +290,45 @@ export const MapSearchControl = ({
 		};
 	}, [doc, responsiveHost]);
 
+	useEffect(() => {
+		if (!isOpenedOnly) {
+			return;
+		}
+
+		let timeoutId: number | null = null;
+
+		const scheduleNextTick = () => {
+			timeoutId = globalThis.setTimeout(() => {
+				setFilterNow(Date.now());
+				scheduleNextTick();
+			}, getDelayUntilNextMinute(new Date()));
+		};
+
+		scheduleNextTick();
+
+		return () => {
+			if (timeoutId !== null) {
+				globalThis.clearTimeout(timeoutId);
+			}
+		};
+	}, [isOpenedOnly]);
+
 	const filteredLocations = useMemo(() => {
 		if (!isOpen) {
 			return [];
 		}
 
 		if (!trimmedSearchTerm) {
-			return categoryFilteredLocations.slice(0, 50);
+			return quickFilteredLocations.slice(0, 50);
 		}
 
 		return searchIndexedLocations(indexedLocations, trimmedSearchTerm);
-	}, [categoryFilteredLocations, indexedLocations, isOpen, trimmedSearchTerm]);
+	}, [indexedLocations, isOpen, quickFilteredLocations, trimmedSearchTerm]);
 
 	useEffect(() => {
 		setAddressSearchMode('idle');
 		setAddressResults([]);
-	}, [categoryFilteredLocations]);
+	}, [quickFilteredLocations]);
 
 	const searchMode = useMemo<SearchMode>(() => {
 		if (!trimmedSearchTerm) {
@@ -379,7 +441,7 @@ export const MapSearchControl = ({
 
 		const nextAddressResults = buildDistanceSearchResults(
 			coordinates,
-			categoryFilteredLocations,
+			quickFilteredLocations,
 		);
 
 		setAddressResults(nextAddressResults);
@@ -390,7 +452,7 @@ export const MapSearchControl = ({
 		if (bestResult) {
 			handleSelect(bestResult.location, bestResult.distanceLabel, 'auto');
 		}
-	}, [categoryFilteredLocations, handleSelect]);
+	}, [handleSelect, quickFilteredLocations]);
 
 	const formatLiveLocationError = useCallback((error?: GeolocationPositionError) => {
 		if (!error) {
@@ -542,13 +604,25 @@ export const MapSearchControl = ({
 	};
 
 	const renderQuickFilters = () => {
-		if (!enableCategoryFilter || availableTags.length === 0) {
+		if (!hasOpenedQuickFilter && (!enableCategoryFilter || availableTags.length === 0)) {
 			return null;
 		}
 
 		return (
 			<div className="minimal-map-search__quick-filters">
-				{availableTags.map((tag) => (
+				{hasOpenedQuickFilter ? (
+					<button
+						type="button"
+						className={`minimal-map-search__quick-filter-pill${
+							isOpenedOnly ? ' is-selected' : ''
+						}`}
+						aria-pressed={isOpenedOnly}
+						onClick={() => setOpenedOnly((current) => !current)}
+					>
+						{__('Opened', 'minimal-map')}
+					</button>
+				) : null}
+				{enableCategoryFilter ? availableTags.map((tag) => (
 					<button
 						key={tag.id}
 						type="button"
@@ -560,7 +634,7 @@ export const MapSearchControl = ({
 					>
 						{tag.name}
 					</button>
-				))}
+				)) : null}
 			</div>
 		);
 	};

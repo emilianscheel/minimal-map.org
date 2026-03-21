@@ -4,6 +4,7 @@ import {
 	formatOpeningHoursDisplayLine,
 	getOpeningHoursDisplayLines,
 	getOpeningHoursStatus,
+	isLocationOpenNow,
 } from '../../src/map/location-opening-hours';
 
 describe('frontend opening-hours helpers', () => {
@@ -237,6 +238,32 @@ describe('frontend opening-hours helpers', () => {
 			(Intl as unknown as { DateTimeFormat: typeof Intl.DateTimeFormat }).DateTimeFormat =
 				OriginalDateTimeFormat;
 		}
+	});
+
+	test('reports whether a location is currently open for quick-filter usage', () => {
+		const openingHours = createDefaultOpeningHours();
+
+		openingHours.monday = {
+			open: '09:00',
+			close: '18:00',
+			lunch_start: '12:30',
+			lunch_duration_minutes: 30,
+		};
+
+		expect(
+			isLocationOpenNow(
+				openingHours,
+				'Europe/Berlin',
+				new Date('2024-01-01T10:00:00Z')
+			)
+		).toBe(true);
+		expect(
+			isLocationOpenNow(
+				openingHours,
+				'Europe/Berlin',
+				new Date('2024-01-01T11:45:00Z')
+			)
+		).toBe(false);
 	});
 
 	test('formats daily display lines including lunch-break windows', () => {
