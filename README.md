@@ -68,8 +68,10 @@ Render a minimalist MapLibre-powered map in Wordpress.
 ```bash
 zip -r ../minimal-map.zip . \
   -x "node_modules/*" ".git/*" "src/*" "tests/*" "reports/*" ".circleci/*" ".github/*" "bin/*" \
-     "package.json" "bun.lock" "webpack.config.js" "composer.json" "phpunit.xml.dist" ".distignore"
+     "package.json" "bun.lock" "webpack.config.js" "composer.json" "phpunit.xml.dist" ".distignore" \
+     "assets/*" "screenshot.png" "Screenshots.md" "*.map"
 ```
+
 
 ```bash
 ln -s "$(pwd)" ~/Studio/my-wordpress-website/wp-content/plugins/minimal-map.net
