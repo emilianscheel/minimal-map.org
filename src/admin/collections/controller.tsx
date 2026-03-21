@@ -629,6 +629,13 @@ export function useCollectionsController(
     setMergeModalOpen(true);
   }, []);
 
+  useSingleKeyShortcut({
+    active: enabled,
+    blocked: isAddCollectionShortcutBlocked,
+    key: "m",
+    onTrigger: onOpenMergeModal,
+  });
+
   const onCloseMergeModal = useCallback((): void => {
     if (isMerging) {
       return;
@@ -844,8 +851,12 @@ export function useCollectionsController(
           disabled={isRowActionPending}
           icon={<Merge size={14} strokeWidth={2} />}
           iconPosition="left"
+          aria-keyshortcuts={getShortcutAriaKeys(["m"])}
         >
-          {__("Merge collections", "minimal-map")}
+          <span className="minimal-map-admin__button-shortcut-content">
+            <span>{__("Merge collections", "minimal-map")}</span>
+            <KeyboardShortcut keys={["m"]} variant="neutral" />
+          </span>
         </Button>
         <Button
           __next40pxDefaultSize
