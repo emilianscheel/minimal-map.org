@@ -19,34 +19,47 @@ Render a minimalist MapLibre-powered map in Wordpress.
 - Frontend map powered by MapLibre
 - Live block editor map preview
 - Dedicated admin workspace for locations, collections, tags, markers, logos, and styles
+- **Privacy-first search analytics** with search query trends and metrics
+- **GDPR-ready tracking** with built-in **Complianz** script blocking support
+- **Marker clustering** to easily handle hundreds of locations on a single map
+- **"Find Me" button** for real-time user location centering and distance calculation
+- **Live user location "blue dot"** indicator on the map
 - Reusable location collections for grouped maps and filtered map views
 - Merge location collections to easily consolidate data
 - Searchable map with integrated search panel
 - Distance-based search results with real-time distance calculation (m/km)
 - Automatic nearest-location highlighting in search results
+- **Search panel quick filters** like "Open Now" and "By Category" (Tag-based)
 - Store locator cards with address, phone, email, website, logo, and tags
+- **Social media links** for locations (Instagram, X, Facebook, Threads, YouTube, Telegram)
 - Detailed opening hours with support for lunch breaks and seasonal notes
 - Real-time "Open Now" status with customizable indicator colors
+- **Dynamic opening status hints** like "Opens soon" or "Closes soon"
 - Address geocoding for fast location entry
 - Manual map pin placement and coordinate editing
+- **Excel (XLSX) import and export** for seamless data management
 - CSV import for locations with custom field mapping
 - CSV export for locations
-- Example CSV export for faster onboarding
+- Example CSV/Excel export for faster onboarding
 - Bulk-friendly location management in a native WordPress admin UI
+- **Power-user keyboard shortcuts** for lightning-fast admin workflows (New: `n`, Merge: `m`)
 - Custom SVG logo library for location branding
 - Custom marker presets and visual pin styles
+- **Individual location pin colors** to override global marker styles per location
 - Multiple map style presets including Liberty, Bright, and Positron
 - Custom style themes for map colors and visual branding
+- **Custom font family** support to match your site's typography perfectly
 - Map theme import from Minimal Map JSON or MapLibre style JSON v8
-- Configurable zoom controls with custom position, colors, spacing, radius, and icons
+- **Highly configurable zoom controls** (custom icons, position, and styling)
 - Choose from multiple zoom icon sets (plus/minus, circles, lines)
 - Configurable search panel colors, spacing, width, and card styling
+- **In-map location cards** for modern, overlay-style location details
 - Customizable "View on Google Maps" navigation button styling
 - Customizable map attribution (credits) styling and positioning
 - Collection-based map output for store groups, regions, teams, and categories
 - Iframe embed snippet generation for external embeds
 - Custom map height controls with mobile-specific height overrides
-- Scroll zoom, mobile two-finger zoom, and cooperative gesture settings
+- Scroll zoom, mobile two-finger zoom, and **cooperative gesture** settings
 - English source strings with German translations
 - Feels native to WordPress and built for modern WordPress sites
 
