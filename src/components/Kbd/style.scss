@@ -43,3 +43,22 @@
   border: none;
   box-shadow: none;
 }
+
+.minimal-map-kbd-shortcut {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.minimal-map-kbd-shortcut-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.minimal-map-kbd-shortcut-separator {
+  color: currentColor;
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.72;
+}
