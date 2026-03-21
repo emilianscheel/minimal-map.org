@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import ts from "typescript";
 
-const DOMAIN = "minimal-map";
+const DOMAIN = "minimal-map.org";
 const SOURCE_ROOT = path.resolve("src");
 const outputPath = path.resolve(process.argv[2] || "/tmp/minimal-map-js.pot");
 
@@ -45,7 +45,9 @@ function walkDirectory(directoryPath) {
 
 function parseSourceFile(filePath) {
   const sourceText = fs.readFileSync(filePath, "utf8");
-  const scriptKind = filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+  const scriptKind = filePath.endsWith(".tsx")
+    ? ts.ScriptKind.TSX
+    : ts.ScriptKind.TS;
   const sourceFile = ts.createSourceFile(
     filePath,
     sourceText,
@@ -112,8 +114,13 @@ function getStringLiteralValue(node) {
 
 function addEntry(singular, plural, sourceFile, node) {
   const key = `${singular}\u0000${plural || ""}`;
-  const line = ts.getLineAndCharacterOfPosition(sourceFile, node.getStart(sourceFile)).line + 1;
-  const reference = `${path.relative(process.cwd(), sourceFile.fileName)}:${line}`;
+  const line =
+    ts.getLineAndCharacterOfPosition(sourceFile, node.getStart(sourceFile))
+      .line + 1;
+  const reference = `${path.relative(
+    process.cwd(),
+    sourceFile.fileName,
+  )}:${line}`;
   const existing = entries.get(key);
 
   if (existing) {

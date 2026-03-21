@@ -1,4 +1,4 @@
-# [`🗺️ minimal-map`](https://github.com/emilianscheel/minimal-map)
+# [`🗺️ minimal-map.org`](https://github.com/emilianscheel/minimal-map.org)
 
 ![Dashboard overview](./assets/dashboard.png)
 
