@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Minimal Map
  * Description:       Gutenberg-first native map block and admin shell for WordPress.
- * Version:           0.4.0
+ * Version:           0.5.0
  * Requires at least: 6.9
  * Requires PHP:      8.3
  * Author:            Emilian Scheel
