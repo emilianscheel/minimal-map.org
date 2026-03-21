@@ -26,6 +26,7 @@ import {
 import LocationMiniMap from '../../components/LocationMiniMap';
 import LogoPreview from '../../components/LogoPreview';
 import TagBadge from '../../components/TagBadge';
+import CollectionBadge from '../../components/CollectionBadge';
 import type { LocationRecord, SocialMediaPlatform } from '../../types';
 import { formatLocationAddressLines } from '../../lib/locations/formatLocationAddressLines';
 import { formatOpeningHoursSummary } from '../../lib/locations/formatOpeningHoursSummary';

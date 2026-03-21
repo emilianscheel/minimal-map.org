@@ -2,17 +2,8 @@ import { Button, ComboboxControl, Modal } from "@wordpress/components";
 import { __ } from "@wordpress/i18n";
 import type { KeyboardEvent } from "react";
 import Kbd from "../../components/Kbd";
+import CollectionBadge from "../../components/CollectionBadge";
 import type { LocationsController } from "./types";
-
-function CollectionBadge({ label }: { label: string }) {
-  return (
-    <span className="components-badge is-default">
-      <span className="components-badge__flex-wrapper">
-        <span className="components-badge__content">{label}</span>
-      </span>
-    </span>
-  );
-}
 
 export default function AssignToCollectionModal({
   controller,
