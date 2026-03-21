@@ -495,6 +495,10 @@ class Config {
 				continue;
 			}
 
+			if ( rest_sanitize_boolean( get_post_meta( $post->ID, 'is_hidden', true ) ) ) {
+				continue;
+			}
+
 			$lat = get_post_meta( $post->ID, 'latitude', true );
 			$lng = get_post_meta( $post->ID, 'longitude', true );
 

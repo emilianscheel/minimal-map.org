@@ -19,6 +19,7 @@ export const DEFAULT_FORM_STATE: LocationFormState = {
   longitude: "",
   logo_id: 0,
   marker_id: 0,
+  is_hidden: false,
   opening_hours: createDefaultOpeningHours(),
   opening_hours_notes: "",
   tag_ids: [],

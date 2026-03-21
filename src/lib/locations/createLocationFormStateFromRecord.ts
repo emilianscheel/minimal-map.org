@@ -17,6 +17,7 @@ export function createLocationFormStateFromRecord(location: LocationRecord): Loc
 		longitude: location.longitude,
 		logo_id: location.logo_id,
 		marker_id: location.marker_id,
+		is_hidden: location.is_hidden,
 		opening_hours: normalizeOpeningHours(location.opening_hours),
 		opening_hours_notes: location.opening_hours_notes,
 		tag_ids: location.tag_ids,

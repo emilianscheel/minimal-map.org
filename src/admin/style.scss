@@ -985,6 +985,26 @@ svg.lucide {
   line-height: 1.6;
 }
 
+.minimal-map-admin__location-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.minimal-map-admin__location-title--hidden {
+  color: #8c8f94;
+}
+
+.minimal-map-admin__location-title-text {
+  color: inherit;
+}
+
+.minimal-map-admin__location-title-icon {
+  color: inherit;
+  flex: 0 0 auto;
+}
+
 .minimal-map-admin__location-delete-dialog {
   display: grid;
   gap: 12px;

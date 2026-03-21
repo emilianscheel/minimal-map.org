@@ -29,23 +29,70 @@ class Location_Post_Type {
 	/**
 	 * Registered meta fields.
 	 *
-	 * @var array<string, string>
+	 * @var array<string, array<string, mixed>>
 	 */
 	const META_FIELDS = array(
-		'telephone'    => 'sanitize_text_field',
-		'email'        => 'sanitize_email',
-		'website'      => 'esc_url_raw',
-		'street'       => 'sanitize_text_field',
-		'house_number' => 'sanitize_text_field',
-		'postal_code'  => 'sanitize_text_field',
-		'city'         => 'sanitize_text_field',
-		'state'        => 'sanitize_text_field',
-		'country'      => 'sanitize_text_field',
-		'latitude'     => 'sanitize_text_field',
-		'longitude'    => 'sanitize_text_field',
-		'logo_id'      => 'absint',
-		'marker_id'    => 'absint',
-		'opening_hours_notes' => 'sanitize_textarea_field',
+		'telephone'           => array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		),
+		'email'               => array(
+			'sanitize_callback' => 'sanitize_email',
+			'type'              => 'string',
+		),
+		'website'             => array(
+			'sanitize_callback' => 'esc_url_raw',
+			'type'              => 'string',
+		),
+		'street'              => array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		),
+		'house_number'        => array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		),
+		'postal_code'         => array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		),
+		'city'                => array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		),
+		'state'               => array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		),
+		'country'             => array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		),
+		'latitude'            => array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		),
+		'longitude'           => array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		),
+		'logo_id'             => array(
+			'sanitize_callback' => 'absint',
+			'type'              => 'integer',
+		),
+		'marker_id'           => array(
+			'sanitize_callback' => 'absint',
+			'type'              => 'integer',
+		),
+		'is_hidden'           => array(
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'type'              => 'boolean',
+			'default'           => false,
+		),
+		'opening_hours_notes' => array(
+			'sanitize_callback' => 'sanitize_textarea_field',
+			'type'              => 'string',
+		),
 	);
 
 	/**
@@ -91,17 +138,23 @@ class Location_Post_Type {
 			)
 		);
 
-		foreach ( self::META_FIELDS as $meta_key => $sanitize_callback ) {
+		foreach ( self::META_FIELDS as $meta_key => $meta_config ) {
+			$register_args = array(
+				'auth_callback'     => array( $this, 'can_manage_locations' ),
+				'sanitize_callback' => $meta_config['sanitize_callback'],
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => $meta_config['type'],
+			);
+
+			if ( array_key_exists( 'default', $meta_config ) ) {
+				$register_args['default'] = $meta_config['default'];
+			}
+
 			register_post_meta(
 				self::POST_TYPE,
 				$meta_key,
-				array(
-					'auth_callback'     => array( $this, 'can_manage_locations' ),
-					'sanitize_callback' => $sanitize_callback,
-					'show_in_rest'      => true,
-					'single'            => true,
-					'type'              => in_array( $meta_key, array( 'logo_id', 'marker_id' ), true ) ? 'integer' : 'string',
-				)
+				$register_args
 			);
 		}
 

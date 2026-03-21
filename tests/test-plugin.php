@@ -43,7 +43,7 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 	 * @param mixed $longitude Longitude meta value.
 	 * @return int
 	 */
-	private function create_location( $latitude, $longitude, $title = null ) {
+	private function create_location( $latitude, $longitude, $title = null, $is_hidden = false ) {
 		$post_id = self::factory()->post->create(
 			array(
 				'post_status' => 'publish',
@@ -59,6 +59,8 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 		if ( null !== $longitude ) {
 			update_post_meta( $post_id, 'longitude', $longitude );
 		}
+
+		update_post_meta( $post_id, 'is_hidden', $is_hidden );
 
 		return $post_id;
 	}
@@ -754,5 +756,47 @@ class Minimal_Map_Plugin_Test extends WP_UnitTestCase {
 			add_query_arg( 'minimal-map-iframe', '1', home_url( '/' ) ),
 			$client_config['embedBaseUrl']
 		);
+	}
+
+	/**
+	 * Hidden locations should be excluded from all map payloads.
+	 *
+	 * @return void
+	 */
+	public function test_hidden_locations_are_excluded_from_map_payloads() {
+		$visible_location_id = $this->create_location( '52.517', '13.388', 'Visible location', false );
+		$this->create_location( '48.137', '11.576', 'Hidden location', true );
+
+		$config    = new \MinimalMap\Config();
+		$locations = $config->get_map_locations();
+
+		$this->assertCount( 1, $locations );
+		$this->assertSame( $visible_location_id, $locations[0]['id'] );
+		$this->assertSame( 'Visible location', $locations[0]['title'] );
+	}
+
+	/**
+	 * Hidden locations should stay assigned but be removed from collection map payloads.
+	 *
+	 * @return void
+	 */
+	public function test_hidden_locations_are_excluded_from_collection_payloads() {
+		$visible_location_id = $this->create_location( '52.517', '13.388', 'Visible location', false );
+		$hidden_location_id  = $this->create_location( '48.137', '11.576', 'Hidden location', true );
+		$collection_id       = $this->create_collection( array( $hidden_location_id, $visible_location_id ) );
+
+		$config      = new \MinimalMap\Config();
+		$collections = $config->get_map_collections();
+		$collection  = wp_list_filter(
+			$collections,
+			array(
+				'id' => $collection_id,
+			)
+		);
+
+		$this->assertCount( 1, $collection );
+		$collection = array_values( $collection );
+		$this->assertCount( 1, $collection[0]['locations'] );
+		$this->assertSame( $visible_location_id, $collection[0]['locations'][0]['id'] );
 	}
 }

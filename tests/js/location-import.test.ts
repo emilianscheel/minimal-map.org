@@ -12,6 +12,7 @@ import {
 	createEmptyCsvImportMapping,
 	createEmptyCsvOpeningHoursImportMapping,
 	detectCsvDelimiter,
+	exportLocations,
 	getValidCsvOpeningHoursColumnIndexes,
 	isCommonCsvFormat,
 	parseCsvText,
@@ -80,6 +81,15 @@ describe('location import helpers', () => {
 		expect(form.telephone).toBe('');
 		expect(form.city).toBe('Berlin');
 		expect(form.country).toBe('Germany');
+	});
+
+	test('builds mapped forms with parsed hidden state', () => {
+		const mapping = createEmptyCsvImportMapping();
+		mapping.title = 0;
+		mapping.is_hidden = 1;
+
+		expect(buildMappedLocationForm(['Berlin Office', 'true'], mapping).is_hidden).toBe(true);
+		expect(buildMappedLocationForm(['Berlin Office', 'visible'], mapping).is_hidden).toBe(false);
 	});
 
 	test('parses supported opening-hours formats into normalized values', () => {
@@ -251,6 +261,7 @@ describe('location import helpers', () => {
 		expect(createdForms[0].telephone).toBe('+49 30 123');
 		expect(createdForms[0].logo_id).toBe(9);
 		expect(createdForms[0].marker_id).toBe(11);
+		expect(createdForms[0].is_hidden).toBe(false);
 		expect(createdForms[0].tag_ids).toEqual([3, 7]);
 		expect(createdForms[0].opening_hours.monday.open).toBe('08:00');
 		expect(createdForms[0].opening_hours.monday.close).toBe('12:00');
@@ -272,11 +283,65 @@ describe('location import helpers', () => {
 		expect(collectionAssignments).toEqual([[101, 102, 103]]);
 	});
 
+	test('exports hidden state as a stable CSV column', () => {
+		const csv = exportLocations(
+			[
+				{
+					title: 'Visible',
+					street: '',
+					house_number: '',
+					postal_code: '',
+					city: '',
+					state: '',
+					country: '',
+					telephone: '',
+					email: '',
+					website: '',
+					latitude: '52.5',
+					longitude: '13.4',
+					is_hidden: false,
+					opening_hours: {},
+					opening_hours_notes: '',
+					logo_id: 0,
+					marker_id: 0,
+					tag_ids: [],
+				},
+				{
+					title: 'Hidden',
+					street: '',
+					house_number: '',
+					postal_code: '',
+					city: '',
+					state: '',
+					country: '',
+					telephone: '',
+					email: '',
+					website: '',
+					latitude: '48.1',
+					longitude: '11.5',
+					is_hidden: true,
+					opening_hours: {},
+					opening_hours_notes: '',
+					logo_id: 0,
+					marker_id: 0,
+					tag_ids: [],
+				},
+			],
+			[],
+			[],
+			[]
+		);
+
+		expect(csv).toContain('"hidden"');
+		expect(csv).toContain('"false"');
+		expect(csv).toContain('"true"');
+	});
+
 	test('runs common imports and creates a collection for the imported batch', async () => {
 		const parsed = parseCsvText(
 			[
-				'title,street,house_number,postal_code,city,state,country,telephone,email,website,latitude,longitude',
-				'Brandenburg Gate,Pariser Platz,,10117,Berlin,Berlin,Germany,+49 30 1,info@example.com,https://example.com,52.5162,13.3777',
+				'title,street,house_number,postal_code,city,state,country,telephone,email,website,latitude,longitude,hidden',
+				'Brandenburg Gate,Pariser Platz,,10117,Berlin,Berlin,Germany,+49 30 1,info@example.com,https://example.com,52.5162,13.3777,true',
 			].join('\n')
 		);
 		const createdForms: LocationFormState[] = [];
@@ -296,6 +361,7 @@ describe('location import helpers', () => {
 		expect(createdForms[0].title).toBe('Brandenburg Gate');
 		expect(createdForms[0].latitude).toBe('52.5162');
 		expect(createdForms[0].longitude).toBe('13.3777');
+		expect(createdForms[0].is_hidden).toBe(true);
 		expect(collectionAssignments).toEqual([[77]]);
 	});
 });

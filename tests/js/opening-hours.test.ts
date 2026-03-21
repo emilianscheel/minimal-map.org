@@ -94,6 +94,7 @@ describe('opening hours helpers', () => {
 			longitude: '',
 			logo_id: 0,
 			marker_id: 0,
+			is_hidden: false,
 			opening_hours: openingHours,
 			opening_hours_notes: '',
 			tag_ids: [],
@@ -161,11 +162,13 @@ describe('opening hours helpers', () => {
 				longitude: '13.4',
 				logo_id: 0,
 				marker_id: 0,
+				is_hidden: true,
 				opening_hours: openingHours,
 				opening_hours_notes: 'Summer season only.',
 				tag_ids: [],
 			})
 		).toMatchObject({
+			is_hidden: true,
 			opening_hours: openingHours,
 			opening_hours_notes: 'Summer season only.',
 		});

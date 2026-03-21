@@ -22,6 +22,10 @@ import {
 	normalizeOpeningHours,
 	OPENING_HOURS_DAY_ORDER,
 } from './openingHours';
+import {
+	formatLocationVisibilityCsvValue,
+	normalizeLocationVisibilityValue,
+} from './visibility';
 
 export const COMMON_CSV_HEADERS = [
 	'title',
@@ -36,6 +40,7 @@ export const COMMON_CSV_HEADERS = [
 	'website',
 	'latitude',
 	'longitude',
+	'hidden',
 	'opening_hours',
 	'opening_hours_notes',
 	'additional information opening hours',
@@ -99,6 +104,7 @@ export function exportLocations(
 		'website',
 		'latitude',
 		'longitude',
+		'hidden',
 	];
 
 	if (hasNotes) {
@@ -149,6 +155,8 @@ export function exportLocations(
 					.map((id: number) => tagsById.get(id))
 					.filter(Boolean)
 					.join('|');
+			} else if (header === 'hidden') {
+				val = formatLocationVisibilityCsvValue(!!loc.is_hidden);
 			} else {
 				val = loc[header] || '';
 			}
@@ -171,6 +179,7 @@ export const CUSTOM_CSV_MAPPING_FIELDS = [
 	{ key: 'city', label: __('City', 'minimal-map') },
 	{ key: 'postal_code', label: __('Zip code', 'minimal-map') },
 	{ key: 'country', label: __('Country', 'minimal-map') },
+	{ key: 'is_hidden', label: __('Hidden', 'minimal-map') },
 ] as const;
 
 export type CsvDelimiter = ',' | ';';
@@ -410,6 +419,7 @@ function createBaseImportForm(): LocationFormState {
 		longitude: '',
 		logo_id: 0,
 		marker_id: 0,
+		is_hidden: false,
 		opening_hours: createDefaultOpeningHours(),
 		opening_hours_notes: '',
 		tag_ids: [],
@@ -432,6 +442,11 @@ export function buildMappedLocationForm(
 	const form = createBaseImportForm();
 
 	CUSTOM_CSV_MAPPING_FIELDS.forEach((field) => {
+		if (field.key === 'is_hidden') {
+			form.is_hidden = normalizeLocationVisibilityValue(getMappedValue(row, mapping[field.key]));
+			return;
+		}
+
 		form[field.key] = getMappedValue(row, mapping[field.key]);
 	});
 
@@ -528,6 +543,7 @@ function buildCommonLocationForm(
 		website: rowRecord.website || '',
 		latitude: rowRecord.latitude || '',
 		longitude: rowRecord.longitude || '',
+		is_hidden: normalizeLocationVisibilityValue(rowRecord.hidden),
 		opening_hours: openingHours,
 		opening_hours_notes: openingHoursNotes,
 		logo_id: logoId,

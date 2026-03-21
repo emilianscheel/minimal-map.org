@@ -504,6 +504,7 @@ export interface LocationMeta {
 	longitude: string;
 	logo_id: number;
 	marker_id: number;
+	is_hidden: boolean;
 	opening_hours: LocationOpeningHours;
 	opening_hours_notes: string;
 }

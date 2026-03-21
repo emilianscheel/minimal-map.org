@@ -3,6 +3,10 @@ import type { CollectionRecord, LocationRecord, MapLocationPoint } from '../../t
 const DEFAULT_PREVIEW_SAMPLE_SIZE = 3;
 
 function normalizePoint(location: LocationRecord): MapLocationPoint | null {
+	if (location.is_hidden) {
+		return null;
+	}
+
 	const lat = Number(location.latitude);
 	const lng = Number(location.longitude);
 

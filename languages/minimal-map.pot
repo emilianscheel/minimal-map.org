@@ -2049,6 +2049,62 @@ msgstr ""
 msgid "Untitled collection"
 msgstr ""
 
+#: src/lib/locations/importLocations.ts:182
+msgid "Hidden"
+msgstr ""
+
+#: src/admin/locations/LocationTitleCell.tsx:10
+msgid "Hidden location"
+msgstr ""
+
+#: src/admin/locations/LocationsTable.tsx:380
+msgid "Hide"
+msgstr ""
+
+#: src/admin/locations/LocationsTable.tsx:502
+msgid "Hide all"
+msgstr ""
+
+#: src/admin/locations/controller.tsx:335
+msgid "Location is already hidden."
+msgstr ""
+
+#: src/admin/locations/controller.tsx:339
+msgid "Location is already shown."
+msgstr ""
+
+#: src/admin/locations/controller.tsx:343
+msgid "Location hidden."
+msgstr ""
+
+#: src/admin/locations/controller.tsx:345
+msgid "Location shown."
+msgstr ""
+
+#: src/admin/locations/controller.tsx:367
+msgid "Location visibility could not be updated."
+msgstr ""
+
+#: src/admin/locations/controller.tsx:337
+msgid "All selected locations are already hidden."
+msgstr ""
+
+#: src/admin/locations/controller.tsx:341
+msgid "All selected locations are already shown."
+msgstr ""
+
+#: src/admin/locations/controller.tsx:348
+msgid "%d location hidden."
+msgid_plural "%d locations hidden."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/admin/locations/controller.tsx:355
+msgid "%d location shown."
+msgid_plural "%d locations shown."
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/admin/locations/AssignLogoModal.tsx:28
 #: src/admin/locations/CustomCsvImportModal.tsx:24
 #: src/admin/locations/LocationsTable.tsx:324
@@ -2134,6 +2190,14 @@ msgstr ""
 #: src/admin/locations/OpeningHoursInput.tsx:20
 #: src/map/location-opening-hours.ts:26
 msgid "Wednesday"
+msgstr ""
+
+#: src/admin/locations/LocationsTable.tsx:380
+msgid "Show"
+msgstr ""
+
+#: src/admin/locations/LocationsTable.tsx:518
+msgid "Show all"
 msgstr ""
 
 #: src/block/edit.tsx:1107

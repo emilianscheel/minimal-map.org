@@ -40,6 +40,7 @@ function createLocationRecord(overrides: Partial<LocationRecord>): LocationRecor
 		longitude: '',
 		logo_id: 0,
 		marker_id: 0,
+		is_hidden: false,
 		opening_hours: createDefaultOpeningHours(),
 		opening_hours_notes: '',
 		tag_ids: [],

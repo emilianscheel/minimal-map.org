@@ -142,6 +142,7 @@ export interface LocationsController {
 	onDeleteAllLocations: () => Promise<void>;
 	onDuplicateLocation: (location: LocationRecord) => Promise<void>;
 	onEditLocation: (location: LocationRecord) => void;
+	onSetLocationVisibility: (locations: LocationRecord[], isHidden: boolean) => Promise<void>;
 	onOpenAssignToCollectionModal: (location: LocationRecord) => void;
 	onOpenAssignLogoModal: (locations: LocationRecord | LocationRecord[]) => void;
 	onOpenAssignMarkerModal: (locations: LocationRecord | LocationRecord[]) => void;

@@ -1,9 +1,8 @@
-import { Button } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews/wp';
 import type { Action, Field, View, ViewTable } from '@wordpress/dataviews';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from '@wordpress/element';
-import { Copy, Image, Layers3, LocateFixed, MapPin, Pencil, Tags, Trash2, Clock } from 'lucide-react';
+import { Clock, Copy, Eye, EyeOff, Image, Layers3, LocateFixed, MapPin, Pencil, Tags, Trash2 } from 'lucide-react';
 import LocationMiniMap from '../../components/LocationMiniMap';
 import LogoPreview from '../../components/LogoPreview';
 import TagBadge from '../../components/TagBadge';
@@ -11,6 +10,7 @@ import type { LocationRecord } from '../../types';
 import { formatLocationAddressLines } from '../../lib/locations/formatLocationAddressLines';
 import { formatOpeningHoursSummary } from '../../lib/locations/formatOpeningHoursSummary';
 import DeleteLocationActionModal from './DeleteLocationActionModal';
+import LocationTitleCell from './LocationTitleCell';
 import {
 	getQuickAssignableLogo,
 	getQuickAssignableMarker,
@@ -45,11 +45,15 @@ function useLocationFields(controller: LocationsController): Field<LocationRecor
 				enableSorting: false,
 				filterBy: false,
 				render: ({ item }) => (
-					<LocationMiniMap
-						location={item}
-						theme={controller.activeTheme}
-						markerContent={controller.getMarkerForLocation(item.id)?.content ?? null}
-					/>
+					item.is_hidden ? (
+						<span className="minimal-map-admin__location-logo-empty">—</span>
+					) : (
+						<LocationMiniMap
+							location={item}
+							theme={controller.activeTheme}
+							markerContent={controller.getMarkerForLocation(item.id)?.content ?? null}
+						/>
+					)
 				),
 			},
 			{
@@ -85,6 +89,7 @@ function useLocationFields(controller: LocationsController): Field<LocationRecor
 				enableSorting: false,
 				filterBy: false,
 				enableGlobalSearch: true,
+				render: ({ item }) => <LocationTitleCell location={item} />,
 			},
 			{
 				id: 'contact',
@@ -246,297 +251,348 @@ function useLocationFields(controller: LocationsController): Field<LocationRecor
 	);
 }
 
+export function createLocationActions(controller: LocationsController): Action<LocationRecord>[] {
+	const getQuickLogo = (location: LocationRecord) =>
+		getQuickAssignableLogo(location, controller.logos);
+	const getQuickMarker = (location: LocationRecord) =>
+		getQuickAssignableMarker(location, controller.markers);
+	const getQuickTag = (location: LocationRecord) =>
+		getQuickAssignableTag(location, controller.tags);
+
+	return [
+		{
+			id: 'duplicate-location',
+			label: __('Duplicate', 'minimal-map'),
+			icon: <Copy size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending,
+			supportsBulk: false,
+			callback: (items) => {
+				if (!items[0]) {
+					return;
+				}
+
+				void controller.onDuplicateLocation(items[0]).catch(() => {});
+			},
+		},
+		{
+			id: 'edit-location',
+			label: __('Edit', 'minimal-map'),
+			icon: <Pencil size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending,
+			supportsBulk: false,
+			callback: (items) => {
+				if (!items[0]) {
+					return;
+				}
+
+				controller.onEditLocation(items[0]);
+			},
+		},
+		{
+			id: 'toggle-location-visibility',
+			label: (items) =>
+				items[0]?.is_hidden ? __('Show', 'minimal-map') : __('Hide', 'minimal-map'),
+			icon: <Eye size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			supportsBulk: false,
+			callback: (items) => {
+				const location = items[0];
+
+				if (!location) {
+					return;
+				}
+
+				void controller
+					.onSetLocationVisibility([location], !location.is_hidden)
+					.catch(() => {});
+			},
+		},
+		{
+			id: 'retrieve-location',
+			label: __('Retrieve location', 'minimal-map'),
+			icon: <LocateFixed size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending,
+			supportsBulk: false,
+			callback: (items) => {
+				if (!items[0]) {
+					return;
+				}
+
+				void controller.onRetrieveLocation(items[0]).catch(() => {});
+			},
+		},
+		{
+			id: 'assign-location-to-collection',
+			label: __('Assign to Collection', 'minimal-map'),
+			icon: <Layers3 size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			supportsBulk: false,
+			callback: (items) => {
+				if (!items[0]) {
+					return;
+				}
+
+				controller.onOpenAssignToCollectionModal(items[0]);
+			},
+		},
+		{
+			id: 'quick-assign-logo',
+			label: (items) => {
+				const quickLogo = items[0] ? getQuickLogo(items[0]) : null;
+				const logoLabel = quickLogo?.title || __('Untitled logo', 'minimal-map');
+
+				return sprintf(__('Assign %s as logo', 'minimal-map'), logoLabel);
+			},
+			icon: <Image size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			isEligible: (item) => getQuickLogo(item) !== null,
+			supportsBulk: false,
+			callback: (items) => {
+				const location = items[0];
+				const quickLogo = location ? getQuickLogo(location) : null;
+
+				if (!location || !quickLogo) {
+					return;
+				}
+
+				void controller.onQuickAssignLogo(location, quickLogo.id).catch(() => {});
+			},
+		},
+		{
+			id: 'assign-logo',
+			label: (items) =>
+				items.length === 1
+					? __('Assign Logo', 'minimal-map')
+					: __('Assign Logos', 'minimal-map'),
+			icon: <Image size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			supportsBulk: true,
+			callback: (items) => {
+				if (items.length === 0) {
+					return;
+				}
+
+				controller.onOpenAssignLogoModal(items.length === 1 ? items[0] : items);
+			},
+		},
+		{
+			id: 'quick-assign-marker',
+			label: (items) => {
+				const quickMarker = items[0] ? getQuickMarker(items[0]) : null;
+				const markerLabel = quickMarker?.title || __('Untitled marker', 'minimal-map');
+
+				return sprintf(__('Assign %s as marker', 'minimal-map'), markerLabel);
+			},
+			icon: <MapPin size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			isEligible: (item) => getQuickMarker(item) !== null,
+			supportsBulk: false,
+			callback: (items) => {
+				const location = items[0];
+				const quickMarker = location ? getQuickMarker(location) : null;
+
+				if (!location || !quickMarker) {
+					return;
+				}
+
+				void controller.onQuickAssignMarker(location, quickMarker.id).catch(() => {});
+			},
+		},
+		{
+			id: 'assign-marker',
+			label: (items) =>
+				items.length === 1
+					? __('Assign Marker', 'minimal-map')
+					: __('Assign Markers', 'minimal-map'),
+			icon: <MapPin size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			supportsBulk: true,
+			callback: (items) => {
+				if (items.length === 0) {
+					return;
+				}
+
+				controller.onOpenAssignMarkerModal(items.length === 1 ? items[0] : items);
+			},
+		},
+		{
+			id: 'assign-opening-hours',
+			label: () => __('Assign Opening Hours', 'minimal-map'),
+			icon: <Clock size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			supportsBulk: true,
+			callback: (items) => {
+				if (items.length === 0) {
+					return;
+				}
+
+				controller.onOpenAssignOpeningHoursModal(items.length === 1 ? items[0] : items);
+			},
+		},
+		{
+			id: 'quick-assign-tags',
+			label: (items) => {
+				const quickTag = items[0] ? getQuickTag(items[0]) : null;
+				const tagLabel = quickTag?.name || __('Untitled tag', 'minimal-map');
+
+				return sprintf(__('Assign %s as tag', 'minimal-map'), tagLabel);
+			},
+			icon: <Tags size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			isEligible: (item) => getQuickTag(item) !== null,
+			supportsBulk: false,
+			callback: (items) => {
+				const location = items[0];
+				const quickTag = location ? getQuickTag(location) : null;
+
+				if (!location || !quickTag) {
+					return;
+				}
+
+				void controller.onQuickAssignTag(location, quickTag.id).catch(() => {});
+			},
+		},
+		{
+			id: 'assign-tags',
+			label: (items) =>
+				items.length === 1
+					? __('Assign Tag', 'minimal-map')
+					: __('Assign Tags', 'minimal-map'),
+			icon: <Tags size={16} strokeWidth={2} />,
+			context: 'single',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			supportsBulk: true,
+			callback: (items) => {
+				if (items.length === 0) {
+					return;
+				}
+
+				controller.onOpenAssignTagsModal(items.length === 1 ? items[0] : items);
+			},
+		},
+		{
+			id: 'hide-all-locations',
+			label: __('Hide all', 'minimal-map'),
+			icon: <EyeOff size={16} strokeWidth={2} />,
+			context: 'list',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			isEligible: () => controller.selection.length > 1,
+			supportsBulk: true,
+			callback: (items) => {
+				if (items.length === 0) {
+					return;
+				}
+
+				void controller.onSetLocationVisibility(items, true).catch(() => {});
+			},
+		},
+		{
+			id: 'show-all-locations',
+			label: __('Show all', 'minimal-map'),
+			icon: <Eye size={16} strokeWidth={2} />,
+			context: 'list',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			isEligible: () => controller.selection.length > 1,
+			supportsBulk: true,
+			callback: (items) => {
+				if (items.length === 0) {
+					return;
+				}
+
+				void controller.onSetLocationVisibility(items, false).catch(() => {});
+			},
+		},
+		{
+			id: 'bulk-remove-logo',
+			label: __('Remove Logos', 'minimal-map'),
+			icon: <Image size={16} strokeWidth={2} />,
+			context: 'list',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			isEligible: () => controller.selection.length > 1,
+			supportsBulk: true,
+			callback: (items) => {
+				if (items.length === 0) {
+					return;
+				}
+
+				controller.onOpenDeleteLogoConfirmationModal(items);
+			},
+		},
+		{
+			id: 'bulk-remove-marker',
+			label: __('Remove Markers', 'minimal-map'),
+			icon: <MapPin size={16} strokeWidth={2} />,
+			context: 'list',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			isEligible: () => controller.selection.length > 1,
+			supportsBulk: true,
+			callback: (items) => {
+				if (items.length === 0) {
+					return;
+				}
+
+				controller.onOpenRemoveMarkerConfirmationModal(items);
+			},
+		},
+		{
+			id: 'bulk-remove-tags',
+			label: __('Remove Tags', 'minimal-map'),
+			icon: <Tags size={16} strokeWidth={2} />,
+			context: 'list',
+			disabled: controller.isRowActionPending || controller.isAssignmentSaving,
+			isEligible: () => controller.selection.length > 1,
+			supportsBulk: true,
+			callback: (items) => {
+				if (items.length === 0) {
+					return;
+				}
+
+				controller.onOpenRemoveTagsConfirmationModal(items);
+			},
+		},
+		{
+			id: 'delete-location',
+			label: __('Delete', 'minimal-map'),
+			icon: <Trash2 size={16} strokeWidth={2} />,
+			isDestructive: true,
+			disabled: controller.isRowActionPending,
+			supportsBulk: true,
+			modalHeader: (items) =>
+				items.length === 1
+					? __('Delete location', 'minimal-map')
+					: sprintf(
+						_n( 'Delete %d location', 'Delete %d locations', items.length, 'minimal-map' ),
+						items.length
+					),
+			RenderModal: ({ items, closeModal, onActionPerformed }) => {
+				return (
+					<DeleteLocationActionModal
+						items={items}
+						onDelete={controller.onDeleteLocation}
+						onDeleteBulk={controller.onDeleteLocations}
+						closeModal={closeModal}
+						onActionPerformed={onActionPerformed}
+					/>
+				);
+			},
+		},
+	];
+}
+
 function useLocationActions(controller: LocationsController): Action<LocationRecord>[] {
 	return useMemo<Action<LocationRecord>[]>(
-		() => {
-			const getQuickLogo = (location: LocationRecord) =>
-				getQuickAssignableLogo(location, controller.logos);
-			const getQuickMarker = (location: LocationRecord) =>
-				getQuickAssignableMarker(location, controller.markers);
-			const getQuickTag = (location: LocationRecord) =>
-				getQuickAssignableTag(location, controller.tags);
-
-			return [
-				{
-					id: 'duplicate-location',
-					label: __('Duplicate', 'minimal-map'),
-					icon: <Copy size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending,
-					supportsBulk: false,
-					callback: (items) => {
-						if (!items[0]) {
-							return;
-						}
-
-						void controller.onDuplicateLocation(items[0]).catch(() => {});
-					},
-				},
-				{
-					id: 'edit-location',
-					label: __('Edit', 'minimal-map'),
-					icon: <Pencil size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending,
-					supportsBulk: false,
-					callback: (items) => {
-						if (!items[0]) {
-							return;
-						}
-
-						controller.onEditLocation(items[0]);
-					},
-				},
-				{
-					id: 'retrieve-location',
-					label: __('Retrieve location', 'minimal-map'),
-					icon: <LocateFixed size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending,
-					supportsBulk: false,
-					callback: (items) => {
-						if (!items[0]) {
-							return;
-						}
-
-						void controller.onRetrieveLocation(items[0]).catch(() => {});
-					},
-				},
-				{
-					id: 'assign-location-to-collection',
-					label: __('Assign to Collection', 'minimal-map'),
-					icon: <Layers3 size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					supportsBulk: false,
-					callback: (items) => {
-						if (!items[0]) {
-							return;
-						}
-
-						controller.onOpenAssignToCollectionModal(items[0]);
-					},
-				},
-				{
-					id: 'quick-assign-logo',
-					label: (items) => {
-						const quickLogo = items[0] ? getQuickLogo(items[0]) : null;
-						const logoLabel = quickLogo?.title || __('Untitled logo', 'minimal-map');
-
-						return sprintf(__('Assign %s as logo', 'minimal-map'), logoLabel);
-					},
-					icon: <Image size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					isEligible: (item) => getQuickLogo(item) !== null,
-					supportsBulk: false,
-					callback: (items) => {
-						const location = items[0];
-						const quickLogo = location ? getQuickLogo(location) : null;
-
-						if (!location || !quickLogo) {
-							return;
-						}
-
-						void controller.onQuickAssignLogo(location, quickLogo.id).catch(() => {});
-					},
-				},
-				{
-					id: 'assign-logo',
-					label: (items) =>
-						items.length === 1
-							? __('Assign Logo', 'minimal-map')
-							: __('Assign Logos', 'minimal-map'),
-					icon: <Image size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					supportsBulk: true,
-					callback: (items) => {
-						if (items.length === 0) {
-							return;
-						}
-
-						controller.onOpenAssignLogoModal(items.length === 1 ? items[0] : items);
-					},
-				},
-				{
-					id: 'quick-assign-marker',
-					label: (items) => {
-						const quickMarker = items[0] ? getQuickMarker(items[0]) : null;
-						const markerLabel = quickMarker?.title || __('Untitled marker', 'minimal-map');
-
-						return sprintf(__('Assign %s as marker', 'minimal-map'), markerLabel);
-					},
-					icon: <MapPin size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					isEligible: (item) => getQuickMarker(item) !== null,
-					supportsBulk: false,
-					callback: (items) => {
-						const location = items[0];
-						const quickMarker = location ? getQuickMarker(location) : null;
-
-						if (!location || !quickMarker) {
-							return;
-						}
-
-						void controller.onQuickAssignMarker(location, quickMarker.id).catch(() => {});
-					},
-				},
-				{
-					id: 'assign-marker',
-					label: (items) =>
-						items.length === 1
-							? __('Assign Marker', 'minimal-map')
-							: __('Assign Markers', 'minimal-map'),
-					icon: <MapPin size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					supportsBulk: true,
-					callback: (items) => {
-						if (items.length === 0) {
-							return;
-						}
-
-						controller.onOpenAssignMarkerModal(items.length === 1 ? items[0] : items);
-					},
-				},
-				{
-					id: 'assign-opening-hours',
-					label: (items) =>
-						items.length === 1
-							? __('Assign Opening Hours', 'minimal-map')
-							: __('Assign Opening Hours', 'minimal-map'),
-					icon: <Clock size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					supportsBulk: true,
-					callback: (items) => {
-						if (items.length === 0) {
-							return;
-						}
-
-						controller.onOpenAssignOpeningHoursModal(items.length === 1 ? items[0] : items);
-					},
-				},
-				{
-					id: 'quick-assign-tags',
-					label: (items) => {
-						const quickTag = items[0] ? getQuickTag(items[0]) : null;
-						const tagLabel = quickTag?.name || __('Untitled tag', 'minimal-map');
-
-						return sprintf(__('Assign %s as tag', 'minimal-map'), tagLabel);
-					},
-					icon: <Tags size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					isEligible: (item) => getQuickTag(item) !== null,
-					supportsBulk: false,
-					callback: (items) => {
-						const location = items[0];
-						const quickTag = location ? getQuickTag(location) : null;
-
-						if (!location || !quickTag) {
-							return;
-						}
-
-						void controller.onQuickAssignTag(location, quickTag.id).catch(() => {});
-					},
-				},
-				{
-					id: 'assign-tags',
-					label: (items) =>
-						items.length === 1
-							? __('Assign Tag', 'minimal-map')
-							: __('Assign Tags', 'minimal-map'),
-					icon: <Tags size={16} strokeWidth={2} />,
-					context: 'single',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					supportsBulk: true,
-					callback: (items) => {
-						if (items.length === 0) {
-							return;
-						}
-
-						controller.onOpenAssignTagsModal(items.length === 1 ? items[0] : items);
-					},
-				},
-				{
-					id: 'bulk-remove-logo',
-					label: __('Remove Logos', 'minimal-map'),
-					icon: <Image size={16} strokeWidth={2} />,
-					context: 'list',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					isEligible: () => controller.selection.length > 1,
-					supportsBulk: true,
-					callback: (items) => {
-						if (items.length === 0) {
-							return;
-						}
-
-						controller.onOpenDeleteLogoConfirmationModal(items);
-					},
-				},
-				{
-					id: 'bulk-remove-marker',
-					label: __('Remove Markers', 'minimal-map'),
-					icon: <MapPin size={16} strokeWidth={2} />,
-					context: 'list',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					isEligible: () => controller.selection.length > 1,
-					supportsBulk: true,
-					callback: (items) => {
-						if (items.length === 0) {
-							return;
-						}
-
-						controller.onOpenRemoveMarkerConfirmationModal(items);
-					},
-				},
-				{
-					id: 'bulk-remove-tags',
-					label: __('Remove Tags', 'minimal-map'),
-					icon: <Tags size={16} strokeWidth={2} />,
-					context: 'list',
-					disabled: controller.isRowActionPending || controller.isAssignmentSaving,
-					isEligible: () => controller.selection.length > 1,
-					supportsBulk: true,
-					callback: (items) => {
-						if (items.length === 0) {
-							return;
-						}
-
-						controller.onOpenRemoveTagsConfirmationModal(items);
-					},
-				},
-				{
-					id: 'delete-location',
-					label: __('Delete', 'minimal-map'),
-					icon: <Trash2 size={16} strokeWidth={2} />,
-					isDestructive: true,
-					disabled: controller.isRowActionPending,
-					supportsBulk: true,
-					modalHeader: (items) =>
-						items.length === 1
-							? __('Delete location', 'minimal-map')
-							: sprintf(
-								_n( 'Delete %d location', 'Delete %d locations', items.length, 'minimal-map' ),
-								items.length
-							),
-					RenderModal: ({ items, closeModal, onActionPerformed }) => {
-						return (
-							<DeleteLocationActionModal
-								items={items}
-								onDelete={controller.onDeleteLocation}
-								onDeleteBulk={controller.onDeleteLocations}
-								closeModal={closeModal}
-								onActionPerformed={onActionPerformed}
-							/>
-						);
-					},
-				},
-			];
-		},
+		() => createLocationActions(controller),
 		[controller]
 	);
 }

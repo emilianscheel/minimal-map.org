@@ -32,6 +32,7 @@ const LOCATIONS: LocationRecord[] = [
 		longitude: '13.388',
 		logo_id: 0,
 		marker_id: 0,
+		is_hidden: false,
 		opening_hours: createDefaultOpeningHours(),
 		opening_hours_notes: '',
 		tag_ids: [],
@@ -52,6 +53,7 @@ const LOCATIONS: LocationRecord[] = [
 		longitude: '11.576124',
 		logo_id: 0,
 		marker_id: 0,
+		is_hidden: false,
 		opening_hours: createDefaultOpeningHours(),
 		opening_hours_notes: '',
 		tag_ids: [],
@@ -72,6 +74,7 @@ const LOCATIONS: LocationRecord[] = [
 		longitude: '9.966819',
 		logo_id: 0,
 		marker_id: 0,
+		is_hidden: false,
 		opening_hours: createDefaultOpeningHours(),
 		opening_hours_notes: '',
 		tag_ids: [],
@@ -92,6 +95,7 @@ const LOCATIONS: LocationRecord[] = [
 		longitude: '',
 		logo_id: 0,
 		marker_id: 0,
+		is_hidden: false,
 		opening_hours: createDefaultOpeningHours(),
 		opening_hours_notes: '',
 		tag_ids: [],
@@ -254,6 +258,24 @@ describe('collection helpers', () => {
 		).toEqual([
 			{ lat: 48.137154, lng: 11.576124 },
 			{ lat: 52.517, lng: 13.388 },
+		]);
+	});
+
+	test('getCollectionPreviewLocations skips hidden assigned locations', () => {
+		expect(
+			getCollectionPreviewLocations(
+				{
+					id: 23,
+					title: 'Assigned',
+					location_ids: [1, 2],
+				},
+				[
+					{ ...LOCATIONS[0], is_hidden: true },
+					LOCATIONS[1],
+				]
+			)
+		).toEqual([
+			{ lat: 48.137154, lng: 11.576124 },
 		]);
 	});
 

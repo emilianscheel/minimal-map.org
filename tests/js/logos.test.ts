@@ -38,6 +38,7 @@ describe('logo and location helpers', () => {
 					longitude: '13.4',
 					logo_id: 22,
 					marker_id: 0,
+					is_hidden: true,
 				},
 				minimal_map_tag: [3],
 			})
@@ -45,6 +46,7 @@ describe('logo and location helpers', () => {
 			id: 9,
 			title: 'Berlin HQ',
 			logo_id: 22,
+			is_hidden: true,
 			tag_ids: [3],
 		});
 	});
@@ -66,12 +68,14 @@ describe('logo and location helpers', () => {
 				longitude: '13.4',
 				logo_id: 11,
 				marker_id: 0,
+				is_hidden: true,
 				opening_hours: createDefaultOpeningHours(),
 				opening_hours_notes: '',
 				tag_ids: [],
 			})
 		).toMatchObject({
 			logo_id: 11,
+			is_hidden: true,
 		});
 	});
 });

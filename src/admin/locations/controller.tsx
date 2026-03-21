@@ -301,6 +301,80 @@ export function useLocationsController(
 		}
 	}, []);
 
+	const onSetLocationVisibility = useCallback(
+		async (selectedLocations: LocationRecord[], isHidden: boolean): Promise<void> => {
+			if (selectedLocations.length === 0) {
+				return;
+			}
+
+			const affectedLocations = selectedLocations.filter(
+				(location) => location.is_hidden !== isHidden
+			);
+
+			setRowActionPending(true);
+			setActionNotice(null);
+
+			try {
+				for (const location of affectedLocations) {
+					await updateLocation(config, location.id, {
+						...createLocationFormStateFromRecord(location),
+						is_hidden: isHidden,
+					});
+				}
+
+				if (affectedLocations.length > 0) {
+					await loadLocations();
+				}
+
+				clearSelectionAfterBulkAction(selectedLocations);
+				setActionNotice({
+					status: 'success',
+					message:
+						affectedLocations.length === 0
+							? isHidden
+								? selectedLocations.length === 1
+									? __('Location is already hidden.', 'minimal-map')
+									: __('All selected locations are already hidden.', 'minimal-map')
+								: selectedLocations.length === 1
+									? __('Location is already shown.', 'minimal-map')
+									: __('All selected locations are already shown.', 'minimal-map')
+							: affectedLocations.length === 1
+								? isHidden
+									? __('Location hidden.', 'minimal-map')
+									: __('Location shown.', 'minimal-map')
+								: sprintf(
+									isHidden
+										? _n(
+											'%d location hidden.',
+											'%d locations hidden.',
+											affectedLocations.length,
+											'minimal-map'
+										)
+										: _n(
+											'%d location shown.',
+											'%d locations shown.',
+											affectedLocations.length,
+											'minimal-map'
+										),
+									affectedLocations.length
+								),
+				});
+			} catch (error) {
+				setActionNotice({
+					status: 'error',
+					message:
+						error instanceof Error
+							? error.message
+							: __('Location visibility could not be updated.', 'minimal-map'),
+				});
+				throw error;
+			} finally {
+				setRowActionPending(false);
+			}
+		},
+		[clearSelectionAfterBulkAction, config, loadLocations]
+	);
+
 	const resetDialogState = (): void => {
 		setFormMode('create');
 		setEditingLocation(null);
@@ -1833,15 +1907,16 @@ export function useLocationsController(
 		const headers = [...COMMON_CSV_HEADERS];
 		// Headers are:
 		// 0: title, 1: street, 2: house_number, 3: postal_code, 4: city, 5: state, 6: country, 7: telephone, 8: email, 9: website, 10: latitude, 11: longitude,
-		// 12: opening_hours, 13: opening_hours_notes, 14: additional information opening hours,
-		// 15: monday, 16: monday lunch break, 17: tuesday, 18: tuesday lunch break, 19: wednesday, 20: wednesday lunch break,
-		// 21: thursday, 22: thursday lunch break, 23: friday, 24: friday lunch break, 25: saturday, 26: saturday lunch break, 27: sunday, 28: sunday lunch break,
-		// 29: logo, 30: marker, 31: tags
+		// 12: hidden, 13: opening_hours, 14: opening_hours_notes, 15: additional information opening hours,
+		// 16: monday, 17: monday lunch break, 18: tuesday, 19: tuesday lunch break, 20: wednesday, 21: wednesday lunch break,
+		// 22: thursday, 23: thursday lunch break, 24: friday, 25: friday lunch break, 26: saturday, 27: saturday lunch break, 28: sunday, 29: sunday lunch break,
+		// 30: logo, 31: marker, 32: tags
 
 		const exampleData = [
 			// Brandenburg Gate: Full info with lunch breaks and notes
 			[
 				'Brandenburg Gate', 'Pariser Platz', '', '10117', 'Berlin', 'Berlin', 'Germany', '', '', '', '52.5162', '13.3777',
+				'false',
 				'', '', 'Seasonal opening: March-October 9am-6pm',
 				'09:00-18:00', '12:00-13:00', '09:00-18:00', '12:00-13:00', '09:00-18:00', '12:00-13:00',
 				'09:00-18:00', '12:00-13:00', '09:00-18:00', '12:00-13:00', '10:00-16:00', '', '', '',
@@ -1851,6 +1926,7 @@ export function useLocationsController(
 			// Eiffel Tower: Basic info
 			[
 				'Eiffel Tower', 'Champ de Mars', '5 Avenue Anatole France', '75007', 'Paris', '', 'France', '', '', '', '48.8584', '2.2945',
+				'true',
 				'', '', '',
 				'09:00-00:45', '', '09:00-00:45', '', '09:00-00:45', '',
 				'09:00-00:45', '', '09:00-00:45', '', '09:00-00:45', '', '09:00-00:45', '',
@@ -2017,6 +2093,7 @@ export function useLocationsController(
 		onStartCustomCsvImport,
 		onExportLocations,
 		onExportExample,
+		onSetLocationVisibility,
 		onMapLocationSelect,
 		onClearLogosFromLocations,
 		onClearMarkersFromLocations,

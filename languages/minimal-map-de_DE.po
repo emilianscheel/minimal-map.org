@@ -2136,6 +2136,62 @@ msgstr "Typografie"
 msgid "Untitled collection"
 msgstr "Unbenannte Sammlung"
 
+#: src/lib/locations/importLocations.ts:182
+msgid "Hidden"
+msgstr "Versteckt"
+
+#: src/admin/locations/LocationTitleCell.tsx:10
+msgid "Hidden location"
+msgstr "Versteckter Standort"
+
+#: src/admin/locations/LocationsTable.tsx:380
+msgid "Hide"
+msgstr "Ausblenden"
+
+#: src/admin/locations/LocationsTable.tsx:502
+msgid "Hide all"
+msgstr "Alle ausblenden"
+
+#: src/admin/locations/controller.tsx:335
+msgid "Location is already hidden."
+msgstr "Standort ist bereits ausgeblendet."
+
+#: src/admin/locations/controller.tsx:339
+msgid "Location is already shown."
+msgstr "Standort wird bereits angezeigt."
+
+#: src/admin/locations/controller.tsx:343
+msgid "Location hidden."
+msgstr "Standort ausgeblendet."
+
+#: src/admin/locations/controller.tsx:345
+msgid "Location shown."
+msgstr "Standort eingeblendet."
+
+#: src/admin/locations/controller.tsx:367
+msgid "Location visibility could not be updated."
+msgstr "Die Sichtbarkeit des Standorts konnte nicht aktualisiert werden."
+
+#: src/admin/locations/controller.tsx:337
+msgid "All selected locations are already hidden."
+msgstr "Alle ausgewählten Standorte sind bereits ausgeblendet."
+
+#: src/admin/locations/controller.tsx:341
+msgid "All selected locations are already shown."
+msgstr "Alle ausgewählten Standorte werden bereits angezeigt."
+
+#: src/admin/locations/controller.tsx:348
+msgid "%d location hidden."
+msgid_plural "%d locations hidden."
+msgstr[0] "%d Standort ausgeblendet."
+msgstr[1] "%d Standorte ausgeblendet."
+
+#: src/admin/locations/controller.tsx:355
+msgid "%d location shown."
+msgid_plural "%d locations shown."
+msgstr[0] "%d Standort eingeblendet."
+msgstr[1] "%d Standorte eingeblendet."
+
 #: src/admin/locations/AssignLogoModal.tsx:28
 #: src/admin/locations/CustomCsvImportModal.tsx:24
 #: src/admin/locations/LocationsTable.tsx:324
@@ -2230,6 +2286,14 @@ msgstr "Mi"
 #: src/map/location-opening-hours.ts:26
 msgid "Wednesday"
 msgstr "Mittwoch"
+
+#: src/admin/locations/LocationsTable.tsx:380
+msgid "Show"
+msgstr "Einblenden"
+
+#: src/admin/locations/LocationsTable.tsx:518
+msgid "Show all"
+msgstr "Alle einblenden"
 
 #: src/block/edit.tsx:1107
 msgid "When enabled, one can zoom the map using two fingers on mobile devices."
