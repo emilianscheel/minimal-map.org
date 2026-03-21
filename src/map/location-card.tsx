@@ -218,43 +218,51 @@ export const LocationResultCard = memo(
       () => normalizeOpeningHours(location.opening_hours),
       [location.opening_hours],
     );
-    const [openedStatus, setOpenedStatus] = useState(() =>
-      getOpeningHoursStatus(openingHours, siteLocale, siteTimezone, new Date()),
-    );
     const isInMapMode = mode === "in-map";
+    const showStructuredOpeningHours = isOpeningHoursConfigured(openingHours);
+    const [currentTimeMs, setCurrentTimeMs] = useState(() => Date.now());
 
     useEffect(() => {
-      if (!isOpeningHoursConfigured(openingHours)) {
-        setOpenedStatus(null);
+      setCurrentTimeMs(Date.now());
+    }, [openingHours, siteLocale, siteTimezone]);
+
+    useEffect(() => {
+      if (!showStructuredOpeningHours) {
         return;
       }
 
-      const updateStatus = () => {
-        setOpenedStatus(
-          getOpeningHoursStatus(
-            openingHours,
-            siteLocale,
-            siteTimezone,
-            new Date(),
-          ),
-        );
-      };
+      const timeout = setTimeout(() => {
+        setCurrentTimeMs(Date.now());
+      }, getDelayUntilNextMinute(new Date()));
 
-      const timeout = setTimeout(
-        updateStatus,
-        getDelayUntilNextMinute(new Date()),
-      );
       return () => clearTimeout(timeout);
-    }, [openingHours, siteLocale, siteTimezone]);
+    }, [currentTimeMs, showStructuredOpeningHours]);
 
     const address = useMemo(() => formatLocationAddress(location), [location]);
-    const showStructuredOpeningHours = isOpeningHoursConfigured(openingHours);
     const showStaticOpeningHoursNotes =
       !showStructuredOpeningHours &&
       typeof location.opening_hours_notes === "string" &&
       location.opening_hours_notes.trim() !== "";
     const showOpeningHours =
       showStructuredOpeningHours || showStaticOpeningHoursNotes;
+    const openedStatus = useMemo(
+      () =>
+        showStructuredOpeningHours
+          ? getOpeningHoursStatus(
+              openingHours,
+              siteLocale,
+              siteTimezone,
+              new Date(currentTimeMs),
+            )
+          : null,
+      [
+        currentTimeMs,
+        openingHours,
+        showStructuredOpeningHours,
+        siteLocale,
+        siteTimezone,
+      ],
+    );
     const openingHoursLines = useMemo(
       () => getOpeningHoursDisplayLines(openingHours, siteLocale),
       [openingHours, siteLocale],
