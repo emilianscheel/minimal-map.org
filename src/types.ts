@@ -623,11 +623,24 @@ export type AnalyticsQueryType =
 	| 'coordinates'
 	| 'live_location';
 
+export interface AnalyticsTrendPoint {
+	date: string;
+	value: number | null;
+}
+
+export interface AnalyticsSummarySeries {
+	totalSearches: AnalyticsTrendPoint[];
+	searchesToday: AnalyticsTrendPoint[];
+	zeroResultSearches: AnalyticsTrendPoint[];
+	averageNearestDistanceMeters: AnalyticsTrendPoint[];
+}
+
 export interface AnalyticsSummary {
 	totalSearches: number;
 	searchesToday: number;
 	zeroResultSearches: number;
 	averageNearestDistanceMeters: number | null;
+	series: AnalyticsSummarySeries;
 }
 
 export interface AnalyticsSettings {

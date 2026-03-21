@@ -178,6 +178,11 @@ class Analytics {
 	}
 
 	/**
+	 * Sparkline window in days.
+	 */
+	const SUMMARY_SERIES_DAYS = 30;
+
+	/**
 	 * Return summary analytics metrics.
 	 *
 	 * @return array<string, float|int|null>
@@ -189,6 +194,7 @@ class Analytics {
 
 		$table_name = $this->get_table_name();
 		$total      = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
+		$empty_series = $this->get_empty_summary_series();
 
 		if ( 0 === $total ) {
 			return array(
@@ -196,12 +202,15 @@ class Analytics {
 				'searchesToday'                => 0,
 				'zeroResultSearches'           => 0,
 				'averageNearestDistanceMeters' => null,
+				'series'                       => $empty_series,
 			);
 		}
 
 		$today_start = new \DateTimeImmutable( 'now', wp_timezone() );
 		$today_start = $today_start->setTime( 0, 0, 0 );
 		$today_gmt   = $today_start->setTimezone( new \DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
+		$series_start_local = $today_start->modify( '-' . ( self::SUMMARY_SERIES_DAYS - 1 ) . ' days' );
+		$series_start_gmt   = $series_start_local->setTimezone( new \DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
 
 		$searches_today = (int) $wpdb->get_var(
 			$wpdb->prepare(
@@ -211,13 +220,152 @@ class Analytics {
 		);
 		$zero_results   = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name} WHERE result_count = 0" );
 		$average        = $wpdb->get_var( "SELECT AVG(nearest_distance_meters) FROM {$table_name} WHERE nearest_distance_meters IS NOT NULL" );
+		$series_rows    = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT result_count, nearest_distance_meters, occurred_at_gmt
+				FROM {$table_name}
+				WHERE occurred_at_gmt >= %s
+				ORDER BY occurred_at_gmt ASC",
+				$series_start_gmt
+			),
+			ARRAY_A
+		);
 
 		return array(
 			'totalSearches'                => $total,
 			'searchesToday'                => $searches_today,
 			'zeroResultSearches'           => $zero_results,
 			'averageNearestDistanceMeters' => null !== $average ? (float) $average : null,
+			'series'                       => $this->build_summary_series(
+				is_array( $series_rows ) ? $series_rows : array(),
+				$series_start_local
+			),
 		);
+	}
+
+	/**
+	 * Build stable daily series for the summary sparklines.
+	 *
+	 * @param array<int, array<string, mixed>> $rows Analytics rows in the series window.
+	 * @param \DateTimeImmutable               $series_start_local Local start day.
+	 * @return array<string, array<int, array<string, int|float|string|null>>>
+	 */
+	private function build_summary_series( $rows, \DateTimeImmutable $series_start_local ) {
+		$timezone = wp_timezone();
+		$days     = array();
+
+		for ( $day_index = 0; $day_index < self::SUMMARY_SERIES_DAYS; $day_index++ ) {
+			$day = $series_start_local->modify( '+' . $day_index . ' days' );
+			$key = $day->format( 'Y-m-d' );
+
+			$days[ $key ] = array(
+				'totalSearches' => 0,
+				'searchesToday' => 0,
+				'zeroResultSearches' => 0,
+				'averageNearestDistanceMeters_sum' => 0.0,
+				'averageNearestDistanceMeters_count' => 0,
+			);
+		}
+
+		foreach ( $rows as $row ) {
+			if ( empty( $row['occurred_at_gmt'] ) ) {
+				continue;
+			}
+
+			try {
+				$occurred_at = new \DateTimeImmutable( (string) $row['occurred_at_gmt'], new \DateTimeZone( 'UTC' ) );
+			} catch ( \Exception $exception ) {
+				continue;
+			}
+
+			$local_key = $occurred_at->setTimezone( $timezone )->format( 'Y-m-d' );
+
+			if ( ! isset( $days[ $local_key ] ) ) {
+				continue;
+			}
+
+			$days[ $local_key ]['totalSearches'] += 1;
+			$days[ $local_key ]['searchesToday'] += 1;
+
+			if ( isset( $row['result_count'] ) && 0 === (int) $row['result_count'] ) {
+				$days[ $local_key ]['zeroResultSearches'] += 1;
+			}
+
+			if ( isset( $row['nearest_distance_meters'] ) && null !== $row['nearest_distance_meters'] && '' !== $row['nearest_distance_meters'] ) {
+				$days[ $local_key ]['averageNearestDistanceMeters_sum'] += (float) $row['nearest_distance_meters'];
+				$days[ $local_key ]['averageNearestDistanceMeters_count'] += 1;
+			}
+		}
+
+		$series = array(
+			'totalSearches' => array(),
+			'searchesToday' => array(),
+			'zeroResultSearches' => array(),
+			'averageNearestDistanceMeters' => array(),
+		);
+
+		foreach ( $days as $date => $day ) {
+			$series['totalSearches'][] = array(
+				'date'  => $date,
+				'value' => $day['totalSearches'],
+			);
+			$series['searchesToday'][] = array(
+				'date'  => $date,
+				'value' => $day['searchesToday'],
+			);
+			$series['zeroResultSearches'][] = array(
+				'date'  => $date,
+				'value' => $day['zeroResultSearches'],
+			);
+			$series['averageNearestDistanceMeters'][] = array(
+				'date'  => $date,
+				'value' => $day['averageNearestDistanceMeters_count'] > 0
+					? $day['averageNearestDistanceMeters_sum'] / $day['averageNearestDistanceMeters_count']
+					: null,
+			);
+		}
+
+		return $series;
+	}
+
+	/**
+	 * Return an empty fixed-length summary series payload.
+	 *
+	 * @return array<string, array<int, array<string, int|string|null>>>
+	 */
+	private function get_empty_summary_series() {
+		$today = new \DateTimeImmutable( 'now', wp_timezone() );
+		$today = $today->setTime( 0, 0, 0 );
+		$start = $today->modify( '-' . ( self::SUMMARY_SERIES_DAYS - 1 ) . ' days' );
+		$series = array(
+			'totalSearches' => array(),
+			'searchesToday' => array(),
+			'zeroResultSearches' => array(),
+			'averageNearestDistanceMeters' => array(),
+		);
+
+		for ( $day_index = 0; $day_index < self::SUMMARY_SERIES_DAYS; $day_index++ ) {
+			$date = $start->modify( '+' . $day_index . ' days' )->format( 'Y-m-d' );
+
+			$series['totalSearches'][] = array(
+				'date' => $date,
+				'value' => 0,
+			);
+			$series['searchesToday'][] = array(
+				'date' => $date,
+				'value' => 0,
+			);
+			$series['zeroResultSearches'][] = array(
+				'date' => $date,
+				'value' => 0,
+			);
+			$series['averageNearestDistanceMeters'][] = array(
+				'date' => $date,
+				'value' => null,
+			);
+		}
+
+		return $series;
 	}
 
 	/**

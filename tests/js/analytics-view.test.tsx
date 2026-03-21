@@ -3,6 +3,7 @@ import { JSDOM } from 'jsdom';
 import { createElement, createRoot } from '@wordpress/element';
 import AnalyticsView from '../../src/admin/analytics';
 import type { AnalyticsController } from '../../src/admin/analytics/types';
+import type { AnalyticsTrendPoint } from '../../src/types';
 
 const originalGlobals = {
 	document: globalThis.document,
@@ -54,6 +55,13 @@ async function flushRender(): Promise<void> {
 	await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
+function createSeries(values: Array<number | null>): AnalyticsTrendPoint[] {
+	return values.map((value, index) => ({
+		date: `2026-03-${`${index + 1}`.padStart(2, '0')}`,
+		value,
+	}));
+}
+
 function createControllerStub(
 	overrides: Partial<AnalyticsController> = {}
 ): AnalyticsController {
@@ -80,6 +88,12 @@ function createControllerStub(
 			searchesToday: 4,
 			zeroResultSearches: 2,
 			averageNearestDistanceMeters: 840,
+			series: {
+				totalSearches: createSeries([1, 3, 2, 5]),
+				searchesToday: createSeries([1, 3, 2, 5]),
+				zeroResultSearches: createSeries([0, 1, 0, 1]),
+				averageNearestDistanceMeters: createSeries([500, 920, null, 940]),
+			},
 		},
 		totalItems: 1,
 		totalPages: 1,
@@ -131,6 +145,37 @@ describe('AnalyticsView', () => {
 		expect(dom.window.document.body.textContent).toContain('Total searches');
 		expect(dom.window.document.body.textContent).toContain('Average nearest distance');
 		expect(dom.window.document.body.textContent).toContain('Berlin Mitte');
+		expect(dom.window.document.body.textContent).not.toContain('All tracked search queries across the retention window.');
+
+		root.unmount();
+	});
+
+	test('reveals a sparkline tooltip on point focus', async () => {
+		const dom = new JSDOM('<!doctype html><div id="host"></div>');
+		setGlobalDom(dom);
+		const host = dom.window.document.getElementById('host') as HTMLDivElement;
+		const root = createRoot(host);
+
+		root.render(
+			createElement(AnalyticsView, {
+				controller: createControllerStub(),
+				siteLocale: 'en-US',
+				siteTimezone: 'Europe/Berlin',
+			})
+		);
+
+		await flushRender();
+
+		const firstHotspot = dom.window.document.querySelector(
+			'.minimal-map-admin__analytics-sparkline-hotspot'
+		) as HTMLButtonElement;
+
+		firstHotspot.focus();
+		firstHotspot.dispatchEvent(new dom.window.FocusEvent('focus', { bubbles: true }));
+		await flushRender();
+
+		expect(dom.window.document.body.textContent).toContain('2026-03-01');
+		expect(dom.window.document.body.textContent).toContain('1');
 
 		root.unmount();
 	});
@@ -152,6 +197,12 @@ describe('AnalyticsView', () => {
 						searchesToday: 0,
 						zeroResultSearches: 0,
 						averageNearestDistanceMeters: null,
+						series: {
+							totalSearches: createSeries([0, 0, 0, 0]),
+							searchesToday: createSeries([0, 0, 0, 0]),
+							zeroResultSearches: createSeries([0, 0, 0, 0]),
+							averageNearestDistanceMeters: createSeries([null, null, null, null]),
+						},
 					},
 					totalItems: 0,
 				}),

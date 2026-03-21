@@ -2,6 +2,7 @@ import { Card, CardBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ChartColumn, Clock3, Route, SearchX } from 'lucide-react';
 import type { AnalyticsSummary } from '../../types';
+import AnalyticsSparkline from './AnalyticsSparkline';
 
 function formatMetricValue(value: number | null, suffix = ''): string {
 	if (value === null) {
@@ -23,6 +24,26 @@ function formatDistanceValue(distanceMeters: number | null, hasData: boolean): s
 	return `${Math.round(distanceMeters)} m`;
 }
 
+function formatSparklineCount(value: number | null): string {
+	if (value === null) {
+		return '—';
+	}
+
+	return `${Math.round(value)}`;
+}
+
+function formatSparklineDistance(value: number | null): string {
+	if (value === null) {
+		return '—';
+	}
+
+	if (value >= 1000) {
+		return `${(value / 1000).toFixed(1)} km`;
+	}
+
+	return `${Math.round(value)} m`;
+}
+
 export default function AnalyticsCards({
 	summary,
 }: {
@@ -35,29 +56,37 @@ export default function AnalyticsCards({
 			id: 'total',
 			icon: <ChartColumn aria-hidden="true" size={22} strokeWidth={1.8} />,
 			title: __('Total searches', 'minimal-map'),
-			description: __('All tracked search queries across the retention window.', 'minimal-map'),
 			value: hasData ? formatMetricValue(summary.totalSearches) : '—',
+			isEmpty: !hasData,
+			series: summary.series.totalSearches,
+			formatTooltipValue: formatSparklineCount,
 		},
 		{
 			id: 'today',
 			icon: <Clock3 aria-hidden="true" size={22} strokeWidth={1.8} />,
 			title: __('Searches today', 'minimal-map'),
-			description: __('Queries recorded since the start of the current site day.', 'minimal-map'),
 			value: hasData ? formatMetricValue(summary.searchesToday) : '—',
+			isEmpty: !hasData,
+			series: summary.series.searchesToday,
+			formatTooltipValue: formatSparklineCount,
 		},
 		{
 			id: 'zero',
 			icon: <SearchX aria-hidden="true" size={22} strokeWidth={1.8} />,
 			title: __('Zero-result searches', 'minimal-map'),
-			description: __('Queries that returned no matching locations at that moment.', 'minimal-map'),
 			value: hasData ? formatMetricValue(summary.zeroResultSearches) : '—',
+			isEmpty: !hasData,
+			series: summary.series.zeroResultSearches,
+			formatTooltipValue: formatSparklineCount,
 		},
 		{
 			id: 'distance',
 			icon: <Route aria-hidden="true" size={22} strokeWidth={1.8} />,
 			title: __('Average nearest distance', 'minimal-map'),
-			description: __('Average distance to the closest result when a distance snapshot was available.', 'minimal-map'),
 			value: formatDistanceValue(summary.averageNearestDistanceMeters, hasData),
+			isEmpty: !hasData && summary.averageNearestDistanceMeters === null,
+			series: summary.series.averageNearestDistanceMeters,
+			formatTooltipValue: formatSparklineDistance,
 		},
 	];
 
@@ -66,12 +95,17 @@ export default function AnalyticsCards({
 			{cards.map((card) => (
 				<Card key={card.id} className="minimal-map-admin__feature-card minimal-map-admin__analytics-card">
 					<CardBody>
+						<AnalyticsSparkline
+							ariaLabel={card.title}
+							formatTooltipValue={card.formatTooltipValue}
+							isEmpty={card.isEmpty}
+							series={card.series}
+						/>
 						<div className="minimal-map-admin__feature-meta">
 							<span className="minimal-map-admin__feature-icon">{card.icon}</span>
 							<span className="minimal-map-admin__analytics-card-value">{card.value}</span>
 						</div>
 						<h3 className="minimal-map-admin__feature-title">{card.title}</h3>
-						<p className="minimal-map-admin__feature-description">{card.description}</p>
 					</CardBody>
 				</Card>
 			))}
