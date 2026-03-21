@@ -494,13 +494,16 @@
   border-radius: 4px;
   color: var(--minimal-map-search-foreground-secondary);
   cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.1s ease-in-out;
+  opacity: 1;
+  transition:
+    background 0.1s ease-in-out,
+    color 0.1s ease-in-out;
 }
 
-.minimal-map-search__clear:hover {
-  opacity: 0.8;
-  background: var(--minimal-map-search-background-hover);
+.minimal-map-search__clear:hover,
+.minimal-map-search__clear:focus-visible {
+  color: var(--minimal-map-search-foreground-primary);
+  background: var(--minimal-map-search-background-primary);
 }
 
 .minimal-map-search__results-container {
