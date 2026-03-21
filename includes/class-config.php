@@ -126,7 +126,7 @@ class Config {
 				'left'   => '24px',
 			),
 			'searchPanelBorderRadiusInput'  => '10px',
-			'searchPanelBorderRadiusCard'   => '2px',
+			'searchPanelBorderRadiusCard'   => '10px',
 			'searchPanelCardGap'            => '12px',
 			'searchPanelWidth'              => '320px',
 			'googleMapsButtonPadding'       => array(

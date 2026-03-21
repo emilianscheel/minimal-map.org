@@ -281,7 +281,7 @@
   );
   --minimal-map-search-effective-width: var(--minimal-map-search-width);
   --minimal-map-search-input-radius: 10px;
-  --minimal-map-search-card-radius: 2px;
+  --minimal-map-search-card-radius: 10px;
   --minimal-map-search-card-gap: 12px;
   --minimal-map-google-maps-button-padding-top: 5px;
   --minimal-map-google-maps-button-padding-right: 8px;
@@ -406,7 +406,9 @@
 }
 
 .minimal-map-search.is-focused
-  .minimal-map-search__quick-filter-pill:not(.is-selected):not(:hover):not(:focus) {
+  .minimal-map-search__quick-filter-pill:not(.is-selected):not(:hover):not(
+    :focus
+  ) {
   filter: brightness(0.94);
 }
 
@@ -1076,9 +1078,9 @@
   .minimal-map-search-host {
     --minimal-map-search-effective-footprint-width: 50%;
     --minimal-map-search-effective-width: calc(
-      var(--minimal-map-search-effective-footprint-width) -
-        var(--minimal-map-search-margin-left) -
-        var(--minimal-map-search-margin-right)
+      var(--minimal-map-search-effective-footprint-width) - var(
+          --minimal-map-search-margin-left
+        ) - var(--minimal-map-search-margin-right)
     );
   }
 }
