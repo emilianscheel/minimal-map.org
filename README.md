@@ -1,4 +1,4 @@
-# [`🗺️ minimal-map.org`](https://github.com/emilianscheel/minimal-map.org)
+# [`🗺️ minimal-map.net`](https://github.com/emilianscheel/minimal-map.net)
 
 Render a minimalist MapLibre-powered map in Wordpress.
 
@@ -59,7 +59,7 @@ zip -r ../minimal-map-0.4.0.zip . \
 ```
 
 ```bash
-ln -s "$(pwd)/plugin" ~/Studio/my-wordpress-website/wp-content/plugins/minimal-map.org
+ln -s "$(pwd)/plugin" ~/Studio/my-wordpress-website/wp-content/plugins/minimal-map.net
 
-rm ~/Studio/my-wordpress-website/wp-content/plugins/minimal-map.org
+rm ~/Studio/my-wordpress-website/wp-content/plugins/minimal-map.net
 ```

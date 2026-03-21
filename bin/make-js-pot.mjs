@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import ts from "typescript";
 
-const DOMAIN = "minimal-map.org";
+const DOMAIN = "minimal-map.net";
 const SOURCE_ROOT = path.resolve("src");
 const outputPath = path.resolve(process.argv[2] || "/tmp/minimal-map-js.pot");
 
