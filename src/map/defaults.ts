@@ -89,6 +89,8 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 	openingHoursOpenColor: '#1a7f37',
 	openingHoursClosedColor: '#b32d2e',
 	openingHoursSoonColor: '#d97706',
+	clusterBackgroundColor: '#ffffff',
+	clusterForegroundColor: '#000000',
 	creditsPadding: {
 		top: '4px',
 		right: '8px',
@@ -374,6 +376,14 @@ function getDefaults(runtimeConfig: MapRuntimeConfig): MapDefaults {
 			runtimeConfig.defaults?.openingHoursSoonColor,
 			DEFAULT_MAP_DEFAULTS.openingHoursSoonColor
 		),
+		clusterBackgroundColor: normalizeColor(
+			runtimeConfig.defaults?.clusterBackgroundColor,
+			DEFAULT_MAP_DEFAULTS.clusterBackgroundColor
+		),
+		clusterForegroundColor: normalizeColor(
+			runtimeConfig.defaults?.clusterForegroundColor,
+			DEFAULT_MAP_DEFAULTS.clusterForegroundColor
+		),
 		creditsPadding: normalizeBoxValue(
 			runtimeConfig.defaults?.creditsPadding,
 			DEFAULT_MAP_DEFAULTS.creditsPadding as Required<BoxValue>
@@ -551,6 +561,14 @@ export function normalizeMapConfig(
 		rawConfig.openingHoursSoonColor ?? defaults.openingHoursSoonColor,
 		defaults.openingHoursSoonColor
 	);
+	const clusterBackgroundColor = normalizeColor(
+		rawConfig.clusterBackgroundColor ?? defaults.clusterBackgroundColor,
+		defaults.clusterBackgroundColor
+	);
+	const clusterForegroundColor = normalizeColor(
+		rawConfig.clusterForegroundColor ?? defaults.clusterForegroundColor,
+		defaults.clusterForegroundColor
+	);
 	const creditsPadding = normalizeBoxValue(
 		rawConfig.creditsPadding ?? defaults.creditsPadding,
 		defaults.creditsPadding as Required<BoxValue>
@@ -669,6 +687,8 @@ export function normalizeMapConfig(
 		openingHoursOpenColor,
 		openingHoursClosedColor,
 		openingHoursSoonColor,
+		clusterBackgroundColor,
+		clusterForegroundColor,
 		creditsPadding,
 		creditsOuterMargin,
 		creditsBackgroundColor,

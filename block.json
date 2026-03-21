@@ -227,6 +227,14 @@
       "type": "string",
       "default": "#d97706"
     },
+    "clusterBackgroundColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "clusterForegroundColor": {
+      "type": "string",
+      "default": "#000000"
+    },
     "creditsPadding": {
       "type": "object",
       "default": {

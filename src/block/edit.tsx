@@ -517,6 +517,40 @@ function OpeningHoursColorSettings({
   );
 }
 
+function ClusterColorSettings({
+  backgroundColor,
+  foregroundColor,
+  defaultBackgroundColor,
+  defaultForegroundColor,
+  onChange,
+}: {
+  backgroundColor: string;
+  foregroundColor: string;
+  defaultBackgroundColor: string;
+  defaultForegroundColor: string;
+  onChange: (
+    key: "clusterBackgroundColor" | "clusterForegroundColor",
+    value: string,
+  ) => void;
+}) {
+  return (
+    <div style={{ display: "grid", gap: "8px", marginBottom: "16px" }}>
+      <CompactColorDropdown
+        label={__("Background", "minimal-map")}
+        value={backgroundColor}
+        defaultValue={defaultBackgroundColor}
+        onChange={(value) => onChange("clusterBackgroundColor", value)}
+      />
+      <CompactColorDropdown
+        label={__("Foreground", "minimal-map")}
+        value={foregroundColor}
+        defaultValue={defaultForegroundColor}
+        onChange={(value) => onChange("clusterForegroundColor", value)}
+      />
+    </div>
+  );
+}
+
 function CompactColorDropdown({
   label,
   value,
@@ -1582,6 +1616,19 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             }
             defaultSoonColor={
               runtimeConfig.defaults?.openingHoursSoonColor ?? "#d97706"
+            }
+            onChange={(key, value) => setAttributes({ [key]: value })}
+          />
+        </PanelBody>
+        <PanelBody title={__("Cluster", "minimal-map")} initialOpen={false}>
+          <ClusterColorSettings
+            backgroundColor={attributes.clusterBackgroundColor}
+            foregroundColor={attributes.clusterForegroundColor}
+            defaultBackgroundColor={
+              runtimeConfig.defaults?.clusterBackgroundColor ?? "#ffffff"
+            }
+            defaultForegroundColor={
+              runtimeConfig.defaults?.clusterForegroundColor ?? "#000000"
             }
             onChange={(key, value) => setAttributes({ [key]: value })}
           />

@@ -80,6 +80,8 @@ export interface MapDefaults {
 	openingHoursOpenColor: string;
 	openingHoursClosedColor: string;
 	openingHoursSoonColor: string;
+	clusterBackgroundColor: string;
+	clusterForegroundColor: string;
 	creditsPadding: BoxValue;
 	creditsOuterMargin: BoxValue;
 	creditsBackgroundColor: string;
@@ -220,6 +222,8 @@ export interface RawMapConfig {
 	openingHoursOpenColor?: string;
 	openingHoursClosedColor?: string;
 	openingHoursSoonColor?: string;
+	clusterBackgroundColor?: string;
+	clusterForegroundColor?: string;
 	creditsPadding?: BoxValue | null;
 	creditsOuterMargin?: BoxValue | null;
 	creditsBackgroundColor?: string;
@@ -461,6 +465,8 @@ export interface MapBlockAttributes {
 	openingHoursOpenColor: string;
 	openingHoursClosedColor: string;
 	openingHoursSoonColor: string;
+	clusterBackgroundColor: string;
+	clusterForegroundColor: string;
 	creditsPadding: BoxValue;
 	creditsOuterMargin: BoxValue;
 	creditsBackgroundColor: string;

@@ -13,11 +13,25 @@ function createHost() {
 function createMockMap() {
 	const images = new Map<string, unknown>();
 	const layers = new Map<string, Record<string, unknown>>();
-	const sources = new Map<string, { data: unknown; setData: (data: unknown) => void }>();
-	let features: Array<{ properties?: Record<string, unknown> }> = [];
+	const sources = new Map<
+		string,
+		{
+			cluster?: boolean;
+			clusterMaxZoom?: number;
+			clusterRadius?: number;
+			data: unknown;
+			getClusterExpansionZoom: (clusterId: number) => Promise<number>;
+			setData: (data: unknown) => void;
+		}
+	>();
+	const layerFeatures = new Map<string, Array<{ geometry?: unknown; properties?: Record<string, unknown> }>>();
+	let features: Array<{ geometry?: unknown; properties?: Record<string, unknown> }> = [];
 	let styleLoaded = true;
+	const clusterExpansionZooms = new Map<number, number>();
+	const easeToCalls: Array<Record<string, unknown>> = [];
 
 	return {
+		easeToCalls,
 		images,
 		layers,
 		map: {
@@ -29,14 +43,29 @@ function createMockMap() {
 				layers.set(layer.id as string, layer);
 				return this;
 			},
-			addSource(id: string, source: { data: unknown }) {
+			addSource(id: string, source: {
+				cluster?: boolean;
+				clusterMaxZoom?: number;
+				clusterRadius?: number;
+				data: unknown;
+			}) {
 				const nextSource = {
+					cluster: source.cluster,
+					clusterMaxZoom: source.clusterMaxZoom,
+					clusterRadius: source.clusterRadius,
 					data: source.data,
+					getClusterExpansionZoom(clusterId: number) {
+						return Promise.resolve(clusterExpansionZooms.get(clusterId) ?? 16);
+					},
 					setData(data: unknown) {
 						nextSource.data = data;
 					},
 				};
 				sources.set(id, nextSource);
+				return this;
+			},
+			easeTo(options: Record<string, unknown>) {
+				easeToCalls.push(options);
 				return this;
 			},
 			getLayer(id: string) {
@@ -51,7 +80,11 @@ function createMockMap() {
 			isStyleLoaded() {
 				return styleLoaded;
 			},
-			queryRenderedFeatures() {
+			queryRenderedFeatures(_point?: unknown, options?: { layers?: string[] }) {
+				if (options?.layers?.length) {
+					return options.layers.flatMap((layerId) => layerFeatures.get(layerId) ?? []);
+				}
+
 				return features;
 			},
 			removeImage(id: string) {
@@ -69,6 +102,15 @@ function createMockMap() {
 		},
 		setFeatures(nextFeatures: Array<{ properties?: Record<string, unknown> }>) {
 			features = nextFeatures;
+		},
+		setClusterExpansionZoom(clusterId: number, zoom: number) {
+			clusterExpansionZooms.set(clusterId, zoom);
+		},
+		setLayerFeatures(
+			layerId: string,
+			nextFeatures: Array<{ geometry?: unknown; properties?: Record<string, unknown> }>
+		) {
+			layerFeatures.set(layerId, nextFeatures);
 		},
 		setStyleLoaded(nextValue: boolean) {
 			styleLoaded = nextValue;
@@ -105,6 +147,9 @@ describe('marker renderer', () => {
 		});
 
 		await renderer.update({
+			clusterBackgroundColor: '#ffffff',
+			clusterForegroundColor: '#000000',
+			interactive: false,
 			markerContent: null,
 			markerOffsetY: 0,
 			markerScale: 1,
@@ -121,6 +166,9 @@ describe('marker renderer', () => {
 		expect((source.data as GeoJSON.FeatureCollection).features).toHaveLength(3);
 
 		await renderer.update({
+			clusterBackgroundColor: '#ffffff',
+			clusterForegroundColor: '#000000',
+			interactive: false,
 			markerContent: null,
 			markerOffsetY: 0,
 			markerScale: 1,
@@ -150,6 +198,9 @@ describe('marker renderer', () => {
 		});
 
 		await renderer.update({
+			clusterBackgroundColor: '#ffffff',
+			clusterForegroundColor: '#000000',
+			interactive: false,
 			markerContent: null,
 			markerOffsetY: 0,
 			markerScale: 1,
@@ -165,7 +216,10 @@ describe('marker renderer', () => {
 		expect(mockMap.layers.size).toBe(1);
 		expect(mockMap.sources.size).toBe(1);
 
-		mockMap.setFeatures([{ properties: { locationId: 7 } }]);
+		const markerLayer = Array.from(mockMap.layers.values())[0] as {
+			id: string;
+		};
+		mockMap.setLayerFeatures(markerLayer.id, [{ properties: { locationId: 7 } }]);
 		expect(renderer.handleClick({ point: { x: 10, y: 20 } } as never)).toBe(true);
 		expect(selectedLocationId).toBe(7);
 	});
@@ -184,6 +238,9 @@ describe('marker renderer', () => {
 		});
 
 		await renderer.update({
+			clusterBackgroundColor: '#ffffff',
+			clusterForegroundColor: '#000000',
+			interactive: false,
 			markerContent: null,
 			markerOffsetY: 6,
 			markerScale: 1,
@@ -222,6 +279,9 @@ describe('marker renderer', () => {
 		});
 
 		await renderer.update({
+			clusterBackgroundColor: '#ffffff',
+			clusterForegroundColor: '#000000',
+			interactive: false,
 			markerContent: null,
 			markerOffsetY: 0,
 			markerScale: 1,
@@ -241,5 +301,137 @@ describe('marker renderer', () => {
 
 		const source = Array.from(mockMap.sources.values())[0];
 		expect((source.data as GeoJSON.FeatureCollection).features).toHaveLength(1);
+	});
+
+	test('creates clustered layers on interactive maps and zooms into a clicked cluster', async () => {
+		const { host } = createHost();
+		const mockMap = createMockMap();
+		const renderer = createMarkerRenderer({
+			host,
+			map: mockMap.map as never,
+			rasterizeSvgToImage: async (_svgMarkup, size) => ({
+				width: size.width,
+				height: size.height,
+				data: new Uint8ClampedArray(size.width * size.height * 4),
+			}),
+		});
+
+		await renderer.update({
+			clusterBackgroundColor: '#ffffff',
+			clusterForegroundColor: '#000000',
+			interactive: true,
+			markerContent: null,
+			markerOffsetY: 0,
+			markerScale: 1,
+			points: [
+				{ id: 21, lat: 52.5, lng: 13.4 },
+				{ id: 22, lat: 52.5004, lng: 13.4004 },
+				{ id: 23, lat: 52.5008, lng: 13.4008 },
+			],
+		});
+
+		const source = Array.from(mockMap.sources.values())[0];
+		expect(source.cluster).toBe(true);
+		expect(source.clusterRadius).toBe(50);
+		expect(source.clusterMaxZoom).toBe(14);
+		expect(mockMap.layers.size).toBe(3);
+
+		const clusterCountLayer = Array.from(mockMap.layers.values()).find(
+			(layer) => layer.id?.toString().includes('clusters-count-layer')
+		) as { id: string } | undefined;
+		expect(clusterCountLayer).toBeDefined();
+
+		mockMap.setClusterExpansionZoom(123, 12);
+		mockMap.setLayerFeatures(clusterCountLayer?.id ?? '', [
+			{
+				geometry: {
+					type: 'Point',
+					coordinates: [13.4, 52.5],
+				},
+				properties: {
+					cluster: true,
+					cluster_id: 123,
+				},
+			},
+		]);
+
+		expect(renderer.handleClick({ point: { x: 10, y: 20 } } as never)).toBe(true);
+		await Promise.resolve();
+
+		expect(mockMap.easeToCalls).toEqual([
+			{
+				center: [13.4, 52.5],
+				duration: 180,
+				essential: true,
+				zoom: 12,
+			},
+		]);
+	});
+
+	test('keeps multi-point non-interactive maps on the existing non-clustered marker layer', async () => {
+		const { host } = createHost();
+		const mockMap = createMockMap();
+		const renderer = createMarkerRenderer({
+			host,
+			map: mockMap.map as never,
+			rasterizeSvgToImage: async (_svgMarkup, size) => ({
+				width: size.width,
+				height: size.height,
+				data: new Uint8ClampedArray(size.width * size.height * 4),
+			}),
+		});
+
+		await renderer.update({
+			clusterBackgroundColor: '#ffffff',
+			clusterForegroundColor: '#000000',
+			interactive: false,
+			markerContent: null,
+			markerOffsetY: 0,
+			markerScale: 1,
+			points: [
+				{ id: 31, lat: 52.5, lng: 13.4 },
+				{ id: 32, lat: 52.5004, lng: 13.4004 },
+			],
+		});
+
+		const source = Array.from(mockMap.sources.values())[0];
+		expect(source.cluster).toBe(false);
+		expect(mockMap.layers.size).toBe(1);
+	});
+
+	test('rebuilds the full clustered layer group after a style reset', async () => {
+		const { host } = createHost();
+		const mockMap = createMockMap();
+		const renderer = createMarkerRenderer({
+			host,
+			map: mockMap.map as never,
+			rasterizeSvgToImage: async (_svgMarkup, size) => ({
+				width: size.width,
+				height: size.height,
+				data: new Uint8ClampedArray(size.width * size.height * 4),
+			}),
+		});
+
+		await renderer.update({
+			clusterBackgroundColor: '#ffffff',
+			clusterForegroundColor: '#000000',
+			interactive: true,
+			markerContent: null,
+			markerOffsetY: 0,
+			markerScale: 1,
+			points: [
+				{ id: 41, lat: 52.5, lng: 13.4 },
+				{ id: 42, lat: 52.5004, lng: 13.4004 },
+				{ id: 43, lat: 52.5008, lng: 13.4008 },
+			],
+		});
+
+		mockMap.layers.clear();
+		mockMap.sources.clear();
+		await renderer.rebuild();
+
+		const source = Array.from(mockMap.sources.values())[0];
+		expect(source.cluster).toBe(true);
+		expect(mockMap.layers.size).toBe(3);
 	});
 });

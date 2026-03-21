@@ -204,6 +204,22 @@ describe('map defaults normalization', () => {
 		expect(fallbackConfig.openingHoursSoonColor).toBe('#d97706');
 	});
 
+	test('preserves valid cluster colors and falls back for invalid values', () => {
+		const explicitConfig = normalizeMapConfig({
+			clusterBackgroundColor: '#f7f7f7',
+			clusterForegroundColor: '#111111',
+		});
+		const fallbackConfig = normalizeMapConfig({
+			clusterBackgroundColor: 'white',
+			clusterForegroundColor: 'black',
+		});
+
+		expect(explicitConfig.clusterBackgroundColor).toBe('#f7f7f7');
+		expect(explicitConfig.clusterForegroundColor).toBe('#111111');
+		expect(fallbackConfig.clusterBackgroundColor).toBe('#ffffff');
+		expect(fallbackConfig.clusterForegroundColor).toBe('#000000');
+	});
+
 	test('allows raw config to override the runtime mobile two-finger zoom default', () => {
 		const config = normalizeMapConfig(
 			{

@@ -313,6 +313,9 @@ function getMarkerRendererConfig(
 	currentTimeMs = Date.now()
 ): MarkerRendererConfig {
 	return {
+		clusterBackgroundColor: config.clusterBackgroundColor,
+		clusterForegroundColor: config.clusterForegroundColor,
+		interactive: config.interactive,
 		markerContent: config.markerContent,
 		markerOffsetY: config.markerOffsetY,
 		markerScale: config.markerScale,
@@ -1384,6 +1387,9 @@ export function createMinimalMap(
 
 		if (
 			!previousConfig ||
+			previousConfig.clusterBackgroundColor !== nextConfig.clusterBackgroundColor ||
+			previousConfig.clusterForegroundColor !== nextConfig.clusterForegroundColor ||
+			previousConfig.interactive !== nextConfig.interactive ||
 			previousConfig.markerContent !== nextConfig.markerContent ||
 			previousConfig.markerOffsetY !== nextConfig.markerOffsetY ||
 			previousConfig.markerScale !== nextConfig.markerScale ||

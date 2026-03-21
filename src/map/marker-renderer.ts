@@ -15,6 +15,12 @@ const DEFAULT_MARKER_ICON_SIZE = {
 
 const DEFAULT_MARKER_OFFSET_Y = -14;
 const MARKER_SYNC_RETRY_DELAY_MS = 32;
+const CLUSTER_RADIUS = 50;
+const CLUSTER_MAX_ZOOM = 14;
+const CLUSTER_SMALL_RADIUS = 28;
+const CLUSTER_MEDIUM_RADIUS = 34;
+const CLUSTER_LARGE_RADIUS = 40;
+const CLUSTER_TEXT_SIZE = 12;
 const EMPTY_FEATURE_COLLECTION = {
 	type: 'FeatureCollection',
 	features: [],
@@ -38,7 +44,15 @@ export interface RasterizedMarkerImage {
 }
 
 export interface MarkerRendererConfig
-	extends Pick<NormalizedMapConfig, 'markerContent' | 'markerOffsetY' | 'markerScale'> {
+	extends Pick<
+		NormalizedMapConfig,
+		| 'interactive'
+		| 'clusterBackgroundColor'
+		| 'clusterForegroundColor'
+		| 'markerContent'
+		| 'markerOffsetY'
+		| 'markerScale'
+	> {
 	points: MapLocationPoint[];
 }
 
@@ -56,6 +70,7 @@ export interface CreateMarkerRendererOptions {
 		| 'addImage'
 		| 'addLayer'
 		| 'addSource'
+		| 'easeTo'
 		| 'getLayer'
 		| 'getSource'
 		| 'hasImage'
@@ -90,6 +105,9 @@ interface MarkerIconSpec {
 }
 
 interface MarkerRenderData {
+	clusterBackgroundColor: string;
+	clusterForegroundColor: string;
+	clusterEnabled: boolean;
 	featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point>;
 	icons: Map<string, MarkerIconSpec>;
 }
@@ -187,6 +205,8 @@ function getMarkerIconSpec(
 
 function buildMarkerRenderData(config: MarkerRendererConfig): MarkerRenderData {
 	const icons = new Map<string, MarkerIconSpec>();
+	const clusterEnabled =
+		config.interactive !== false && config.points.length > 1;
 
 	const features = config.points.map((point) => {
 		const iconSpec = getMarkerIconSpec(
@@ -213,6 +233,11 @@ function buildMarkerRenderData(config: MarkerRendererConfig): MarkerRenderData {
 	});
 
 	return {
+		clusterBackgroundColor:
+			config.clusterBackgroundColor || '#ffffff',
+		clusterForegroundColor:
+			config.clusterForegroundColor || '#000000',
+		clusterEnabled,
 		featureCollection: {
 			type: 'FeatureCollection',
 			features,
@@ -281,8 +306,13 @@ export function createMarkerRenderer({
 	const context = getMapDomContext(host);
 	const instanceId = ++markerRendererCount;
 	const sourceId = `minimal-map-markers-source-${instanceId}`;
-	const layerId = `minimal-map-markers-layer-${instanceId}`;
+	const clusterFillLayerId = `minimal-map-marker-clusters-fill-layer-${instanceId}`;
+	const clusterCountLayerId = `minimal-map-marker-clusters-count-layer-${instanceId}`;
+	const markerLayerId = `minimal-map-markers-layer-${instanceId}`;
 	const emptyConfig: MarkerRendererConfig = {
+		clusterBackgroundColor: '#ffffff',
+		clusterForegroundColor: '#000000',
+		interactive: true,
 		markerContent: null,
 		markerOffsetY: 0,
 		markerScale: 1,
@@ -294,35 +324,111 @@ export function createMarkerRenderer({
 	let activeIcons = new Map<string, MarkerIconSpec>();
 	const rasterizedImages = new Map<string, Promise<RasterizedMarkerImage>>();
 	let pendingRetryTimeout: number | null = null;
+	let currentClusterBackgroundColor = emptyConfig.clusterBackgroundColor;
+	let currentClusterForegroundColor = emptyConfig.clusterForegroundColor;
+	let currentClusteringEnabled = false;
 
 	function getSource(): GeoJSONSource | null {
 		return (map.getSource(sourceId) as GeoJSONSource | undefined) ?? null;
 	}
 
-	function ensureSource(): GeoJSONSource {
+	function getClusterRadiusExpression(): [string, string, number, number, number, number, number] {
+		return [
+			'step',
+			['get', 'point_count'],
+			CLUSTER_SMALL_RADIUS,
+			10,
+			CLUSTER_MEDIUM_RADIUS,
+			50,
+			CLUSTER_LARGE_RADIUS,
+		];
+	}
+
+	function clearLayers(): void {
+		[
+			markerLayerId,
+			clusterCountLayerId,
+			clusterFillLayerId,
+		].forEach((candidateLayerId) => {
+			if (map.getLayer(candidateLayerId)) {
+				map.removeLayer(candidateLayerId);
+			}
+		});
+	}
+
+	function ensureSource(clusterEnabled: boolean): GeoJSONSource {
 		const existingSource = getSource();
 
 		if (existingSource) {
-			return existingSource;
+			if (currentClusteringEnabled === clusterEnabled) {
+				return existingSource;
+			}
+
+			clearLayers();
+			map.removeSource(sourceId);
 		}
 
 		map.addSource(sourceId, {
+			cluster: clusterEnabled,
+			clusterMaxZoom: CLUSTER_MAX_ZOOM,
+			clusterRadius: CLUSTER_RADIUS,
 			type: 'geojson',
 			data: EMPTY_FEATURE_COLLECTION,
 		});
+		currentClusteringEnabled = clusterEnabled;
 
 		return getSource() as GeoJSONSource;
 	}
 
-	function ensureLayer(): void {
-		if (map.getLayer(layerId)) {
+	function ensureClusterLayers(renderData: MarkerRenderData): void {
+		if (!renderData.clusterEnabled) {
+			return;
+		}
+
+		const clusterRadiusExpression = getClusterRadiusExpression();
+
+		if (!map.getLayer(clusterFillLayerId)) {
+			map.addLayer({
+				id: clusterFillLayerId,
+				type: 'circle',
+				source: sourceId,
+				filter: ['has', 'point_count'] as never,
+				paint: {
+					'circle-color': renderData.clusterBackgroundColor,
+					'circle-radius': clusterRadiusExpression as never,
+				},
+			});
+		}
+
+		if (!map.getLayer(clusterCountLayerId)) {
+			map.addLayer({
+				id: clusterCountLayerId,
+				type: 'symbol',
+				source: sourceId,
+				filter: ['has', 'point_count'] as never,
+				layout: {
+					'text-allow-overlap': true,
+					'text-field': ['get', 'point_count_abbreviated'] as never,
+					'text-ignore-placement': true,
+					'text-size': CLUSTER_TEXT_SIZE,
+				},
+				paint: {
+					'text-color': renderData.clusterForegroundColor,
+				},
+			});
+		}
+	}
+
+	function ensureMarkerLayer(clusterEnabled: boolean): void {
+		if (map.getLayer(markerLayerId)) {
 			return;
 		}
 
 		map.addLayer({
-			id: layerId,
+			id: markerLayerId,
 			type: 'symbol',
 			source: sourceId,
+			filter: clusterEnabled ? ['!', ['has', 'point_count']] as never : undefined,
 			layout: {
 				'icon-image': ['get', 'iconId'] as never,
 				'icon-size': ['get', 'iconScale'] as never,
@@ -335,13 +441,13 @@ export function createMarkerRenderer({
 	}
 
 	function clearSourceAndLayer(): void {
-		if (map.getLayer(layerId)) {
-			map.removeLayer(layerId);
-		}
+		clearLayers();
 
 		if (getSource()) {
 			map.removeSource(sourceId);
 		}
+
+		currentClusteringEnabled = false;
 	}
 
 	function clearImages(): void {
@@ -499,6 +605,22 @@ export function createMarkerRenderer({
 		}
 
 		const renderData = buildMarkerRenderData(nextConfig);
+		const didClusterPresentationChange =
+			currentClusteringEnabled !== renderData.clusterEnabled ||
+			currentClusterBackgroundColor !== renderData.clusterBackgroundColor ||
+			currentClusterForegroundColor !== renderData.clusterForegroundColor;
+
+		if (didClusterPresentationChange) {
+			try {
+				clearSourceAndLayer();
+			} catch {
+				// Style might have changed
+			}
+		}
+
+		currentClusterBackgroundColor = renderData.clusterBackgroundColor;
+		currentClusterForegroundColor = renderData.clusterForegroundColor;
+
 		try {
 			pruneUnusedIcons(renderData.icons);
 		} catch {
@@ -527,8 +649,9 @@ export function createMarkerRenderer({
 		}
 
 		try {
-			const source = ensureSource();
-			ensureLayer();
+			const source = ensureSource(renderData.clusterEnabled);
+			ensureClusterLayers(renderData);
+			ensureMarkerLayer(renderData.clusterEnabled);
 			source.setData(renderData.featureCollection);
 		} catch (error) {
 			if (process.env.NODE_ENV === 'development') {
@@ -548,13 +671,60 @@ export function createMarkerRenderer({
 			clearImages();
 		},
 		handleClick(event) {
-			if (!map.getLayer(layerId)) {
+			const clusterFeature = map
+				.queryRenderedFeatures(event.point, {
+					layers: [clusterCountLayerId, clusterFillLayerId],
+				})
+				.find(
+					(candidate) =>
+						candidate.properties?.cluster === true ||
+						candidate.properties?.cluster === 'true' ||
+						typeof candidate.properties?.cluster_id !== 'undefined'
+				);
+
+			if (clusterFeature) {
+				const coordinates = (clusterFeature.geometry as GeoJSON.Point | undefined)
+					?.coordinates;
+				const clusterId = Number(clusterFeature.properties?.cluster_id);
+				const source = getSource();
+
+				if (
+					Array.isArray(coordinates) &&
+					coordinates.length >= 2 &&
+					Number.isInteger(clusterId) &&
+					source &&
+					typeof source.getClusterExpansionZoom === 'function'
+				) {
+					void source.getClusterExpansionZoom(clusterId)
+						.then((zoom) => {
+							if (destroyed) {
+								return;
+							}
+
+							map.easeTo({
+								center: [Number(coordinates[0]), Number(coordinates[1])],
+								duration: 180,
+								essential: true,
+								zoom,
+							});
+						})
+						.catch((error) => {
+							if (process.env.NODE_ENV === 'development') {
+								console.warn('Failed to zoom to cluster expansion', error);
+							}
+						});
+				}
+
+				return true;
+			}
+
+			if (!map.getLayer(markerLayerId)) {
 				return false;
 			}
 
 			const feature = map
 				.queryRenderedFeatures(event.point, {
-					layers: [layerId],
+					layers: [markerLayerId],
 				})
 				.find((candidate) => candidate.properties?.locationId !== null);
 

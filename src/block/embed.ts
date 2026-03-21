@@ -61,6 +61,8 @@ const EMBED_ATTRIBUTE_KEYS: Array<keyof EmbedAttributes> = [
 	'openingHoursOpenColor',
 	'openingHoursClosedColor',
 	'openingHoursSoonColor',
+	'clusterBackgroundColor',
+	'clusterForegroundColor',
 	'creditsPadding',
 	'creditsOuterMargin',
 	'creditsBackgroundColor',
