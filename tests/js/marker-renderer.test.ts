@@ -170,6 +170,38 @@ describe('marker renderer', () => {
 		expect(selectedLocationId).toBe(7);
 	});
 
+	test('reads icon-offset from the feature property tuple for the marker layer layout', async () => {
+		const { host } = createHost();
+		const mockMap = createMockMap();
+		const renderer = createMarkerRenderer({
+			host,
+			map: mockMap.map as never,
+			rasterizeSvgToImage: async (_svgMarkup, size) => ({
+				width: size.width,
+				height: size.height,
+				data: new Uint8ClampedArray(size.width * size.height * 4),
+			}),
+		});
+
+		await renderer.update({
+			markerContent: null,
+			markerOffsetY: 6,
+			markerScale: 1,
+			points: [{ id: 8, lat: 52.5, lng: 13.4 }],
+		});
+
+		const layer = Array.from(mockMap.layers.values())[0] as {
+			layout: Record<string, unknown>;
+		};
+		expect(layer.layout['icon-offset']).toEqual(['get', 'iconOffset']);
+
+		const source = Array.from(mockMap.sources.values())[0];
+		const featureCollection = source.data as GeoJSON.FeatureCollection<GeoJSON.Point>;
+		expect(featureCollection.features[0]?.properties).toMatchObject({
+			iconOffset: [0, -8],
+		});
+	});
+
 	test('retries marker sync after a transient style-not-ready window during image registration', async () => {
 		const { host } = createHost();
 		const mockMap = createMockMap();

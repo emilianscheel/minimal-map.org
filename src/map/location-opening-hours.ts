@@ -62,12 +62,12 @@ interface CurrentDayTransition {
 
 const SOON_THRESHOLD_MINUTES = 30;
 
-function normalizeLocale(locale: string): string {
-	return locale.trim().replace(/_/g, '-') || 'en-US';
+function normalizeLocale(locale: string | null | undefined): string {
+	return (typeof locale === 'string' ? locale.trim().replace(/_/g, '-') : '') || 'en-US';
 }
 
-function normalizeTimeZone(timeZone: string): string {
-	return timeZone.trim() || 'UTC';
+function normalizeTimeZone(timeZone: string | null | undefined): string {
+	return (typeof timeZone === 'string' ? timeZone.trim() : '') || 'UTC';
 }
 
 function isUtcTimeZone(timeZone: string): boolean {
@@ -162,7 +162,7 @@ function getCurrentOpeningHoursContext(
 		const minute = Number(parts.find((part) => part.type === 'minute')?.value ?? '0');
 
 		return {
-			currentDayKey: DAY_KEY_BY_ENGLISH_WEEKDAY[weekday] ?? 'monday',
+			currentDayKey: (typeof weekday === 'string' ? DAY_KEY_BY_ENGLISH_WEEKDAY[weekday] : undefined) ?? 'monday',
 			currentMinutes: hour * 60 + minute,
 		};
 	} catch {

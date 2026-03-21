@@ -10,6 +10,9 @@
  * @returns Darkened hex color string.
  */
 export function darkenColor(hex: string, percent: number): string {
+	if (typeof hex !== 'string') {
+		return hex;
+	}
 	const { r, g, b } = hexToRgb(hex);
 	const factor = 1 - percent / 100;
 	
@@ -28,6 +31,9 @@ export function darkenColor(hex: string, percent: number): string {
  * @returns Lightened hex color string.
  */
 export function lightenColor(hex: string, percent: number): string {
+	if (typeof hex !== 'string') {
+		return hex;
+	}
 	const { r, g, b } = hexToRgb(hex);
 	const factor = percent / 100;
 	
@@ -39,8 +45,8 @@ export function lightenColor(hex: string, percent: number): string {
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
-	const cleanHex = hex.replace('#', '');
-	const bigint = parseInt(cleanHex, 16);
+	const cleanHex = (typeof hex === 'string' ? hex : '').replace('#', '');
+	const bigint = parseInt(cleanHex || '0', 16);
 	
 	if (cleanHex.length === 3) {
 		const r = (bigint >> 8) & 0xf;

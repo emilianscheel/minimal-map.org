@@ -36,6 +36,7 @@ interface MinimalMapState {
 	attribution: WordPressAttributionControl | null;
 	config: NormalizedMapConfig | null;
 	controls: WordPressZoomControls | null;
+	hasLoadedMap: boolean;
 	isOpenedFilterActive: boolean;
 	isLiveLocationBusy: boolean;
 	keydownHandler: ((event: KeyboardEvent) => void) | null;
@@ -60,6 +61,13 @@ function canCreateWebGLContext(context: MapDomContext): boolean {
 		canvas.getContext('webgl') ||
 		canvas.getContext('experimental-webgl')
 	);
+}
+
+export function shouldShowFallbackForMapError(
+	map: Pick<MapLibreMap, 'loaded' | 'isStyleLoaded'>,
+	hasLoadedMap: boolean
+): boolean {
+	return !hasLoadedMap && !map.loaded() && !map.isStyleLoaded();
 }
 
 function createFallback(host: HTMLElement, message: string, context: MapDomContext): void {
@@ -496,6 +504,7 @@ export function createMinimalMap(
 		attribution: null,
 		config: null,
 		controls: null,
+		hasLoadedMap: false,
 		isOpenedFilterActive: false,
 		isLiveLocationBusy: false,
 		isSearchPanelOpen: false,
@@ -1071,6 +1080,7 @@ export function createMinimalMap(
 		syncTouchZoomInteraction(map, config);
 
 		map.on('load', () => {
+			state.hasLoadedMap = true;
 			const activeConfig = state.config ?? config;
 			syncViewport(
 				map,
@@ -1144,8 +1154,9 @@ export function createMinimalMap(
 			});
 		});
 
-		map.on('error', () => {
-			if (map.loaded()) {
+		map.on('error', (event) => {
+			if (!shouldShowFallbackForMapError(map, state.hasLoadedMap)) {
+				console.error('Minimal Map encountered a runtime map error.', event.error ?? event);
 				return;
 			}
 
@@ -1247,6 +1258,7 @@ export function createMinimalMap(
 
 		state.map?.remove();
 		state.map = null;
+		state.hasLoadedMap = false;
 
 		host.innerHTML = '';
 	}

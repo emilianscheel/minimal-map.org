@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { getDefaultFitBoundsPadding } from '../../src/map/default-fit-padding';
 import { normalizeMapConfig } from '../../src/map/defaults';
 import { syncTouchZoomInteraction } from '../../src/map/interactions';
-import { syncViewport } from '../../src/map/runtime';
+import { shouldShowFallbackForMapError, syncViewport } from '../../src/map/runtime';
 import { getSearchPanelReservedWidth } from '../../src/map/search-panel-layout';
 import { getSelectedLocationTopPadding } from '../../src/map/selected-location-focus-padding';
 
@@ -28,6 +28,30 @@ function createTouchZoomRotateSpy() {
 }
 
 describe('map touch zoom interaction', () => {
+	test('does not replace an already rendering map with the WebGL fallback after a runtime error', () => {
+		expect(
+			shouldShowFallbackForMapError(
+				{
+					loaded: () => false,
+					isStyleLoaded: () => false,
+				},
+				true
+			)
+		).toBe(false);
+	});
+
+	test('only shows the WebGL fallback for a startup error before the map has loaded any style', () => {
+		expect(
+			shouldShowFallbackForMapError(
+				{
+					loaded: () => false,
+					isStyleLoaded: () => false,
+				},
+				false
+			)
+		).toBe(true);
+	});
+
 	test('enables touch zoom and disables rotation when mobile two-finger zoom is on', () => {
 		const spy = createTouchZoomRotateSpy();
 		const config = normalizeMapConfig({

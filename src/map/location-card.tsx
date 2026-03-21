@@ -90,19 +90,20 @@ function getDelayUntilNextMinute(now: Date): number {
 }
 
 const SearchResultLogo = ({ logo }: { logo: MapLocationLogo }) => {
-	const isSvgMarkup = logo.content.trim().startsWith('<svg');
+	const content = typeof logo.content === 'string' ? logo.content : '';
+	const isSvgMarkup = content.trim().startsWith('<svg');
 
 	return (
 		<div className="minimal-map-search__result-logo" aria-hidden="true">
 			{isSvgMarkup ? (
 				<div
 					className="minimal-map-search__result-logo-svg"
-					dangerouslySetInnerHTML={{ __html: logo.content }}
+					dangerouslySetInnerHTML={{ __html: content }}
 				/>
 			) : (
 				<img
 					className="minimal-map-search__result-logo-image"
-					src={logo.content}
+					src={content}
 					alt=""
 				/>
 			)}
@@ -126,7 +127,9 @@ function LocationContactMeta({ location }: { location: MapLocationPoint }) {
 		[]
 	);
 
-	const socialMedia = (location.social_media || []).filter((link) => link.url.trim());
+	const socialMedia = (location.social_media || []).filter(
+		(link) => typeof link.url === 'string' && link.url.trim()
+	);
 
 	if (
 		!location.telephone &&
@@ -202,7 +205,7 @@ export const LocationResultCard = memo(({
 	siteTimezone,
 }: LocationResultCardProps) => {
 	const [openedStatus, setOpenedStatus] = useState(() =>
-		getOpeningHoursStatus(location.opening_hours || {}, siteTimezone, new Date())
+		getOpeningHoursStatus(location.opening_hours || {}, siteLocale, siteTimezone, new Date())
 	);
 
 	useEffect(() => {
@@ -212,13 +215,13 @@ export const LocationResultCard = memo(({
 
 		const updateStatus = () => {
 			setOpenedStatus(
-				getOpeningHoursStatus(location.opening_hours || {}, siteTimezone, new Date())
+				getOpeningHoursStatus(location.opening_hours || {}, siteLocale, siteTimezone, new Date())
 			);
 		};
 
 		const timeout = setTimeout(updateStatus, getDelayUntilNextMinute(new Date()));
 		return () => clearTimeout(timeout);
-	}, [location.opening_hours, siteTimezone]);
+	}, [location.opening_hours, siteLocale, siteTimezone]);
 
 	const address = useMemo(() => formatLocationAddress(location), [location]);
 	const showOpeningHours = isOpeningHoursConfigured(location.opening_hours || {});
@@ -246,15 +249,10 @@ export const LocationResultCard = memo(({
 			>
 				<Clock3 size={10} />
 				<span
-					className={`minimal-map-search__result-opening-hours-status minimal-map-search__result-opening-hours-status--${openedStatus.status}`}
+					className={`minimal-map-search__result-opening-hours-status minimal-map-search__result-opening-hours-status--${openedStatus?.state || 'closed'}`}
 				>
-					{openedStatus.label}
+					{openedStatus?.label || __('Closed', 'minimal-map')}
 				</span>
-				{openedStatus.nextEventLabel && (
-					<span className="minimal-map-search__result-opening-hours-next">
-						{openedStatus.nextEventLabel}
-					</span>
-				)}
 				<ChevronDown
 					size={12}
 					className={`minimal-map-search__result-opening-hours-chevron ${
@@ -267,11 +265,9 @@ export const LocationResultCard = memo(({
 					{openingHoursLines.map((line, index) => (
 						<div
 							key={index}
-							className={`minimal-map-search__result-opening-hours-line ${
-								line.isToday ? 'is-today' : ''
-							}`}
+							className="minimal-map-search__result-opening-hours-line"
 						>
-							<span className="minimal-map-search__result-opening-hours-day">{line.label}</span>
+							<span className="minimal-map-search__result-opening-hours-day">{line.dayLabel}</span>
 							<span className="minimal-map-search__result-opening-hours-value">{line.value}</span>
 						</div>
 					))}
