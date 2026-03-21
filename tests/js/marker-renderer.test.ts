@@ -402,8 +402,10 @@ describe('marker renderer', () => {
 		});
 
 		const source = Array.from(mockMap.sources.values())[0];
+		const layer = Array.from(mockMap.layers.values())[0] as Record<string, unknown>;
 		expect(source.cluster).toBe(false);
 		expect(mockMap.layers.size).toBe(1);
+		expect('filter' in layer).toBe(false);
 	});
 
 	test('rebuilds the full clustered layer group after a style reset', async () => {

@@ -428,11 +428,10 @@ export function createMarkerRenderer({
 			return;
 		}
 
-		map.addLayer({
+		const layer = {
 			id: markerLayerId,
 			type: 'symbol',
 			source: sourceId,
-			filter: clusterEnabled ? ['!', ['has', 'point_count']] as never : undefined,
 			layout: {
 				'icon-image': ['get', 'iconId'] as never,
 				'icon-size': ['get', 'iconScale'] as never,
@@ -441,7 +440,13 @@ export function createMarkerRenderer({
 				'icon-allow-overlap': true,
 				'icon-ignore-placement': true,
 			},
-		});
+		} as Record<string, unknown>;
+
+		if (clusterEnabled) {
+			layer.filter = ['!', ['has', 'point_count']] as never;
+		}
+
+		map.addLayer(layer);
 	}
 
 	function clearSourceAndLayer(): void {
