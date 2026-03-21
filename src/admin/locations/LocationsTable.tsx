@@ -1,12 +1,43 @@
 import { DataViews } from '@wordpress/dataviews/wp';
 import type { Action, Field, View, ViewTable } from '@wordpress/dataviews';
+import { Tooltip } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from '@wordpress/element';
-import { Clock, Copy, Eye, EyeOff, Image, Layers3, LocateFixed, MapPin, Pencil, Tags, Trash2 } from 'lucide-react';
+import {
+	AtSign,
+	Clock,
+	Copy,
+	Eye,
+	EyeOff,
+	Facebook,
+	Image,
+	Instagram,
+	Layers3,
+	LocateFixed,
+	MapPin,
+	Pencil,
+	Send,
+	Tags,
+	Trash2,
+	Twitter,
+	Youtube,
+} from 'lucide-react';
 import LocationMiniMap from '../../components/LocationMiniMap';
 import LogoPreview from '../../components/LogoPreview';
 import TagBadge from '../../components/TagBadge';
-import type { LocationRecord } from '../../types';
+import type { LocationRecord, SocialMediaPlatform } from '../../types';
+
+const SOCIAL_PLATFORMS: Record<
+	SocialMediaPlatform,
+	{ label: string; icon: any; color: string }
+> = {
+	instagram: { label: __('Instagram', 'minimal-map'), icon: Instagram, color: '#E4405F' },
+	x: { label: __('X', 'minimal-map'), icon: Twitter, color: '#000000' },
+	facebook: { label: __('Facebook', 'minimal-map'), icon: Facebook, color: '#1877F2' },
+	threads: { label: __('Threads', 'minimal-map'), icon: AtSign, color: '#000000' },
+	youtube: { label: __('YouTube', 'minimal-map'), icon: Youtube, color: '#FF0000' },
+	telegram: { label: __('Telegram', 'minimal-map'), icon: Send, color: '#26A5E4' },
+};
 import { formatLocationAddressLines } from '../../lib/locations/formatLocationAddressLines';
 import { formatOpeningHoursSummary } from '../../lib/locations/formatOpeningHoursSummary';
 import DeleteLocationActionModal from './DeleteLocationActionModal';
@@ -118,6 +149,46 @@ function useLocationFields(controller: LocationsController): Field<LocationRecor
 									</a>
 								</span>
 							)}
+						</div>
+					);
+				},
+			},
+			{
+				id: 'social_media',
+				label: __('Social Media', 'minimal-map'),
+				enableHiding: true,
+				enableSorting: false,
+				filterBy: false,
+				render: ({ item }) => {
+					const socialMedia = (item.social_media || []).filter((link) => link.url.trim());
+
+					if (socialMedia.length === 0) {
+						return <span className="minimal-map-admin__location-social-media-empty">—</span>;
+					}
+
+					return (
+						<div className="minimal-map-admin__location-social-media">
+							{socialMedia.map((link, index) => {
+								const platform = SOCIAL_PLATFORMS[link.platform];
+								const Icon = platform.icon;
+								const shortenedUrl = link.url.replace(/^https?:\/\/(www\.)?/, '');
+
+								return (
+									<Tooltip key={index} text={shortenedUrl}>
+										<a
+											href={link.url}
+											target="_blank"
+											rel="noreferrer"
+											className="minimal-map-admin__location-social-media-link"
+										>
+											<Icon size={16} />
+											<span className="minimal-map-admin__location-social-media-name">
+												{platform.label}
+											</span>
+										</a>
+									</Tooltip>
+								);
+							})}
 						</div>
 					);
 				},

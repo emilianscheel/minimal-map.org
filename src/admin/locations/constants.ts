@@ -22,6 +22,10 @@ export const DEFAULT_FORM_STATE: LocationFormState = {
   is_hidden: false,
   opening_hours: createDefaultOpeningHours(),
   opening_hours_notes: "",
+  social_media: [
+    { platform: "instagram", url: "" },
+    { platform: "x", url: "" },
+  ],
   tag_ids: [],
 };
 
@@ -34,6 +38,7 @@ export const DEFAULT_VIEW: ViewTable = {
   fields: [
     "logo",
     "contact",
+    "social_media",
     "opening_hours",
     "address",
     "collections",

@@ -126,6 +126,7 @@ export interface MapLocationPoint {
 	country?: string;
 	opening_hours?: LocationOpeningHours;
 	opening_hours_notes?: string;
+	social_media?: SocialMediaLink[];
 }
 
 export interface MapLocationSelection {
@@ -511,6 +512,19 @@ export interface LocationOpeningHoursDay {
 
 export type LocationOpeningHours = Record<OpeningHoursDayKey, LocationOpeningHoursDay>;
 
+export type SocialMediaPlatform =
+	| 'instagram'
+	| 'x'
+	| 'facebook'
+	| 'threads'
+	| 'youtube'
+	| 'telegram';
+
+export interface SocialMediaLink {
+	platform: SocialMediaPlatform;
+	url: string;
+}
+
 export interface LocationMeta {
 	telephone: string;
 	email: string;
@@ -528,6 +542,7 @@ export interface LocationMeta {
 	is_hidden: boolean;
 	opening_hours: LocationOpeningHours;
 	opening_hours_notes: string;
+	social_media: SocialMediaLink[];
 }
 
 export interface LocationRecord extends LocationMeta {
@@ -584,7 +599,12 @@ export interface LocationFormState extends LocationMeta {
 
 export type LocationFormMode = 'create' | 'edit';
 
-export type LocationDialogStep = 'details' | 'opening_hours' | 'address' | 'map';
+export type LocationDialogStep =
+	| 'details'
+	| 'social_media'
+	| 'opening_hours'
+	| 'address'
+	| 'map';
 
 export interface FieldErrors {
 	title?: string;

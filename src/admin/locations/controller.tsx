@@ -642,10 +642,15 @@ export function useLocationsController(
 			return;
 		}
 
+		if (step === 'opening_hours') {
+			setStep('social_media');
+			return;
+		}
+
 		setStep('details');
 	};
 
-	const onChangeFormValue = (key: keyof LocationFormState, value: string): void => {
+	const onChangeFormValue = (key: keyof LocationFormState, value: any): void => {
 		setForm((currentForm) => ({
 			...currentForm,
 			[key]: value,
@@ -1636,6 +1641,12 @@ export function useLocationsController(
 				return;
 			}
 
+			setSubmitError(null);
+			setStep('social_media');
+			return;
+		}
+
+		if (step === 'social_media') {
 			setSubmitError(null);
 			setStep('opening_hours');
 			return;

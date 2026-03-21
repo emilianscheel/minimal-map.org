@@ -1727,3 +1727,68 @@ svg.lucide {
     height: 400px;
   }
 }
+
+.minimal-map-admin__social-media-step {
+  display: grid;
+  gap: 16px;
+}
+
+.minimal-map-admin__location-dialog-step-description {
+  margin: 0;
+  color: #646970;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.minimal-map-admin__social-media-rows {
+  display: grid;
+  gap: 12px;
+}
+
+.minimal-map-admin__social-media-row {
+  display: grid;
+  grid-template-columns: 160px 1fr auto;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.minimal-map-admin__social-media-row-platform,
+.minimal-map-admin__social-media-row-url {
+  min-width: 0;
+}
+
+.minimal-map-admin__social-media-add-button.components-button {
+  width: 100%;
+  justify-content: center;
+}
+
+.minimal-map-admin__location-social-media {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.minimal-map-admin__location-social-media-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: #757575 !important;
+  transition: color 0.1s ease-in-out;
+
+  &:hover {
+    color: #1e1e1e !important;
+  }
+}
+
+.minimal-map-admin__location-social-media-name {
+  font-size: 10px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.minimal-map-admin__location-social-media-empty {
+  color: #dcdcde;
+}

@@ -12,6 +12,7 @@ import MapStep from './MapStep';
 import type { LocationsController } from './types';
 import LocationDialogFields from './LocationDialogFields';
 import OpeningHoursStep from './OpeningHoursStep';
+import SocialMediaStep from './SocialMediaStep';
 
 export default function LocationDialog({ controller }: { controller: LocationsController }) {
 	if (!controller.isDialogOpen) {
@@ -78,6 +79,11 @@ export default function LocationDialog({ controller }: { controller: LocationsCo
 						form={controller.form}
 						onChangeDayValue={controller.onChangeOpeningHoursDayValue}
 						onChangeNotes={controller.onChangeOpeningHoursNotes}
+					/>
+				) : controller.step === 'social_media' ? (
+					<SocialMediaStep
+						form={controller.form}
+						onChange={controller.onChangeFormValue}
 					/>
 				) : (
 					<LocationDialogFields

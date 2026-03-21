@@ -540,6 +540,7 @@ class Config {
 				'country'      => (string) get_post_meta( $post->ID, 'country', true ),
 				'opening_hours' => get_post_meta( $post->ID, 'opening_hours', true ),
 				'opening_hours_notes' => (string) get_post_meta( $post->ID, 'opening_hours_notes', true ),
+				'social_media' => get_post_meta( $post->ID, 'social_media', true ),
 			);
 
 			$location_tags = $this->get_location_tags( $post->ID );

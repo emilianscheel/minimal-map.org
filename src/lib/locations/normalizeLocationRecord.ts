@@ -24,6 +24,7 @@ export function normalizeLocationRecord(record: LocationRestResponse): LocationR
 		is_hidden: normalizeLocationVisibilityValue(meta.is_hidden),
 		opening_hours: normalizeOpeningHours(meta.opening_hours),
 		opening_hours_notes: meta.opening_hours_notes ?? '',
+		social_media: Array.isArray(meta.social_media) ? meta.social_media : [],
 		tag_ids: record.minimal_map_tag ?? [],
 	};
 

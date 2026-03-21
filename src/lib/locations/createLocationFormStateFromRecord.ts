@@ -20,6 +20,7 @@ export function createLocationFormStateFromRecord(location: LocationRecord): Loc
 		is_hidden: location.is_hidden,
 		opening_hours: normalizeOpeningHours(location.opening_hours),
 		opening_hours_notes: location.opening_hours_notes,
+		social_media: location.social_media || [],
 		tag_ids: location.tag_ids,
 	};
 }

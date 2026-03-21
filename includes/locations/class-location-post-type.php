@@ -172,6 +172,38 @@ class Location_Post_Type {
 				'default'           => $this->get_default_opening_hours(),
 			)
 		);
+
+		register_post_meta(
+			self::POST_TYPE,
+			'social_media',
+			array(
+				'auth_callback'     => array( $this, 'can_manage_locations' ),
+				'sanitize_callback' => array( $this, 'sanitize_social_media' ),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'platform' => array(
+									'type' => 'string',
+									'enum' => array( 'instagram', 'x', 'facebook', 'threads', 'youtube', 'telegram' ),
+								),
+								'url'      => array(
+									'type'   => 'string',
+								),
+							),
+						),
+					),
+				),
+				'single'            => true,
+				'type'              => 'array',
+				'default'           => array(
+					array( 'platform' => 'instagram', 'url' => '' ),
+					array( 'platform' => 'x', 'url' => '' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -237,6 +269,39 @@ class Location_Post_Type {
 					? absint( $day_value['lunch_duration_minutes'] )
 					: 0,
 			);
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize social media links.
+	 *
+	 * @param mixed $value Raw meta value.
+	 * @return array<int, array<string, string>>
+	 */
+	public function sanitize_social_media( $value ) {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$sanitized = array();
+		$allowed_platforms = array( 'instagram', 'x', 'facebook', 'threads', 'youtube', 'telegram' );
+
+		foreach ( $value as $link ) {
+			if ( ! is_array( $link ) ) {
+				continue;
+			}
+
+			$platform = isset( $link['platform'] ) ? sanitize_text_field( $link['platform'] ) : '';
+			$url = isset( $link['url'] ) ? esc_url_raw( $link['url'] ) : '';
+
+			if ( in_array( $platform, $allowed_platforms, true ) ) {
+				$sanitized[] = array(
+					'platform' => $platform,
+					'url'      => $url,
+				);
+			}
 		}
 
 		return $sanitized;

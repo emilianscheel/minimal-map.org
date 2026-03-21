@@ -1,14 +1,20 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { memo, useEffect, useMemo, useState } from '@wordpress/element';
 import {
+	AtSign,
 	ChevronDown,
 	Clock3,
+	Facebook,
 	Globe,
+	Instagram,
 	LocateFixed,
 	Mail,
 	MapPin,
 	Navigation,
 	Phone,
+	Send,
+	Twitter,
+	Youtube,
 } from 'lucide-react';
 import TagBadge from '../components/TagBadge';
 import { isOpeningHoursConfigured } from '../lib/locations/openingHours';
@@ -16,7 +22,19 @@ import {
 	getOpeningHoursDisplayLines,
 	getOpeningHoursStatus,
 } from './location-opening-hours';
-import type { MapLocationLogo, MapLocationPoint } from '../types';
+import type { MapLocationLogo, MapLocationPoint, SocialMediaPlatform } from '../types';
+
+const SOCIAL_PLATFORMS: Record<
+	SocialMediaPlatform,
+	{ label: string; icon: any }
+> = {
+	instagram: { label: __('Instagram', 'minimal-map'), icon: Instagram },
+	x: { label: __('X', 'minimal-map'), icon: Twitter },
+	facebook: { label: __('Facebook', 'minimal-map'), icon: Facebook },
+	threads: { label: __('Threads', 'minimal-map'), icon: AtSign },
+	youtube: { label: __('YouTube', 'minimal-map'), icon: Youtube },
+	telegram: { label: __('Telegram', 'minimal-map'), icon: Send },
+};
 
 export interface LocationResultCardProps {
 	distanceLabel?: string;
@@ -105,7 +123,14 @@ const SearchResultLogo = ({ logo }: { logo: MapLocationLogo }) => {
 };
 
 function LocationContactMeta({ location }: { location: MapLocationPoint }) {
-	if (!location.telephone && !location.email && !location.website) {
+	const socialMedia = (location.social_media || []).filter((link) => link.url.trim());
+
+	if (
+		!location.telephone &&
+		!location.email &&
+		!location.website &&
+		socialMedia.length === 0
+	) {
 		return null;
 	}
 
@@ -140,6 +165,23 @@ function LocationContactMeta({ location }: { location: MapLocationPoint }) {
 					<span>{formatDisplayUrl(location.website)}</span>
 				</a>
 			) : null}
+			{socialMedia.map((link, index) => {
+				const platform = SOCIAL_PLATFORMS[link.platform];
+				const Icon = platform.icon;
+
+				return (
+					<a
+						key={index}
+						className="minimal-map-search__meta-item minimal-map-search__meta-item--link"
+						href={link.url}
+						rel="noreferrer noopener"
+						target="_blank"
+					>
+						<Icon size={10} />
+						<span>{platform.label}</span>
+					</a>
+				);
+			})}
 		</div>
 	);
 }

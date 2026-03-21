@@ -20,5 +20,6 @@ export function buildLocationMeta(form: LocationFormState): LocationMeta {
 		is_hidden: !!form.is_hidden,
 		opening_hours: normalizeOpeningHours(form.opening_hours),
 		opening_hours_notes: form.opening_hours_notes.trim(),
+		social_media: form.social_media || [],
 	};
 }
