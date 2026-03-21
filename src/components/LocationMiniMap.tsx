@@ -2,8 +2,12 @@ import { __ } from '@wordpress/i18n';
 import type { CSSProperties } from 'react';
 import { DEFAULT_POSITRON_THEME_COLORS } from '../lib/styles/defaultThemeColors';
 import type { LocationRecord, StyleThemeRecord } from '../types';
+import { darkenColor, lightenColor } from '../lib/colors';
 
 function createDefaultStaticMarker(color = '#3fb1ce'): string {
+	const borderColor = darkenColor(color, 20);
+	const innerColor = lightenColor(color, 80);
+
 	return `
 <svg viewBox="0 0 27 41" aria-hidden="true" focusable="false">
 	<defs>
@@ -27,12 +31,12 @@ function createDefaultStaticMarker(color = '#3fb1ce'): string {
 	</defs>
 	<path
 		fill="${color}"
-		stroke="#2b7f94"
+		stroke="${borderColor}"
 		stroke-width="1.5"
 		filter="url(#minimal-map-mini-marker-shadow)"
 		d="M13.5 1.5C6.873 1.5 1.5 6.873 1.5 13.5c0 9.137 10.308 19.954 11.487 21.17a.75.75 0 0 0 1.026 0C15.192 33.454 25.5 22.637 25.5 13.5 25.5 6.873 20.127 1.5 13.5 1.5Z"
 	/>
-	<circle cx="13.5" cy="13" r="5.5" fill="#fff" />
+	<circle cx="13.5" cy="13" r="5.5" fill="${innerColor}" />
 </svg>
 `;
 }
