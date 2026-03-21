@@ -321,7 +321,7 @@ class Analytics {
 				'date'  => $date,
 				'value' => $day['averageNearestDistanceMeters_count'] > 0
 					? $day['averageNearestDistanceMeters_sum'] / $day['averageNearestDistanceMeters_count']
-					: null,
+					: 0,
 			);
 		}
 
@@ -361,7 +361,7 @@ class Analytics {
 			);
 			$series['averageNearestDistanceMeters'][] = array(
 				'date' => $date,
-				'value' => null,
+				'value' => 0,
 			);
 		}
 

@@ -166,6 +166,7 @@ class Minimal_Map_Analytics_Test extends WP_UnitTestCase {
 		$this->assertSame( 2, $total_series[ $target_key ] );
 		$this->assertSame( 1, $zero_series[ $target_key ] );
 		$this->assertSame( 600.0, $distance_series[ $target_key ] );
+		$this->assertSame( 0, $distance_series[ $today->setTime( 0, 0, 0 )->format( 'Y-m-d' ) ] );
 	}
 
 	/**
