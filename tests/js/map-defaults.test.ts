@@ -33,6 +33,12 @@ describe('map defaults normalization', () => {
 		expect(config.enableCategoryFilter).toBe(false);
 	});
 
+	test('falls back to a disabled opened quick filter for shared maps without overrides', () => {
+		const config = normalizeMapConfig();
+
+		expect(config.enableOpenedFilter).toBe(false);
+	});
+
 	test('falls back to disabled live-location controls for shared maps without overrides', () => {
 		const config = normalizeMapConfig();
 
@@ -61,11 +67,13 @@ describe('map defaults normalization', () => {
 			{
 				defaults: {
 					enableCategoryFilter: true,
+					enableOpenedFilter: true,
 				},
 			}
 		);
 
 		expect(config.enableCategoryFilter).toBe(true);
+		expect(config.enableOpenedFilter).toBe(true);
 	});
 
 	test('uses runtime live-location defaults when provided', () => {

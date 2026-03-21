@@ -1,4 +1,6 @@
+import { isOpeningHoursConfigured } from '../lib/locations/openingHours';
 import type { MapLocationPoint, MapLocationTag } from '../types';
+import { isLocationOpenNow } from './location-opening-hours';
 
 export function collectLocationTags(locations: MapLocationPoint[]): MapLocationTag[] {
 	const tagsById = new Map<number, MapLocationTag>();
@@ -39,5 +41,18 @@ export function filterLocationsByCategoryTagIds(
 
 	return locations.filter((location) =>
 		location.tags?.some((tag) => selectedTagIds.has(tag.id)) ?? false
+	);
+}
+
+export function filterLocationsByOpenedStatus(
+	locations: MapLocationPoint[],
+	siteTimezone: string,
+	now = new Date()
+): MapLocationPoint[] {
+	return locations.filter(
+		(location) =>
+			location.opening_hours &&
+			isOpeningHoursConfigured(location.opening_hours) &&
+			isLocationOpenNow(location.opening_hours, siteTimezone, now)
 	);
 }

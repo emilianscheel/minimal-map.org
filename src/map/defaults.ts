@@ -45,6 +45,7 @@ const DEFAULT_MAP_DEFAULTS: MapDefaults = {
 	enableLiveLocationSearch: false,
 	enableLiveLocationMap: false,
 	enableCategoryFilter: false,
+	enableOpenedFilter: false,
 	googleMapsNavigation: false,
 	inMapLocationCard: false,
 	scrollZoom: false,
@@ -254,6 +255,8 @@ function getDefaults(runtimeConfig: MapRuntimeConfig): MapDefaults {
 			DEFAULT_MAP_DEFAULTS.enableLiveLocationMap,
 		enableCategoryFilter:
 			runtimeConfig.defaults?.enableCategoryFilter ?? DEFAULT_MAP_DEFAULTS.enableCategoryFilter,
+		enableOpenedFilter:
+			runtimeConfig.defaults?.enableOpenedFilter ?? DEFAULT_MAP_DEFAULTS.enableOpenedFilter,
 		googleMapsNavigation:
 			runtimeConfig.defaults?.googleMapsNavigation ?? DEFAULT_MAP_DEFAULTS.googleMapsNavigation,
 		inMapLocationCard:
@@ -619,6 +622,9 @@ export function normalizeMapConfig(
 		),
 		enableCategoryFilter: Boolean(
 			rawConfig.enableCategoryFilter ?? defaults.enableCategoryFilter
+		),
+		enableOpenedFilter: Boolean(
+			rawConfig.enableOpenedFilter ?? defaults.enableOpenedFilter
 		),
 		googleMapsNavigation: Boolean(
 			rawConfig.googleMapsNavigation ?? defaults.googleMapsNavigation

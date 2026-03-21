@@ -88,10 +88,13 @@ function createAddressSearchControl(
 	geocodeSearchFn: (query: string) => Promise<GeocodeResponse>,
 	options: {
 		enableCategoryFilter?: boolean;
+		enableOpenedFilter?: boolean;
 		googleMapsNavigation?: boolean;
 		googleMapsButtonShowIcon?: boolean;
 		locations?: MapLocationPoint[];
 		activeCategoryTagIds?: number[];
+		activeOpenedFilter?: boolean;
+		currentTimeMs?: number;
 		onEscape?: () => void;
 		onSelect?: (selection: MapLocationSelection) => void;
 		selectedId?: number;
@@ -123,6 +126,7 @@ function createAddressSearchControl(
 		googleMapsNavigation = false,
 		googleMapsButtonShowIcon = true,
 		enableCategoryFilter = false,
+		enableOpenedFilter = false,
 		locations = [
 			{
 				id: 1,
@@ -142,23 +146,30 @@ function createAddressSearchControl(
 		onSelect = () => {},
 		onEscape = () => {},
 		activeCategoryTagIds = [],
+		activeOpenedFilter = false,
+		currentTimeMs = Date.parse('2024-01-01T09:00:00+01:00'),
 		selectedId,
 	} = options;
 
 	const SearchControlHarness = ({ selectedId: harnessSelectedId }: { selectedId?: number }) => {
 		const [activeTags, setActiveTags] = useState<number[]>(activeCategoryTagIds);
+		const [isOpenedFilterActive, setOpenedFilterActive] = useState<boolean>(activeOpenedFilter);
 
 		return createElement(MapSearchControl, {
 			activeCategoryTagIds: activeTags,
+			currentTimeMs,
 			doc: dom.window.document,
 			enableCategoryFilter,
+			enableOpenedFilter,
 			frontendGeocodePath: '/minimal-map/v1/frontend-geocode',
 			geocodeSearch: geocodeSearchFn,
 			googleMapsNavigation,
 			googleMapsButtonShowIcon,
 			host,
+			isOpenedFilterActive,
 			locations,
 			onCategoryFilterChange: setActiveTags,
+			onOpenedFilterChange: setOpenedFilterActive,
 			onEscape,
 			onSelect,
 			selectedId: harnessSelectedId,
@@ -585,7 +596,7 @@ describe('map iframe document context', () => {
 		await flushRender();
 
 		const pills = Array.from(
-			host.querySelectorAll('.minimal-map-search__category-pill')
+			host.querySelectorAll('.minimal-map-search__quick-filter-pill')
 		).map((pill) => pill.textContent?.trim());
 
 		expect(pills).toEqual([ 'Cafe', 'Office' ]);
@@ -637,7 +648,7 @@ describe('map iframe document context', () => {
 
 		const clickPill = (label: string) => {
 			const pill = Array.from(
-				host.querySelectorAll<HTMLButtonElement>('.minimal-map-search__category-pill')
+				host.querySelectorAll<HTMLButtonElement>('.minimal-map-search__quick-filter-pill')
 			).find((candidate) => candidate.textContent?.trim() === label);
 
 			if (!pill) {
@@ -653,7 +664,7 @@ describe('map iframe document context', () => {
 
 		expect(
 			Array.from(
-				host.querySelectorAll<HTMLButtonElement>('.minimal-map-search__category-pill')
+				host.querySelectorAll<HTMLButtonElement>('.minimal-map-search__quick-filter-pill')
 			).find((pill) => pill.textContent?.trim() === 'Office')?.getAttribute('aria-pressed')
 		).toBe('true');
 
@@ -768,7 +779,7 @@ describe('map iframe document context', () => {
 		searchControl.destroy();
 	});
 
-	test('hides the category pill row while the search panel is open', async () => {
+	test('keeps the quick filter row visible while the search panel is open', async () => {
 		const { host, iframeDom, searchControl } = createAddressSearchControl(
 			async () => ({
 				success: true,
@@ -795,14 +806,157 @@ describe('map iframe document context', () => {
 		await flushRender();
 		await flushRender();
 
-		expect(host.querySelector('.minimal-map-search__category-filters')).not.toBeNull();
+		expect(host.querySelector('.minimal-map-search__quick-filters')).not.toBeNull();
 
 		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
 		focusInput(input, iframeDom);
 		await flushRender();
 		await flushRender();
 
-		expect(host.querySelector('.minimal-map-search__category-filters')).toBeNull();
+		expect(host.querySelector('.minimal-map-search__quick-filters')).not.toBeNull();
+
+		searchControl.destroy();
+	});
+
+	test('filters search results with the opened quick filter', async () => {
+		const { host, iframeDom, searchControl } = createAddressSearchControl(
+			async () => ({
+				success: true,
+				label: 'Berlin',
+				lat: 52.52,
+				lng: 13.405,
+			}),
+			{
+				enableOpenedFilter: true,
+				currentTimeMs: Date.parse('2024-01-01T09:00:00+01:00'),
+				locations: [
+					{
+						id: 1,
+						title: 'Berlin Studio',
+						lat: 52.52,
+						lng: 13.405,
+						opening_hours: {
+							monday: {
+								open: '08:00',
+								close: '20:00',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							tuesday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							wednesday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							thursday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							friday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							saturday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							sunday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+						},
+					},
+					{
+						id: 2,
+						title: 'Hamburg Office',
+						lat: 53.5511,
+						lng: 9.9937,
+						opening_hours: {
+							monday: {
+								open: '10:00',
+								close: '18:00',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							tuesday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							wednesday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							thursday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							friday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							saturday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+							sunday: {
+								open: '',
+								close: '',
+								lunch_start: '',
+								lunch_duration_minutes: 0,
+							},
+						},
+					},
+				],
+			}
+		);
+
+		await flushRender();
+		await flushRender();
+
+		const openedPill = Array.from(
+			host.querySelectorAll<HTMLButtonElement>('.minimal-map-search__quick-filter-pill')
+		).find((pill) => pill.textContent?.trim() === 'Opened');
+
+		if (!openedPill) {
+			throw new Error('Missing opened quick filter pill');
+		}
+
+		openedPill.click();
+		await flushRender();
+		await flushRender();
+
+		const input = host.querySelector('.minimal-map-search__input') as HTMLInputElement;
+		focusInput(input, iframeDom);
+		await flushRender();
+		await flushRender();
+
+		expect(host.querySelectorAll('.minimal-map-search__result-item')).toHaveLength(1);
+		expect(host.textContent).toContain('Berlin Studio');
+		expect(host.textContent).not.toContain('Hamburg Office');
 
 		searchControl.destroy();
 	});

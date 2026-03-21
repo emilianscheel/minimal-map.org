@@ -14,6 +14,7 @@ import { createMarkerRenderer, type MarkerRenderer, type MarkerRendererConfig } 
 import { getMapDomContext, type MapDomContext } from './dom-context';
 import {
 	filterLocationsByCategoryTagIds,
+	filterLocationsByOpenedStatus,
 	pruneActiveCategoryTagIds,
 } from './category-filter';
 import type {
@@ -34,12 +35,15 @@ interface MinimalMapState {
 	attribution: WordPressAttributionControl | null;
 	config: NormalizedMapConfig | null;
 	controls: WordPressZoomControls | null;
+	isOpenedFilterActive: boolean;
 	isLiveLocationBusy: boolean;
 	keydownHandler: ((event: KeyboardEvent) => void) | null;
 	locationCardPreview: LocationCardPreviewController | null;
 	map: MapLibreMap | null;
 	markerRenderer: MarkerRenderer | null;
 	observer: ResizeObserver | null;
+	openedFilterNow: number;
+	openedFilterRefreshTimeout: ReturnType<typeof setTimeout> | null;
 	pendingPreviewCleanup: (() => void) | null;
 	resizeHandler: (() => void) | null;
 	searchControl: WordPressSearchControl | null;
@@ -79,6 +83,13 @@ function getHostResponsiveWidth(host: HTMLElement, context: MapDomContext): numb
 	}
 
 	return context.win.innerWidth;
+}
+
+function getDelayUntilNextMinute(now: Date): number {
+	return Math.max(
+		1000,
+		(60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 50
+	);
 }
 
 function applyHostFontFamily(host: HTMLElement, config: NormalizedMapConfig): void {
@@ -225,23 +236,49 @@ function getEffectiveActiveCategoryTagIds(
 	return pruneActiveCategoryTagIds(activeCategoryTagIds, config.locations);
 }
 
+function getEffectiveOpenedFilterState(
+	config: NormalizedMapConfig,
+	isOpenedFilterActive: boolean
+): boolean {
+	if (!config.allowSearch || !config.enableOpenedFilter) {
+		return false;
+	}
+
+	return isOpenedFilterActive;
+}
+
 function getVisibleRenderedPoints(
 	config: NormalizedMapConfig,
-	activeCategoryTagIds: number[] = []
+	activeCategoryTagIds: number[] = [],
+	isOpenedFilterActive = false,
+	currentTimeMs = Date.now()
 ): MapLocationPoint[] {
 	const renderedPoints = getRenderedPoints(config);
 	const effectiveActiveCategoryTagIds = getEffectiveActiveCategoryTagIds(
 		config,
 		activeCategoryTagIds
 	);
+	const effectiveOpenedFilterState = getEffectiveOpenedFilterState(
+		config,
+		isOpenedFilterActive
+	);
 
-	if (effectiveActiveCategoryTagIds.length === 0) {
-		return renderedPoints;
+	const categoryFilteredPoints =
+		effectiveActiveCategoryTagIds.length === 0
+			? renderedPoints
+			: filterLocationsByCategoryTagIds(
+				renderedPoints,
+				effectiveActiveCategoryTagIds
+			);
+
+	if (!effectiveOpenedFilterState) {
+		return categoryFilteredPoints;
 	}
 
-	return filterLocationsByCategoryTagIds(
-		renderedPoints,
-		effectiveActiveCategoryTagIds
+	return filterLocationsByOpenedStatus(
+		categoryFilteredPoints,
+		config.siteTimezone,
+		new Date(currentTimeMs)
 	);
 }
 
@@ -262,13 +299,20 @@ function didPointsChange(
 
 function getMarkerRendererConfig(
 	config: NormalizedMapConfig,
-	activeCategoryTagIds: number[] = []
+	activeCategoryTagIds: number[] = [],
+	isOpenedFilterActive = false,
+	currentTimeMs = Date.now()
 ): MarkerRendererConfig {
 	return {
 		markerContent: config.markerContent,
 		markerOffsetY: config.markerOffsetY,
 		markerScale: config.markerScale,
-		points: getVisibleRenderedPoints(config, activeCategoryTagIds),
+		points: getVisibleRenderedPoints(
+			config,
+			activeCategoryTagIds,
+			isOpenedFilterActive,
+			currentTimeMs
+		),
 	};
 }
 
@@ -286,15 +330,29 @@ function didVisibleRenderedPointsChange(
 	previousConfig: NormalizedMapConfig | null,
 	nextConfig: NormalizedMapConfig,
 	previousActiveCategoryTagIds: number[] = [],
-	nextActiveCategoryTagIds: number[] = []
+	nextActiveCategoryTagIds: number[] = [],
+	previousIsOpenedFilterActive = false,
+	nextIsOpenedFilterActive = false,
+	previousCurrentTimeMs = Date.now(),
+	nextCurrentTimeMs = Date.now()
 ): boolean {
 	if (!previousConfig) {
 		return true;
 	}
 
 	return didPointsChange(
-		getVisibleRenderedPoints(previousConfig, previousActiveCategoryTagIds),
-		getVisibleRenderedPoints(nextConfig, nextActiveCategoryTagIds)
+		getVisibleRenderedPoints(
+			previousConfig,
+			previousActiveCategoryTagIds,
+			previousIsOpenedFilterActive,
+			previousCurrentTimeMs
+		),
+		getVisibleRenderedPoints(
+			nextConfig,
+			nextActiveCategoryTagIds,
+			nextIsOpenedFilterActive,
+			nextCurrentTimeMs
+		)
 	);
 }
 
@@ -330,9 +388,16 @@ export function syncViewport(
 	viewportWidth?: number | null,
 	zoomChanged = false,
 	activeCategoryTagIds: number[] = [],
-	searchPanelReservedWidth = 0
+	searchPanelReservedWidth = 0,
+	isOpenedFilterActive = false,
+	currentTimeMs = Date.now()
 ): void {
-	const points = getVisibleRenderedPoints(config, activeCategoryTagIds);
+	const points = getVisibleRenderedPoints(
+		config,
+		activeCategoryTagIds,
+		isOpenedFilterActive,
+		currentTimeMs
+	);
 
 	if (points.length === 0) {
 		syncCenter(map, config, zoomChanged);
@@ -430,6 +495,7 @@ export function createMinimalMap(
 		attribution: null,
 		config: null,
 		controls: null,
+		isOpenedFilterActive: false,
 		isLiveLocationBusy: false,
 		isSearchPanelOpen: false,
 		keydownHandler: null,
@@ -437,6 +503,8 @@ export function createMinimalMap(
 		map: null,
 		markerRenderer: null,
 		observer: null,
+		openedFilterNow: Date.now(),
+		openedFilterRefreshTimeout: null,
 		pendingPreviewCleanup: null,
 		resizeHandler: null,
 		searchControl: null,
@@ -497,6 +565,13 @@ export function createMinimalMap(
 		state.pendingPreviewCleanup = null;
 	}
 
+	function clearOpenedFilterRefreshTimeout(): void {
+		if (state.openedFilterRefreshTimeout) {
+			clearTimeout(state.openedFilterRefreshTimeout);
+			state.openedFilterRefreshTimeout = null;
+		}
+	}
+
 	function getSelectedLocationId(): number | undefined {
 		return state.selectedLocation?.locationId;
 	}
@@ -522,7 +597,13 @@ export function createMinimalMap(
 	function clearSelection(config: NormalizedMapConfig): void {
 		clearPendingLocationPreview();
 		state.selectedLocation = null;
-		state.searchControl?.update(config, undefined, state.activeCategoryTagIds);
+		state.searchControl?.update(
+			config,
+			undefined,
+			state.activeCategoryTagIds,
+			state.isOpenedFilterActive,
+			state.openedFilterNow
+		);
 		state.locationCardPreview?.hide();
 	}
 
@@ -538,7 +619,9 @@ export function createMinimalMap(
 			getHostResponsiveWidth(host, context),
 			false,
 			state.activeCategoryTagIds,
-			getActiveSearchPanelReservedWidth(config)
+			getActiveSearchPanelReservedWidth(config),
+			state.isOpenedFilterActive,
+			state.openedFilterNow
 		);
 	}
 
@@ -599,9 +682,12 @@ export function createMinimalMap(
 			return;
 		}
 
-		const point = getVisibleRenderedPoints(config, state.activeCategoryTagIds).find(
-			(candidate) => candidate.id === selection.locationId
-		);
+		const point = getVisibleRenderedPoints(
+			config,
+			state.activeCategoryTagIds,
+			state.isOpenedFilterActive,
+			state.openedFilterNow
+		).find((candidate) => candidate.id === selection.locationId);
 
 		if (!point) {
 			return;
@@ -613,7 +699,9 @@ export function createMinimalMap(
 		state.searchControl?.update(
 			config,
 			selection.locationId,
-			state.activeCategoryTagIds
+			state.activeCategoryTagIds,
+			state.isOpenedFilterActive,
+			state.openedFilterNow
 		);
 
 		if (config.inMapLocationCard) {
@@ -692,7 +780,118 @@ export function createMinimalMap(
 		}
 	}
 
+	function syncOpenedFilterRefresh(): void {
+		clearOpenedFilterRefreshTimeout();
+
+		if (!state.isOpenedFilterActive) {
+			return;
+		}
+
+		state.openedFilterRefreshTimeout = setTimeout(() => {
+			state.openedFilterRefreshTimeout = null;
+
+			if (!state.config || !state.map || destroyed) {
+				return;
+			}
+
+			applySearchFilters(
+				state.config,
+				state.activeCategoryTagIds,
+				state.isOpenedFilterActive,
+				Date.now()
+			);
+		}, getDelayUntilNextMinute(new Date()));
+	}
+
+	function applySearchFilters(
+		config: NormalizedMapConfig,
+		nextActiveCategoryTagIds: number[],
+		nextIsOpenedFilterActive: boolean,
+		currentTimeMs = Date.now()
+	): void {
+		if (!state.map) {
+			return;
+		}
+
+		const previousVisiblePoints = getVisibleRenderedPoints(
+			config,
+			state.activeCategoryTagIds,
+			state.isOpenedFilterActive,
+			state.openedFilterNow
+		);
+		const normalizedActiveCategoryTagIds = getEffectiveActiveCategoryTagIds(
+			config,
+			nextActiveCategoryTagIds
+		);
+		const normalizedIsOpenedFilterActive = getEffectiveOpenedFilterState(
+			config,
+			nextIsOpenedFilterActive
+		);
+		const nextVisiblePoints = getVisibleRenderedPoints(
+			config,
+			normalizedActiveCategoryTagIds,
+			normalizedIsOpenedFilterActive,
+			currentTimeMs
+		);
+		const didCategoryFiltersChange =
+			JSON.stringify(normalizedActiveCategoryTagIds) !==
+			JSON.stringify(state.activeCategoryTagIds);
+		const didOpenedFilterStateChange =
+			normalizedIsOpenedFilterActive !== state.isOpenedFilterActive;
+		const didVisiblePointsChange = didPointsChange(
+			previousVisiblePoints,
+			nextVisiblePoints
+		);
+
+		state.activeCategoryTagIds = normalizedActiveCategoryTagIds;
+		state.isOpenedFilterActive = normalizedIsOpenedFilterActive;
+		state.openedFilterNow = currentTimeMs;
+
+		syncOpenedFilterRefresh();
+
+		if (
+			state.selectedLocation &&
+			!nextVisiblePoints.some((point) => point.id === state.selectedLocation?.locationId)
+		) {
+			clearSelection(config);
+		} else {
+			state.searchControl?.update(
+				config,
+				getSelectedLocationId(),
+				state.activeCategoryTagIds,
+				state.isOpenedFilterActive,
+				state.openedFilterNow
+			);
+		}
+
+		if (
+			!didCategoryFiltersChange &&
+			!didOpenedFilterStateChange &&
+			!didVisiblePointsChange
+		) {
+			return;
+		}
+
+		syncMarkers(config);
+		syncLocationCardPreview(config, state.selectedLocation);
+		syncViewport(
+			state.map,
+			config,
+			getHostResponsiveWidth(host, context),
+			false,
+			state.activeCategoryTagIds,
+			getActiveSearchPanelReservedWidth(config),
+			state.isOpenedFilterActive,
+			state.openedFilterNow
+		);
+	}
+
 	function syncSearch(config: NormalizedMapConfig): void {
+		state.isOpenedFilterActive = getEffectiveOpenedFilterState(
+			config,
+			state.isOpenedFilterActive
+		);
+
 		if (config.allowSearch && config.locations.length > 0 && state.map) {
 			if (!state.searchControl) {
 				state.searchControl = createWordPressSearchControl(
@@ -713,50 +912,27 @@ export function createMinimalMap(
 					},
 					undefined,
 					state.activeCategoryTagIds,
+					state.isOpenedFilterActive,
 					(activeCategoryTagIds: number[]) => {
 						if (!state.config || !state.map) {
 							return;
 						}
 
-						const nextActiveCategoryTagIds = getEffectiveActiveCategoryTagIds(
+						applySearchFilters(
 							state.config,
-							activeCategoryTagIds
+							activeCategoryTagIds,
+							state.isOpenedFilterActive
 						);
-
-						if (
-							JSON.stringify(nextActiveCategoryTagIds) ===
-							JSON.stringify(state.activeCategoryTagIds)
-						) {
+					},
+					(isOpenedFilterActive: boolean) => {
+						if (!state.config || !state.map) {
 							return;
 						}
 
-						state.activeCategoryTagIds = nextActiveCategoryTagIds;
-
-						if (
-							state.selectedLocation &&
-							!getVisibleRenderedPoints(
-								state.config,
-								state.activeCategoryTagIds
-							).some((point) => point.id === state.selectedLocation?.locationId)
-						) {
-							clearSelection(state.config);
-						} else {
-							state.searchControl?.update(
-								state.config,
-								getSelectedLocationId(),
-								state.activeCategoryTagIds
-							);
-						}
-
-						syncMarkers(state.config);
-						syncLocationCardPreview(state.config, state.selectedLocation);
-						syncViewport(
-							state.map,
+						applySearchFilters(
 							state.config,
-							getHostResponsiveWidth(host, context),
-							false,
 							state.activeCategoryTagIds,
-							getActiveSearchPanelReservedWidth(state.config)
+							isOpenedFilterActive
 						);
 					},
 					() => {
@@ -782,7 +958,9 @@ export function createMinimalMap(
 							getHostResponsiveWidth(host, context),
 							false,
 							state.activeCategoryTagIds,
-							getActiveSearchPanelReservedWidth(state.config)
+							getActiveSearchPanelReservedWidth(state.config),
+							state.isOpenedFilterActive,
+							state.openedFilterNow
 						);
 					},
 					(isBusy: boolean) => {
@@ -794,13 +972,17 @@ export function createMinimalMap(
 				state.searchControl.update(
 					config,
 					getSelectedLocationId(),
-					state.activeCategoryTagIds
+					state.activeCategoryTagIds,
+					state.isOpenedFilterActive,
+					state.openedFilterNow
 				);
 			}
 		} else {
 			state.searchControl?.destroy();
 			state.searchControl = null;
 			state.isLiveLocationBusy = false;
+			state.isOpenedFilterActive = false;
+			clearOpenedFilterRefreshTimeout();
 			state.controls?.setLiveLocationBusy(false);
 			state.isSearchPanelOpen = false;
 		}
@@ -821,7 +1003,12 @@ export function createMinimalMap(
 		}
 
 		void state.markerRenderer.update(
-			getMarkerRendererConfig(config, state.activeCategoryTagIds)
+			getMarkerRendererConfig(
+				config,
+				state.activeCategoryTagIds,
+				state.isOpenedFilterActive,
+				state.openedFilterNow
+			)
 		);
 	}
 
@@ -885,7 +1072,9 @@ export function createMinimalMap(
 				getHostResponsiveWidth(host, context),
 				false,
 				state.activeCategoryTagIds,
-				getActiveSearchPanelReservedWidth(activeConfig)
+				getActiveSearchPanelReservedWidth(activeConfig),
+				state.isOpenedFilterActive,
+				state.openedFilterNow
 			);
 			map.resize();
 
@@ -979,7 +1168,9 @@ export function createMinimalMap(
 					getHostResponsiveWidth(host, context),
 					false,
 					state.activeCategoryTagIds,
-					getActiveSearchPanelReservedWidth(activeConfig)
+					getActiveSearchPanelReservedWidth(activeConfig),
+					state.isOpenedFilterActive,
+					state.openedFilterNow
 				);
 			});
 			state.observer.observe(host);
@@ -1000,6 +1191,7 @@ export function createMinimalMap(
 		syncMarkers(config);
 		syncControls(config);
 		syncSearch(config);
+		syncOpenedFilterRefresh();
 		syncEscapeKeyHandler();
 		syncLocationCardPreview(config, null);
 		syncAttribution(config);
@@ -1011,6 +1203,8 @@ export function createMinimalMap(
 	function destroy(): void {
 		destroyed = true;
 		state.activeCategoryTagIds = [];
+		state.isOpenedFilterActive = false;
+		clearOpenedFilterRefreshTimeout();
 
 		if (styleRebuildTimeout) {
 			clearTimeout(styleRebuildTimeout);
@@ -1055,9 +1249,15 @@ export function createMinimalMap(
 		const nextConfig = normalizeMapConfig(rawConfig, runtimeConfig);
 		const previousConfig = state.config;
 		const previousActiveCategoryTagIds = state.activeCategoryTagIds;
+		const previousIsOpenedFilterActive = state.isOpenedFilterActive;
+		const previousOpenedFilterNow = state.openedFilterNow;
 		const nextActiveCategoryTagIds = getEffectiveActiveCategoryTagIds(
 			nextConfig,
 			state.activeCategoryTagIds
+		);
+		const nextIsOpenedFilterActive = getEffectiveOpenedFilterState(
+			nextConfig,
+			state.isOpenedFilterActive
 		);
 
 		if (!state.map) {
@@ -1075,7 +1275,12 @@ export function createMinimalMap(
 
 		if (
 			state.selectedLocation &&
-			!getVisibleRenderedPoints(nextConfig, nextActiveCategoryTagIds).some(
+			!getVisibleRenderedPoints(
+				nextConfig,
+				nextActiveCategoryTagIds,
+				nextIsOpenedFilterActive,
+				state.openedFilterNow
+			).some(
 				(point) => point.id === state.selectedLocation?.locationId
 			)
 		) {
@@ -1101,10 +1306,16 @@ export function createMinimalMap(
 			previousConfig,
 			nextConfig,
 			previousActiveCategoryTagIds,
-			nextActiveCategoryTagIds
+			nextActiveCategoryTagIds,
+			previousIsOpenedFilterActive,
+			nextIsOpenedFilterActive,
+			previousOpenedFilterNow,
+			state.openedFilterNow
 		);
 
 		state.activeCategoryTagIds = nextActiveCategoryTagIds;
+		state.isOpenedFilterActive = nextIsOpenedFilterActive;
+		syncOpenedFilterRefresh();
 
 		if (centerChanged || zoomChanged || visiblePointsChanged) {
 			syncViewport(
@@ -1113,7 +1324,9 @@ export function createMinimalMap(
 				getHostResponsiveWidth(host, context),
 				zoomChanged,
 				state.activeCategoryTagIds,
-				getActiveSearchPanelReservedWidth(nextConfig)
+				getActiveSearchPanelReservedWidth(nextConfig),
+				state.isOpenedFilterActive,
+				state.openedFilterNow
 			);
 		}
 

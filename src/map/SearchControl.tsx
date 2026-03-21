@@ -24,9 +24,9 @@ import { LiveLocationResultCard, LocationResultCard } from './location-card';
 import {
 	collectLocationTags,
 	filterLocationsByCategoryTagIds,
+	filterLocationsByOpenedStatus,
 } from './category-filter';
 import { isOpeningHoursConfigured } from '../lib/locations/openingHours';
-import { isLocationOpenNow } from './location-opening-hours';
 import {
 	buildLocationSearchIndex,
 	normalizeSearchValue,
@@ -66,13 +66,6 @@ const FALLBACK_LIVE_LOCATION_OPTIONS: GeolocationRequestOptions = {
 	maximumAge: 300000,
 	timeout: 15000,
 };
-
-function getDelayUntilNextMinute(now: Date): number {
-	return Math.max(
-		1000,
-		(60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 50
-	);
-}
 
 function isTransientLiveLocationError(error?: GeolocationPositionError): boolean {
 	if (!error) {
@@ -118,9 +111,13 @@ interface SearchControlProps {
 	googleMapsNavigation: boolean;
 	googleMapsButtonShowIcon: boolean;
 	enableCategoryFilter: boolean;
+	enableOpenedFilter: boolean;
 	locations: MapLocationPoint[];
 	activeCategoryTagIds: number[];
+	isOpenedFilterActive: boolean;
+	currentTimeMs: number;
 	onCategoryFilterChange: (tagIds: number[]) => void;
+	onOpenedFilterChange: (isActive: boolean) => void;
 	onEscape?: () => void;
 	onLiveLocationActionChange?: (action: () => void) => void;
 	onLiveLocationStateChange?: (isBusy: boolean) => void;
@@ -140,9 +137,13 @@ export const MapSearchControl = ({
 	googleMapsNavigation,
 	googleMapsButtonShowIcon,
 	enableCategoryFilter,
+	enableOpenedFilter,
 	locations,
 	activeCategoryTagIds,
+	isOpenedFilterActive,
+	currentTimeMs,
 	onCategoryFilterChange,
+	onOpenedFilterChange,
 	onEscape,
 	onLiveLocationActionChange,
 	onLiveLocationStateChange,
@@ -162,9 +163,7 @@ export const MapSearchControl = ({
 		'idle' | 'loading' | 'results' | 'empty'
 	>('idle');
 	const [addressResults, setAddressResults] = useState<DistanceSearchResult[]>([]);
-	const [isOpenedOnly, setOpenedOnly] = useState(false);
 	const [selectedId, setSelectedId] = useState<number | undefined>(selectedIdProp);
-	const [filterNow, setFilterNow] = useState(() => Date.now());
 	const [viewportWidth, setViewportWidth] = useState<number | null>(
 		Math.ceil(responsiveHost.getBoundingClientRect().width) ||
 			doc.defaultView?.innerWidth ||
@@ -184,12 +183,13 @@ export const MapSearchControl = ({
 	const liveLocationLabel = __('My location', 'minimal-map');
 	const hasOpenedQuickFilter = useMemo(
 		() =>
+			enableOpenedFilter &&
 			locations.some(
 				(location) =>
 					location.opening_hours &&
 					isOpeningHoursConfigured(location.opening_hours)
 			),
-		[locations]
+		[enableOpenedFilter, locations]
 	);
 	const availableTags = useMemo(
 		() => collectLocationTags(locations),
@@ -205,21 +205,17 @@ export const MapSearchControl = ({
 	);
 	const quickFilteredLocations = useMemo(
 		() => {
-			if (!isOpenedOnly) {
+			if (!isOpenedFilterActive) {
 				return tagFilteredLocations;
 			}
 
-			return tagFilteredLocations.filter(
-				(location) =>
-					location.opening_hours &&
-					isLocationOpenNow(
-						location.opening_hours,
-						siteTimezone,
-						new Date(filterNow)
-					)
+			return filterLocationsByOpenedStatus(
+				tagFilteredLocations,
+				siteTimezone,
+				new Date(currentTimeMs)
 			);
 		},
-		[filterNow, isOpenedOnly, siteTimezone, tagFilteredLocations]
+		[currentTimeMs, isOpenedFilterActive, siteTimezone, tagFilteredLocations]
 	);
 	const indexedLocations = useMemo(
 		() => buildLocationSearchIndex(quickFilteredLocations),
@@ -289,29 +285,6 @@ export const MapSearchControl = ({
 			view.removeEventListener('resize', updateViewportWidth);
 		};
 	}, [doc, responsiveHost]);
-
-	useEffect(() => {
-		if (!isOpenedOnly) {
-			return;
-		}
-
-		let timeoutId: number | null = null;
-
-		const scheduleNextTick = () => {
-			timeoutId = globalThis.setTimeout(() => {
-				setFilterNow(Date.now());
-				scheduleNextTick();
-			}, getDelayUntilNextMinute(new Date()));
-		};
-
-		scheduleNextTick();
-
-		return () => {
-			if (timeoutId !== null) {
-				globalThis.clearTimeout(timeoutId);
-			}
-		};
-	}, [isOpenedOnly]);
 
 	const filteredLocations = useMemo(() => {
 		if (!isOpen) {
@@ -614,10 +587,10 @@ export const MapSearchControl = ({
 					<button
 						type="button"
 						className={`minimal-map-search__quick-filter-pill${
-							isOpenedOnly ? ' is-selected' : ''
+							isOpenedFilterActive ? ' is-selected' : ''
 						}`}
-						aria-pressed={isOpenedOnly}
-						onClick={() => setOpenedOnly((current) => !current)}
+						aria-pressed={isOpenedFilterActive}
+						onClick={() => onOpenedFilterChange(!isOpenedFilterActive)}
 					>
 						{__('Opened', 'minimal-map')}
 					</button>
@@ -797,7 +770,9 @@ export interface WordPressSearchControl {
 	update: (
 		config: NormalizedMapConfig,
 		selectedId?: number,
-		activeCategoryTagIds?: number[]
+		activeCategoryTagIds?: number[],
+		isOpenedFilterActive?: boolean,
+		currentTimeMs?: number
 	) => void;
 }
 
@@ -809,7 +784,9 @@ export function createWordPressSearchControl(
 	onLocationSelect?: (selection: MapLocationSelection) => void,
 	geocodeSearchFn?: GeocodeSearchFn,
 	initialActiveCategoryTagIds: number[] = [],
+	initialIsOpenedFilterActive = false,
 	onCategoryFilterChange?: (tagIds: number[]) => void,
+	onOpenedFilterChange?: (isActive: boolean) => void,
 	onEscape?: () => void,
 	onOpenStateChange?: (isOpen: boolean) => void,
 	onLiveLocationStateChange?: (isBusy: boolean) => void,
@@ -850,22 +827,28 @@ export function createWordPressSearchControl(
 	const render = (
 		config: NormalizedMapConfig,
 		selectedId?: number,
-		activeCategoryTagIds: number[] = []
+		activeCategoryTagIds: number[] = [],
+		isOpenedFilterActive = false,
+		currentTimeMs = Date.now()
 	) => {
 		applySearchPanelCssVariables(container, config);
 		root.render(
 			<MapSearchControl
 				activeCategoryTagIds={activeCategoryTagIds}
+				currentTimeMs={currentTimeMs}
 				doc={context.doc}
 				enableCategoryFilter={config.enableCategoryFilter}
+				enableOpenedFilter={config.enableOpenedFilter}
 				enableLiveLocationSearch={config.enableLiveLocationSearch}
 				frontendGeocodePath={frontendGeocodePath}
 				geocodeSearch={geocodeSearch}
 				googleMapsNavigation={config.googleMapsNavigation}
 				googleMapsButtonShowIcon={config.googleMapsButtonShowIcon}
 				host={host}
+				isOpenedFilterActive={isOpenedFilterActive}
 				locations={config.locations}
 				onCategoryFilterChange={onCategoryFilterChange ?? (() => {})}
+				onOpenedFilterChange={onOpenedFilterChange ?? (() => {})}
 				onEscape={onEscape}
 				onLiveLocationActionChange={(action) => {
 					requestLiveLocationAction = action;
@@ -880,7 +863,12 @@ export function createWordPressSearchControl(
 		);
 	};
 
-	render(initialConfig, initialSelectedId, initialActiveCategoryTagIds);
+	render(
+		initialConfig,
+		initialSelectedId,
+		initialActiveCategoryTagIds,
+		initialIsOpenedFilterActive
+	);
 
 	return {
 		destroy() {
@@ -891,8 +879,20 @@ export function createWordPressSearchControl(
 		requestLiveLocation() {
 			requestLiveLocationAction();
 		},
-		update(config, selectedId, activeCategoryTagIds = []) {
-			render(config, selectedId, activeCategoryTagIds);
+		update(
+			config,
+			selectedId,
+			activeCategoryTagIds = [],
+			isOpenedFilterActive = false,
+			currentTimeMs = Date.now()
+		) {
+			render(
+				config,
+				selectedId,
+				activeCategoryTagIds,
+				isOpenedFilterActive,
+				currentTimeMs
+			);
 		},
 	};
 }

@@ -71,6 +71,10 @@
       "type": "boolean",
       "default": false
     },
+    "enableOpenedFilter": {
+      "type": "boolean",
+      "default": false
+    },
     "googleMapsNavigation": {
       "type": "boolean",
       "default": false

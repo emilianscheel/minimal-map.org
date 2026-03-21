@@ -1184,6 +1184,13 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             }
           />
           <ToggleControl
+            label={__("Enable Opened Quick Filter", "minimal-map")}
+            checked={attributes.enableOpenedFilter}
+            onChange={(value: boolean) =>
+              setAttributes({ enableOpenedFilter: value })
+            }
+          />
+          <ToggleControl
             label={__("Google Maps Navigation", "minimal-map")}
             checked={attributes.googleMapsNavigation}
             onChange={(value: boolean) =>

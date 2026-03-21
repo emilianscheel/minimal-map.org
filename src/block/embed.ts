@@ -27,6 +27,7 @@ const EMBED_ATTRIBUTE_KEYS: Array<keyof EmbedAttributes> = [
 	'enableLiveLocationSearch',
 	'enableLiveLocationMap',
 	'enableCategoryFilter',
+	'enableOpenedFilter',
 	'googleMapsNavigation',
 	'inMapLocationCard',
 	'scrollZoom',

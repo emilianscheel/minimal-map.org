@@ -46,6 +46,7 @@ export interface MapDefaults {
 	enableLiveLocationSearch: boolean;
 	enableLiveLocationMap: boolean;
 	enableCategoryFilter: boolean;
+	enableOpenedFilter: boolean;
 	googleMapsNavigation: boolean;
 	inMapLocationCard: boolean;
 	scrollZoom: boolean;
@@ -181,6 +182,7 @@ export interface RawMapConfig {
 	enableLiveLocationSearch?: boolean;
 	enableLiveLocationMap?: boolean;
 	enableCategoryFilter?: boolean;
+	enableOpenedFilter?: boolean;
 	googleMapsNavigation?: boolean;
 	inMapLocationCard?: boolean;
 	scrollZoom?: boolean;
@@ -261,6 +263,7 @@ export interface NormalizedMapConfig extends MapDefaults {
 	showAttribution: boolean;
 	allowSearch: boolean;
 	enableCategoryFilter: boolean;
+	enableOpenedFilter: boolean;
 	googleMapsNavigation: boolean;
 	inMapLocationCard: boolean;
 	siteTimezone: string;
@@ -410,6 +413,7 @@ export interface MapBlockAttributes {
 	enableLiveLocationSearch: boolean;
 	enableLiveLocationMap: boolean;
 	enableCategoryFilter: boolean;
+	enableOpenedFilter: boolean;
 	googleMapsNavigation: boolean;
 	inMapLocationCard: boolean;
 	scrollZoom: boolean;
@@ -467,7 +471,9 @@ export interface WordPressSearchControl {
 	update: (
 		config: NormalizedMapConfig,
 		selectedId?: number,
-		activeCategoryTagIds?: number[]
+		activeCategoryTagIds?: number[],
+		isOpenedFilterActive?: boolean,
+		currentTimeMs?: number
 	) => void;
 }
 
