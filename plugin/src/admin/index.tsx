@@ -145,7 +145,7 @@ function AdminSidebar({ currentView }: { currentView: AdminSectionView }) {
                 }}
               >
                 <span>{__("Buy Premium", "minimal-map")}</span>
-                <Kbd variant="neutral">{__("Save 80%", "minimal-map")}</Kbd>
+                <Kbd variant="neutral">{__("Save 50%", "minimal-map")}</Kbd>
               </span>
             </Button>
             <Button
