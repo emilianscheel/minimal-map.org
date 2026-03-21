@@ -85,7 +85,12 @@ function useLocationFields(controller: LocationsController): Field<LocationRecor
 				enableSorting: false,
 				filterBy: false,
 				enableGlobalSearch: true,
-				render: ({ item }) => <LocationTitleCell location={item} />,
+				render: ({ item }) => (
+					<LocationTitleCell
+						location={item}
+						onShowLocation={controller.onOpenShowLocationConfirmationModal}
+					/>
+				),
 			},
 			{
 				id: 'contact',

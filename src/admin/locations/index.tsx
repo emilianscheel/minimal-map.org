@@ -14,6 +14,7 @@ import LocationsTable from './LocationsTable';
 import RemoveMarkerConfirmationModal from './RemoveMarkerConfirmationModal';
 import RemoveCollectionAssignmentModal from './RemoveCollectionAssignmentModal';
 import RemoveTagsConfirmationModal from './RemoveTagsConfirmationModal';
+import ShowLocationConfirmationModal from './ShowLocationConfirmationModal';
 import type { LocationsController } from './types';
 
 export { useLocationsController } from './controller';
@@ -67,6 +68,7 @@ export default function LocationsView({ controller }: { controller: LocationsCon
 			<DeleteLogoConfirmationModal controller={controller} />
 			<RemoveMarkerConfirmationModal controller={controller} />
 			<RemoveTagsConfirmationModal controller={controller} />
+			<ShowLocationConfirmationModal controller={controller} />
 			<RemoveCollectionAssignmentModal controller={controller} />
 		</div>
 	);

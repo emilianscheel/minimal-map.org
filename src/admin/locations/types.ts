@@ -64,6 +64,7 @@ export interface LocationsController {
 	isDeleteLogoConfirmationModalOpen: boolean;
 	isRemoveMarkerConfirmationModalOpen: boolean;
 	isRemoveTagsConfirmationModalOpen: boolean;
+	isShowLocationConfirmationModalOpen: boolean;
 	isDialogOpen: boolean;
 	isGeocoding: boolean;
 	isLoading: boolean;
@@ -92,6 +93,7 @@ export interface LocationsController {
 	selectedLogoRemovalLocations: LocationRecord[];
 	selectedMarkerRemovalLocations: LocationRecord[];
 	selectedTagRemovalLocations: LocationRecord[];
+	selectedShownLocation: LocationRecord | null;
 	selectedRemovalCollection: CollectionRecord | null;
 	selectedRemovalLocation: LocationRecord | null;
 	selectedCoordinates: MapCoordinates | null;
@@ -134,6 +136,7 @@ export interface LocationsController {
 	onCloseDeleteLogoConfirmationModal: () => void;
 	onCloseRemoveMarkerConfirmationModal: () => void;
 	onCloseRemoveTagsConfirmationModal: () => void;
+	onCloseShowLocationConfirmationModal: () => void;
 	onChangeView: (nextView: ViewTable) => void;
 	onChangeSelection: (selection: string[]) => void;
 	onConfirm: () => Promise<void>;
@@ -155,6 +158,7 @@ export interface LocationsController {
 	onOpenDeleteLogoConfirmationModal: (locations: LocationRecord | LocationRecord[]) => void;
 	onOpenRemoveMarkerConfirmationModal: (locations: LocationRecord[]) => void;
 	onOpenRemoveTagsConfirmationModal: (locations: LocationRecord[]) => void;
+	onOpenShowLocationConfirmationModal: (location: LocationRecord) => void;
 	onOpenRemoveCollectionAssignmentModal: (
 		location: LocationRecord,
 		collection: CollectionRecord
@@ -164,6 +168,7 @@ export interface LocationsController {
 	onClearTagsFromLocations: () => Promise<void>;
 	onRemoveCollectionAssignment: () => Promise<void>;
 	onRetrieveLocation: (location: LocationRecord) => Promise<void>;
+	onConfirmShowLocation: () => Promise<void>;
 	onSelectAssignmentCollection: (collectionId: string) => void;
 	onSelectAssignmentLogo: (logoId: string) => void;
 	onSelectAssignmentMarker: (markerId: string) => void;

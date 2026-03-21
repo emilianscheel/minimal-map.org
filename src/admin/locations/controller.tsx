@@ -142,6 +142,10 @@ export function useLocationsController(
 		useState(false);
 	const [selectedTagRemovalLocations, setSelectedTagRemovalLocations] =
 		useState<LocationRecord[]>([]);
+	const [isShowLocationConfirmationModalOpen, setShowLocationConfirmationModalOpen] =
+		useState(false);
+	const [selectedShownLocation, setSelectedShownLocation] =
+		useState<LocationRecord | null>(null);
 	const [isRemoveCollectionAssignmentModalOpen, setRemoveCollectionAssignmentModalOpen] =
 		useState(false);
 	const [selectedRemovalLocation, setSelectedRemovalLocation] = useState<LocationRecord | null>(
@@ -512,6 +516,11 @@ export function useLocationsController(
 		setSelectedTagRemovalLocations([]);
 	}, []);
 
+	const resetShowLocationConfirmationState = useCallback((): void => {
+		setShowLocationConfirmationModalOpen(false);
+		setSelectedShownLocation(null);
+	}, []);
+
 	const closeRemoveTagsConfirmationModal = useCallback((): void => {
 		if (isAssignmentSaving) {
 			return;
@@ -519,6 +528,14 @@ export function useLocationsController(
 
 		resetRemoveTagsConfirmationState();
 	}, [isAssignmentSaving, resetRemoveTagsConfirmationState]);
+
+	const closeShowLocationConfirmationModal = useCallback((): void => {
+		if (isRowActionPending) {
+			return;
+		}
+
+		resetShowLocationConfirmationState();
+	}, [isRowActionPending, resetShowLocationConfirmationState]);
 
 	const resetRemoveCollectionAssignmentState = useCallback((): void => {
 		setRemoveCollectionAssignmentModalOpen(false);
@@ -765,6 +782,15 @@ export function useLocationsController(
 		setRemoveTagsConfirmationModalOpen(true);
 	}, []);
 
+	const onOpenShowLocationConfirmationModal = useCallback((location: LocationRecord): void => {
+		if (isRowActionPending || !location.is_hidden) {
+			return;
+		}
+
+		setSelectedShownLocation(location);
+		setShowLocationConfirmationModalOpen(true);
+	}, [isRowActionPending]);
+
 	const onOpenDeleteAllLocationsModal = useCallback((): void => {
 		if (
 			locations.length === 0 ||
@@ -778,6 +804,19 @@ export function useLocationsController(
 
 		setDeleteAllLocationsModalOpen(true);
 	}, [isDeletingAllLocations, isExporting, isImporting, isRowActionPending, locations.length]);
+
+	const onConfirmShowLocation = useCallback(async (): Promise<void> => {
+		if (!selectedShownLocation) {
+			return;
+		}
+
+		await onSetLocationVisibility([selectedShownLocation], false);
+		resetShowLocationConfirmationState();
+	}, [
+		onSetLocationVisibility,
+		resetShowLocationConfirmationState,
+		selectedShownLocation,
+	]);
 
 	const assignLogoToLocations = useCallback(
 		async (
@@ -2020,6 +2059,7 @@ export function useLocationsController(
 		isDeleteLogoConfirmationModalOpen,
 		isRemoveMarkerConfirmationModalOpen,
 		isRemoveTagsConfirmationModalOpen,
+		isShowLocationConfirmationModalOpen,
 		isDialogOpen,
 		isCustomCsvImportModalOpen,
 		isGeocoding,
@@ -2061,6 +2101,7 @@ export function useLocationsController(
 		onCloseDeleteLogoConfirmationModal: closeDeleteLogoConfirmationModal,
 		onCloseRemoveMarkerConfirmationModal: closeRemoveMarkerConfirmationModal,
 		onCloseRemoveTagsConfirmationModal: closeRemoveTagsConfirmationModal,
+		onCloseShowLocationConfirmationModal: closeShowLocationConfirmationModal,
 		onCloseRemoveCollectionAssignmentModal: closeRemoveCollectionAssignmentModal,
 		onOpenAssignToCollectionModal,
 		onOpenAssignLogoModal,
@@ -2074,6 +2115,7 @@ export function useLocationsController(
 		onOpenDeleteLogoConfirmationModal,
 		onOpenRemoveMarkerConfirmationModal,
 		onOpenRemoveTagsConfirmationModal,
+		onOpenShowLocationConfirmationModal,
 		onOpenRemoveCollectionAssignmentModal,
 		onChangeView: (nextView) => {
 			setView({
@@ -2098,6 +2140,7 @@ export function useLocationsController(
 		onClearLogosFromLocations,
 		onClearMarkersFromLocations,
 		onClearTagsFromLocations,
+		onConfirmShowLocation,
 		onRemoveCollectionAssignment,
 		onRetrieveLocation,
 		onSelectAssignmentCollection: setAssignmentCollectionId,
@@ -2117,6 +2160,7 @@ export function useLocationsController(
 		selectedLogoRemovalLocations,
 		selectedMarkerRemovalLocations,
 		selectedTagRemovalLocations,
+		selectedShownLocation,
 		selectedTagsLocations,
 		selectedCoordinates,
 		selectedRemovalCollection,

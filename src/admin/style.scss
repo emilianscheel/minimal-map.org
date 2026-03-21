@@ -1138,6 +1138,17 @@ svg.lucide {
   flex: 0 0 auto;
 }
 
+.minimal-map-admin__location-title-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
 .minimal-map-admin__location-delete-dialog {
   display: grid;
   gap: 12px;
