@@ -45,7 +45,7 @@ export default function LocationsView({ controller }: { controller: LocationsCon
 							void controller.onImportLocations(file);
 						}
 					}}
-					label={__('Drop CSV file here to import locations', 'minimal-map')}
+					label={__('Drop CSV or Excel file here to import locations', 'minimal-map')}
 				/>
 				{controller.isLoading ? (
 					<div className="minimal-map-admin__locations-state minimal-map-admin__locations-state--loading">

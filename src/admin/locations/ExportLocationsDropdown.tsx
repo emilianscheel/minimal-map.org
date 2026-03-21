@@ -4,10 +4,17 @@ import { ChevronDown, Download, FileSpreadsheet } from 'lucide-react';
 
 interface ExportLocationsDropdownProps {
 	onExport: () => void;
+	onExportExcel: () => void;
 	onExportExample: () => void;
+	onExportExampleExcel: () => void;
 }
 
-export function ExportLocationsDropdown({ onExport, onExportExample }: ExportLocationsDropdownProps) {
+export function ExportLocationsDropdown({
+	onExport,
+	onExportExcel,
+	onExportExample,
+	onExportExampleExcel,
+}: ExportLocationsDropdownProps) {
 	return (
 		<Dropdown
 			popoverProps={{ placement: 'bottom-end' }}
@@ -36,12 +43,30 @@ export function ExportLocationsDropdown({ onExport, onExportExample }: ExportLoc
 					</MenuItem>
 					<MenuItem
 						onClick={() => {
+							onExportExcel();
+							onClose();
+						}}
+						icon={<FileSpreadsheet size={16} />}
+					>
+						{__('Download as Excel', 'minimal-map')}
+					</MenuItem>
+					<MenuItem
+						onClick={() => {
 							onExportExample();
 							onClose();
 						}}
 						icon={<FileSpreadsheet size={16} />}
 					>
-						{__('Download example CSV', 'minimal-map')}
+						{__('Download Example CSV', 'minimal-map')}
+					</MenuItem>
+					<MenuItem
+						onClick={() => {
+							onExportExampleExcel();
+							onClose();
+						}}
+						icon={<FileSpreadsheet size={16} />}
+					>
+						{__('Download Example Excel', 'minimal-map')}
 					</MenuItem>
 				</MenuGroup>
 			)}

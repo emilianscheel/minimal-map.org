@@ -52,10 +52,12 @@ import {
 	getValidCsvOpeningHoursColumnIndexes,
 	isCommonCsvFormat,
 	parseCsvFile,
+	prepareExportData,
 	runCommonCsvImport,
 	runMappedCsvImport,
 	type CsvOpeningHoursImportMapping,
 } from '../../lib/locations/importLocations';
+import { exportToExcel, parseExcelFile } from '../../lib/locations/excel';
 import { geocodeAddress } from '../../lib/locations/geocodeAddress';
 import { hasFieldErrors } from '../../lib/locations/hasFieldErrors';
 import { hasLocationAddressChanged } from '../../lib/locations/hasLocationAddressChanged';
@@ -1832,13 +1834,14 @@ export function useLocationsController(
 		setActionNotice(null);
 
 		try {
-			const parsedCsv = await parseCsvFile(file);
+			const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
+			const parsedData = isExcel ? await parseExcelFile(file) : await parseCsvFile(file);
 
-			if (isCommonCsvFormat(parsedCsv)) {
+			if (isCommonCsvFormat(parsedData)) {
 				setIsImporting(true);
 
 				try {
-					const result = await runCommonCsvImport(parsedCsv, config, collectionsConfig, {
+					const result = await runCommonCsvImport(parsedData, config, collectionsConfig, {
 						logos,
 						markers,
 						tags,
@@ -1865,7 +1868,7 @@ export function useLocationsController(
 			}
 
 			resetCustomCsvImportState();
-			setPendingCsvImport(parsedCsv);
+			setPendingCsvImport(parsedData);
 			setCustomCsvImportStep('mapping');
 			setCustomCsvImportModalOpen(true);
 		} catch (error) {
@@ -1983,6 +1986,13 @@ export function useLocationsController(
 		document.body.removeChild(link);
 	}, [locations]);
 
+	const onExportExcel = useCallback(() => {
+		if (locations.length === 0) return;
+
+		const { headers, rows } = prepareExportData(locations, logos, markers, tags);
+		exportToExcel(headers, rows, 'minimal-map-locations.xlsx');
+	}, [locations, logos, markers, tags]);
+
 	const onExportExample = useCallback(() => {
 		const headers = [...COMMON_CSV_HEADERS];
 		// Headers are:
@@ -2029,6 +2039,35 @@ export function useLocationsController(
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);
+	}, []);
+
+	const onExportExampleExcel = useCallback(() => {
+		const headers = [...COMMON_CSV_HEADERS];
+		const exampleRows = [
+			// Brandenburg Gate
+			[
+				'Brandenburg Gate', 'Pariser Platz', '', '10117', 'Berlin', 'Berlin', 'Germany', '', '', '',
+				'', '', '', '', '', '',
+				'52.5162', '13.3777',
+				'false',
+				'', '', 'Seasonal opening: March-October 9am-6pm',
+				'09:00-18:00', '12:00-13:00', '09:00-18:00', '12:00-13:00', '09:00-18:00', '12:00-13:00',
+				'09:00-18:00', '12:00-13:00', '09:00-18:00', '12:00-13:00', '10:00-16:00', '', '', '',
+				'', '', 'landmark|historical'
+			],
+			// Eiffel Tower
+			[
+				'Eiffel Tower', 'Champ de Mars', '5 Avenue Anatole France', '75007', 'Paris', '', 'France', '', '', '',
+				'https://www.instagram.com/toureiffelofficielle/', 'https://x.com/toureiffel', '', '', '', '',
+				'48.8584', '2.2945',
+				'true',
+				'', '', '',
+				'09:00-00:45', '', '09:00-00:45', '', '09:00-00:45', '',
+				'09:00-00:45', '', '09:00-00:45', '', '09:00-00:45', '', '09:00-00:45', '',
+				'', '', 'popular'
+			]
+		];
+		exportToExcel(headers, exampleRows, 'minimal-map-example.xlsx');
 	}, []);
 
 	return {
@@ -2082,7 +2121,12 @@ export function useLocationsController(
 							__next40pxDefaultSize
 						/>
 					<ImportLocationsButton onImport={onImportLocations} isImporting={isImporting} />
-					<ExportLocationsDropdown onExport={onExportLocations} onExportExample={onExportExample} />
+					<ExportLocationsDropdown
+						onExport={onExportLocations}
+						onExportExcel={onExportExcel}
+						onExportExample={onExportExample}
+						onExportExampleExcel={onExportExampleExcel}
+					/>
 				</div>
 				<Button
 					variant="primary"
@@ -2184,7 +2228,9 @@ export function useLocationsController(
 		onImportLocations,
 		onStartCustomCsvImport,
 		onExportLocations,
+		onExportExcel,
 		onExportExample,
+		onExportExampleExcel,
 		onSetLocationVisibility,
 		onMapLocationSelect,
 		onClearLogosFromLocations,

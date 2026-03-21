@@ -69,12 +69,17 @@ export const COMMON_CSV_HEADERS = [
 	'tags',
 ] as const;
 
-export function exportLocations(
+export interface LocationExportData {
+	headers: string[];
+	rows: (string | number)[][];
+}
+
+export function prepareExportData(
 	locations: any[],
 	logos: any[],
 	markers: any[],
 	tags: any[]
-): string {
+): LocationExportData {
 	const activeDays = new Set<string>();
 	const activeLunchBreaks = new Set<string>();
 	const activeSocialPlatforms = new Set<string>();
@@ -151,14 +156,12 @@ export function exportLocations(
 
 	headers.push('logo', 'marker', 'tags');
 
-	const csvRows = [headers.join(',')];
-
 	const logosById = new Map(logos.map((l) => [l.id, l.title]));
 	const markersById = new Map(markers.map((m) => [m.id, m.title]));
 	const tagsById = new Map(tags.map((t) => [t.id, t.name]));
 
-	for (const loc of locations) {
-		const values = headers.map((header) => {
+	const dataRows = locations.map((loc) => {
+		return headers.map((header) => {
 			let val = '';
 
 			if (header === 'additional information opening hours') {
@@ -193,9 +196,25 @@ export function exportLocations(
 				val = loc[header] || '';
 			}
 
-			return `"${val.toString().replace(/"/g, '""')}"`;
+			return val;
 		});
-		csvRows.push(values.join(','));
+	});
+
+	return { headers, rows: dataRows };
+}
+
+export function exportLocations(
+	locations: any[],
+	logos: any[],
+	markers: any[],
+	tags: any[]
+): string {
+	const { headers, rows } = prepareExportData(locations, logos, markers, tags);
+	const csvRows = [headers.join(',')];
+
+	for (const row of rows) {
+		const formattedRow = row.map((val) => `"${val.toString().replace(/"/g, '""')}"`);
+		csvRows.push(formattedRow.join(','));
 	}
 
 	return csvRows.join('\n');
