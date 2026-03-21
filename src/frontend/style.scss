@@ -401,18 +401,26 @@
   transition:
     background-color 0.15s ease,
     color 0.15s ease,
+    filter 0.15s ease,
     opacity 0.15s ease;
+}
+
+.minimal-map-search.is-focused
+  .minimal-map-search__quick-filter-pill:not(.is-selected):not(:hover):not(:focus) {
+  filter: brightness(0.94);
 }
 
 .minimal-map-search__quick-filter-pill:hover,
 .minimal-map-search__quick-filter-pill:focus {
   background: var(--minimal-map-search-background-hover);
   color: var(--minimal-map-search-foreground-primary);
+  filter: none;
 }
 
 .minimal-map-search__quick-filter-pill.is-selected {
   background: var(--minimal-map-search-background-secondary);
   color: var(--minimal-map-search-foreground-secondary);
+  filter: none;
 }
 
 .minimal-map-search__quick-filter-pill.is-selected:hover,
