@@ -180,6 +180,16 @@
   stroke-linejoin: round;
 }
 
+.minimal-map-controls__button--live-location .minimal-map-controls__icon {
+  width: 18px;
+  height: 18px;
+}
+
+.minimal-map-controls__button--live-location .minimal-map-controls__icon svg {
+  transform: scale(0.94);
+  transform-origin: center;
+}
+
 .minimal-map-fallback {
   margin: 0;
   position: absolute;
