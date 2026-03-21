@@ -14,6 +14,7 @@ export function useAnalyticsController(
 	config: AnalyticsAdminConfig
 ): AnalyticsController {
 	const [enabled, setEnabled] = useState(config.enabled);
+	const [complianzEnabled, setComplianzEnabled] = useState(config.complianzEnabled);
 	const [isConfirmEnableModalOpen, setConfirmEnableModalOpen] = useState(false);
 	const [isLoading, setLoading] = useState(true);
 	const [isSavingSettings, setSavingSettings] = useState(false);
@@ -83,13 +84,18 @@ export function useAnalyticsController(
 		}));
 	}, []);
 
-	const persistEnabledState = useCallback(async (nextEnabled: boolean) => {
+	const persistSettings = useCallback(async (nextSettings: Partial<AnalyticsSettings>) => {
 		setSavingSettings(true);
 		setNotice(null);
 
 		try {
-			const response = await updateAnalyticsSettings(config, nextEnabled);
-			setEnabled(response.enabled);
+			const response = await updateAnalyticsSettings(config, nextSettings);
+			if (response.enabled !== undefined) {
+				setEnabled(response.enabled);
+			}
+			if (response.complianzEnabled !== undefined) {
+				setComplianzEnabled(response.complianzEnabled);
+			}
 			setConfirmEnableModalOpen(false);
 		} catch (error) {
 			setNotice({
@@ -105,28 +111,44 @@ export function useAnalyticsController(
 	}, [config]);
 
 	const headerAction = useMemo(() => (
-		<label className="minimal-map-admin__analytics-toggle" htmlFor="minimal-map-analytics-toggle">
-			<span className="minimal-map-admin__analytics-toggle-label">
-				{__('Analytics tracking', 'minimal-map')}
-			</span>
-			<FormToggle
-				id="minimal-map-analytics-toggle"
-				checked={enabled}
-				disabled={isSavingSettings}
-				onChange={() => {
-					if (enabled) {
-						void persistEnabledState(false);
-						return;
-					}
+		<div className="minimal-map-admin__analytics-header-actions">
+			<label className="minimal-map-admin__analytics-toggle" htmlFor="minimal-map-analytics-complianz-toggle">
+				<span className="minimal-map-admin__analytics-toggle-label">
+					{__('Only track if Complianz confirmed', 'minimal-map')}
+				</span>
+				<FormToggle
+					id="minimal-map-analytics-complianz-toggle"
+					checked={complianzEnabled}
+					disabled={isSavingSettings}
+					onChange={() => {
+						void persistSettings({ complianzEnabled: !complianzEnabled });
+					}}
+				/>
+			</label>
+			<label className="minimal-map-admin__analytics-toggle" htmlFor="minimal-map-analytics-toggle">
+				<span className="minimal-map-admin__analytics-toggle-label">
+					{__('Analytics tracking', 'minimal-map')}
+				</span>
+				<FormToggle
+					id="minimal-map-analytics-toggle"
+					checked={enabled}
+					disabled={isSavingSettings}
+					onChange={() => {
+						if (enabled) {
+							void persistSettings({ enabled: false });
+							return;
+						}
 
-					setConfirmEnableModalOpen(true);
-				}}
-			/>
-		</label>
-	), [enabled, isSavingSettings, persistEnabledState]);
+						setConfirmEnableModalOpen(true);
+					}}
+				/>
+			</label>
+		</div>
+	), [complianzEnabled, enabled, isSavingSettings, persistSettings]);
 
 	return {
 		enabled,
+		complianzEnabled,
 		headerAction,
 		isConfirmEnableModalOpen,
 		isLoading,
@@ -142,15 +164,18 @@ export function useAnalyticsController(
 		onChangeView,
 		onCloseConfirmEnableModal: () => setConfirmEnableModalOpen(false),
 		onConfirmEnableAnalytics: async () => {
-			await persistEnabledState(true);
+			await persistSettings({ enabled: true });
 		},
 		onToggleAnalytics: () => {
 			if (enabled) {
-				void persistEnabledState(false);
+				void persistSettings({ enabled: false });
 				return;
 			}
 
 			setConfirmEnableModalOpen(true);
+		},
+		onToggleComplianz: () => {
+			void persistSettings({ complianzEnabled: !complianzEnabled });
 		},
 	};
 }

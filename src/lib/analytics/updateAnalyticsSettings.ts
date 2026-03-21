@@ -3,13 +3,11 @@ import type { AnalyticsAdminConfig, AnalyticsSettings } from '../../types';
 
 export async function updateAnalyticsSettings(
 	config: AnalyticsAdminConfig,
-	enabled: boolean
+	settings: Partial<AnalyticsSettings>
 ): Promise<AnalyticsSettings> {
 	return apiFetch({
 		method: 'POST',
 		path: config.settingsPath,
-		data: {
-			enabled,
-		},
+		data: settings,
 	});
 }

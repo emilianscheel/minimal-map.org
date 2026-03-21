@@ -983,7 +983,10 @@ export function createMinimalMap(
 					},
 					runtimeConfig.analyticsEnabled && runtimeConfig.analyticsTrackPath
 						? (payload) => {
-							void trackMapSearchQuery(runtimeConfig.analyticsTrackPath as string, payload);
+							const isComplianzAccepted = !runtimeConfig.analyticsComplianzEnabled || (window as any).MinimalMapComplianzConsent === true;
+							if (isComplianzAccepted) {
+								void trackMapSearchQuery(runtimeConfig.analyticsTrackPath as string, payload);
+							}
 						}
 						: undefined
 				);

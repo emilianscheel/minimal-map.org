@@ -579,6 +579,12 @@ svg.lucide {
   color: #1e1e1e;
 }
 
+.minimal-map-admin__analytics-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
 .minimal-map-admin__analytics-toggle {
   display: inline-flex;
   align-items: center;

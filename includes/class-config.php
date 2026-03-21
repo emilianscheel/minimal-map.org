@@ -315,6 +315,7 @@ class Config {
 			'embedBaseUrl' => $this->get_embed_base_url(),
 			'previewImageUrl' => plugins_url( 'assets/preview.png', MINIMAL_MAP_FILE ),
 			'analyticsEnabled' => $analytics->is_enabled(),
+			'analyticsComplianzEnabled' => $analytics->is_complianz_enabled(),
 			'analyticsTrackPath' => Analytics_Track_Route::get_rest_path(),
 		);
 
@@ -751,11 +752,12 @@ class Config {
 				'restPath' => Styles_Route::get_rest_path(),
 			),
 			'analyticsConfig' => array(
-				'nonce'       => wp_create_nonce( 'wp_rest' ),
-				'enabled'     => $analytics->is_enabled(),
-				'settingsPath' => Analytics_Settings_Route::get_rest_path(),
-				'summaryPath'  => Analytics_Summary_Route::get_rest_path(),
-				'queriesPath'  => Analytics_Queries_Route::get_rest_path(),
+				'nonce'            => wp_create_nonce( 'wp_rest' ),
+				'enabled'          => $analytics->is_enabled(),
+				'complianzEnabled' => $analytics->is_complianz_enabled(),
+				'settingsPath'     => Analytics_Settings_Route::get_rest_path(),
+				'summaryPath'      => Analytics_Summary_Route::get_rest_path(),
+				'queriesPath'      => Analytics_Queries_Route::get_rest_path(),
 			),
 		);
 	}

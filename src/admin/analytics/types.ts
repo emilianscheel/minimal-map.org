@@ -9,7 +9,8 @@ export interface AnalyticsNotice {
 
 export interface AnalyticsController {
 	enabled: boolean;
-	headerAction: ReactNode;
+	complianzEnabled: boolean;
+	headerAction: JSX.Element;
 	isConfirmEnableModalOpen: boolean;
 	isLoading: boolean;
 	isSavingSettings: boolean;
@@ -21,8 +22,9 @@ export interface AnalyticsController {
 	totalPages: number;
 	view: ViewTable;
 	dismissNotice: () => void;
-	onChangeView: (nextView: ViewTable) => void;
+	onChangeView: (view: ViewTable) => void;
 	onCloseConfirmEnableModal: () => void;
 	onConfirmEnableAnalytics: () => Promise<void>;
 	onToggleAnalytics: () => void;
+	onToggleComplianz: () => void;
 }

@@ -22,6 +22,11 @@ class Analytics {
 	const OPTION_ENABLED = 'minimal_map_analytics_enabled';
 
 	/**
+	 * Complianz enabled option name.
+	 */
+	const OPTION_COMPLIANZ_ENABLED = 'minimal_map_analytics_complianz_enabled';
+
+	/**
 	 * Schema version option name.
 	 */
 	const OPTION_SCHEMA_VERSION = 'minimal_map_analytics_schema_version';
@@ -139,6 +144,27 @@ class Analytics {
 		update_option( self::OPTION_ENABLED, $enabled ? '1' : '0', false );
 
 		return $this->is_enabled();
+	}
+
+	/**
+	 * Whether Complianz script blocking is enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_complianz_enabled() {
+		return (bool) get_option( self::OPTION_COMPLIANZ_ENABLED, false );
+	}
+
+	/**
+	 * Persist the Complianz enabled flag.
+	 *
+	 * @param bool $enabled Desired enabled state.
+	 * @return bool
+	 */
+	public function update_complianz_enabled( $enabled ) {
+		update_option( self::OPTION_COMPLIANZ_ENABLED, $enabled ? '1' : '0', false );
+
+		return $this->is_complianz_enabled();
 	}
 
 	/**

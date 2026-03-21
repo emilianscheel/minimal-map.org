@@ -40,6 +40,23 @@ class Assets {
 		$this->register_style( 'minimal-map-editor-style', 'index.css', array( 'wp-edit-blocks', 'wp-components' ) );
 		$this->register_style( 'minimal-map-style', 'style-frontend.css', array( 'wp-components' ) );
 		$this->register_style( 'minimal-map-admin-style', 'style-admin.css', array( 'wp-components', 'minimal-map-style' ) );
+
+		add_filter( 'wp_get_inline_script_tag', array( $this, 'maybe_block_complianz_inline_script' ), 10, 2 );
+	}
+
+	/**
+	 * Maybe block the Complianz inline script.
+	 *
+	 * @param string               $tag        The <script> tag.
+	 * @param array<string, mixed> $attributes Script attributes.
+	 * @return string
+	 */
+	public function maybe_block_complianz_inline_script( $tag, $attributes ) {
+		if ( strpos( $tag, 'MinimalMapComplianzConsent' ) !== false ) {
+			$tag = str_replace( '<script ', '<script type="text/plain" data-category="statistics" ', $tag );
+		}
+
+		return $tag;
 	}
 
 	/**
@@ -170,6 +187,15 @@ class Assets {
 				'window.MinimalMapFrontConfig = ' . wp_json_encode( $this->config->get_client_config( false ) ) . ';',
 				'before'
 			);
+
+			$config = $this->config->get_client_config( false );
+			if ( ! empty( $config['analyticsEnabled'] ) && ! empty( $config['analyticsComplianzEnabled'] ) ) {
+				wp_add_inline_script(
+					'minimal-map-frontend',
+					'window.MinimalMapComplianzConsent = true;',
+					'after'
+				);
+			}
 		}
 
 		if ( wp_script_is( 'minimal-map-admin', 'registered' ) ) {

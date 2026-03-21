@@ -160,6 +160,7 @@ export interface MapRuntimeConfig {
 	locationsPath?: string;
 	locationsUrl?: string;
 	analyticsEnabled?: boolean;
+	analyticsComplianzEnabled?: boolean;
 	analyticsTrackPath?: string;
 	messages?: MapMessages;
 	embedBaseUrl?: string;
@@ -351,6 +352,7 @@ export interface StylesAdminConfig {
 export interface AnalyticsAdminConfig {
 	nonce: string;
 	enabled: boolean;
+	complianzEnabled: boolean;
 	settingsPath: string;
 	summaryPath: string;
 	queriesPath: string;
@@ -677,6 +679,7 @@ export interface AnalyticsSummary {
 
 export interface AnalyticsSettings {
 	enabled: boolean;
+	complianzEnabled: boolean;
 }
 
 export interface AnalyticsQueryRecord {

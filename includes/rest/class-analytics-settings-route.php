@@ -73,7 +73,8 @@ class Analytics_Settings_Route {
 	public function get_settings() {
 		return rest_ensure_response(
 			array(
-				'enabled' => $this->analytics->is_enabled(),
+				'enabled'           => $this->analytics->is_enabled(),
+				'complianzEnabled'  => $this->analytics->is_complianz_enabled(),
 			)
 		);
 	}
@@ -89,13 +90,22 @@ class Analytics_Settings_Route {
 		if ( ! is_array( $params ) ) {
 			$params = $request->get_params();
 		}
-		$enabled = isset( $params['enabled'] ) ? rest_sanitize_boolean( $params['enabled'] ) : false;
 
-		return rest_ensure_response(
-			array(
-				'enabled' => $this->analytics->update_enabled( $enabled ),
-			)
-		);
+		$response = array();
+
+		if ( isset( $params['enabled'] ) ) {
+			$response['enabled'] = $this->analytics->update_enabled(
+				rest_sanitize_boolean( $params['enabled'] )
+			);
+		}
+
+		if ( isset( $params['complianzEnabled'] ) ) {
+			$response['complianzEnabled'] = $this->analytics->update_complianz_enabled(
+				rest_sanitize_boolean( $params['complianzEnabled'] )
+			);
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -115,7 +125,11 @@ class Analytics_Settings_Route {
 	private function get_route_args() {
 		return array(
 			'enabled' => array(
-				'required' => true,
+				'required' => false,
+				'type'     => 'boolean',
+			),
+			'complianzEnabled' => array(
+				'required' => false,
 				'type'     => 'boolean',
 			),
 		);
